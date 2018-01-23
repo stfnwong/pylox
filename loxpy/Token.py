@@ -47,14 +47,14 @@ SUPER,
 THIS,
 TRUE,
 VAR,
-WHILE.
+WHILE,
 # EFO
 LOX_EOF
 ) = (x for x in range(37))
 
 
 class Token(object):
-    def __init__(token_type, lexeme, literal, line):
+    def __init__(self, token_type, lexeme, literal, line):
         if type(lexeme) is not str:
             raise ValueError("Lexeme must be a string")
         if type(line) is not int:
@@ -67,5 +67,9 @@ class Token(object):
 
     def __str__(self):
         s = []
-        s.append('%s %s %s\n' % (s
+        s.append('%s %s %s\n' % (self.token_type, self.literal, self.line))
 
+        return ''.join(s)
+
+    def __repr__(self):
+        return self.__str__()
