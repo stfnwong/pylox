@@ -43,9 +43,9 @@ class TestScanner(unittest.TestCase):
         exp_tokens.append(Token.Token(Token.VAR       , '' , None, 1))
         exp_tokens.append(Token.Token(Token.IDENTIFIER, '' , None, 1))
         exp_tokens.append(Token.Token(Token.EQUAL,      '' , None, 1))
-        exp_tokens.append(Token.Token(Token.NUMBER,     '2', 2.0, 1))
+        exp_tokens.append(Token.Token(Token.NUMBER,     '2', 2.0,  1))
         exp_tokens.append(Token.Token(Token.PLUS,       '' , None, 1))
-        exp_tokens.append(Token.Token(Token.NUMBER,     '2', 2.0, 1))
+        exp_tokens.append(Token.Token(Token.NUMBER,     '2', 2.0,  1))
         exp_tokens.append(Token.Token(Token.SEMICOLON,  '' , None, 1))
         exp_tokens.append(Token.Token(Token.LOX_EOF,    '' , None, 2))
 
