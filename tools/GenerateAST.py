@@ -122,3 +122,8 @@ class GenerateAST(object):
     def main(self):
         self._define_ast(self.output_dir, "Expression", self.ast_types.keys())
 
+if __name__ == '__main__':
+    # Generate Expressions for use in the project
+    output_dir = 'loxpy'
+    gen = GenerateAST(output_dir, verbose=True)
+    gen.main()
