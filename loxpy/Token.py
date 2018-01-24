@@ -37,13 +37,14 @@ TOKEN_MAP = {
     STAR          : "STAR",
     # 1-2 character tokens
     BANG          : "BANG",
+    EQUAL_EQUAL   : "EQUAL_EQUAL",
     BANG_EQUAL    : "BANG_EQUAL",
     EQUAL         : "EQUAL",
     GREATER_EQUAL : "GREATER_EQUAL",
     LESS          : "LESS",
     LESS_EQUAL    : "LESS_EQUAL",
     # literals
-    IDENTIFIER    : "IDENDTIFIER",
+    IDENTIFIER    : "IDENTIFIER",
     STRING        : "STRING",
     NUMBER        : "NUMBER",
     # Keywords
@@ -64,6 +65,47 @@ TOKEN_MAP = {
     VAR           : "VAR",
     WHILE         : "WHILE",
     LOX_EOF       : "EOF"
+}
+
+TOKEN_SYMBOL = {
+    LEFT_PAREN    : "(",
+    RIGHT_PAREN   : ")",
+    LEFT_BRACE    : "{",
+    RIGHT_BRACE   : "}",
+    COMMA         : ",",
+    DOT           : ".",
+    MINUS         : "-",
+    PLUS          : "+",
+    SEMICOLON     : ";",
+    SLASH         : "/",
+    STAR          : "*",
+    # 1-2 character tokens
+    BANG          : "!",
+    BANG_EQUAL    : "!=",
+    EQUAL_EQUAL   : "==",
+    EQUAL         : "=",
+    GREATER_EQUAL : ">=",
+    LESS          : "<",
+    LESS_EQUAL    : "<=",
+    # Keywords
+    AND           : "and",
+    CLASS         : "class",
+    ELSE          : "else",
+    FALSE         : "false",
+    FUN           : "fun",
+    FOR           : "for",
+    IF            : "if",
+    NIL           : "nil",
+    OR            : "or",
+    PRINT         : "print",
+    RETURN        : "return",
+    SUPER         : "super",
+    THIS          :" this",
+    TRUE          : "true",
+    VAR           : "var",
+    WHILE         : "while",
+    LOX_EOF       : "EOF"
+
 }
 
 class Token(object):
