@@ -7,6 +7,9 @@ Stefan Wong 2018
 
 from loxpy import Token
 
+# Debug
+#from pudb import set_trace; set_trace()
+
 class Scanner(object):
     def __init__(self, source):
         if type(source) is not str:     # TODO : actually, this should be a list of strings
@@ -18,6 +21,40 @@ class Scanner(object):
         self.src_start = 0
         self.src_current = 0
         self.src_line = 1
+        # reserved words
+        self.reserved_words = {
+            "and"    : Token.AND,
+            "class"  : Token.CLASS,
+            "else"   : Token.ELSE,
+            "false"  : Token.FALSE,
+            "for"    : Token.FOR,
+            "fun"    : Token.FUN,
+            "if"     : Token.IF,
+            "nil"    : Token.NIL,
+            "or"     : Token.OR,
+            "print"  : Token.PRINT,
+            "return" : Token.RETURN,
+            "super"  : Token.SUPER,
+            "this"   : Token.THIS,
+            "true"   : Token.TRUE,
+            "var"    : Token.VAR,
+            "while"  : Token.WHILE
+        }
+
+    def __str__(self):
+        s = []
+        s.append('Lox Scanner\n')
+        s.append('source length : %d\n' % len(self.source))
+
+        return ''.join(s)
+
+    def __repr__(self):
+        s = []
+        s.append('Scanner:\n')
+        s.append('start : %d\t current: %d\t line: %d\n' % (self.src_start, self.src_current, self.src_line))
+
+        return ''.join(s)
+
 
     def _src_end(self):
         return self.src_current >= len(self.source)
@@ -26,11 +63,27 @@ class Scanner(object):
         self.src_current += 1
         return self.source[self.src_current-1]
 
+    def _identifier(self):
+        while self._isalphanumeric(self._peek()):
+            self._advance()
+
+        self._add_token(Token.IDENTIFIER)
+
+    def _isalpha(self, c):
+        if ord(c) in range(65,91) or ord(c) in range(97, 123):
+            return True
+        return False
+
+    def _isalphanumeric(self, c):
+        if self._isalpha(c) or self._isdigit(c):
+            return True
+        return False
+
     def _isdigit(self, c):
         # While we could use str.isdigit() here, this function allows us
         # to write self._isdigit(self._peek()) and consume the output
         # of self._peek() in a loop
-        if c >= '0' and c <= '9':
+        if ord(c) in range(48, 58):
             return True
 
         return False
@@ -48,7 +101,7 @@ class Scanner(object):
         return True
 
     def _number(self):
-        while self._isdigit(self._peek) is True:
+        while self._isdigit(self._peek()) is True:
             self._advance()
 
         # Check for fractional part
@@ -158,12 +211,15 @@ class Scanner(object):
             self._parse_string()
         # Consume whitespace
         elif c == ' ' or c == '\r' or c == '\t':
-            break
+            pass
         elif c == '\n':
             self.src_line += 1
         else:
-            if c.isdigit():
+            #if c.isdigit():
+            if self._isdigit(c):
                 self._number()
+            elif self._isalpha(c):
+                self._identifier()
             else:
                 print("line %d: unexpected character %s" % (self.src_line, c))
 
@@ -178,3 +234,5 @@ class Scanner(object):
 
         token = Token.Token(Token.LOX_EOF, "", None, self.src_line)
         self.token_list.append(token)
+
+        return self.token_list

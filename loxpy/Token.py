@@ -9,49 +9,62 @@ Stefan Wong 2018
 
 # single character tokens
 (
-LEFT_PAREN    ,
-RIGHT_PAREN   ,
-LEFT_BRACE    ,
-RIGHT_BRACE   ,
-COMMA         ,
-DOT           ,
-MINUS         ,
-PLUS          ,
-SEMICOLON     ,
-SLASH         ,
-STAR          ,
+LEFT_PAREN, RIGHT_PAREN, LEFT_BRACE, RIGHT_BRACE, COMMA, DOT,
+MINUS, PLUS, SEMICOLON, SLASH, STAR,
 # 1-2 character tokens
-BANG          ,
-BANG_EQUAL    ,
-EQUAL         ,
-GREATER_EQUAL ,
-LESS          ,
-LESS_EQUAL    ,
+BANG, BANG_EQUAL, EQUAL, GREATER_EQUAL, LESS, LESS_EQUAL,
 # literals
-IDENTIFIER    ,
-STRING        ,
-NUMBER        ,
+IDENTIFIER, STRING, NUMBER,
 # Keywords
-AND           ,
-CLASS,
-ELSE,
-FALSE,
-FUN,
-FOR,
-IF,
-NIL,
-OR,
-PRINT,
-RETURN,
-SUPER,
-THIS,
-TRUE,
-VAR,
-WHILE,
+AND, CLASS, ELSE, FALSE, FUN, FOR, IF, NIL, OR,
+PRINT, RETURN, SUPER, THIS, TRUE, VAR, WHILE,
 # EFO
 LOX_EOF
 ) = (x for x in range(37))
 
+TOKEN_MAP = {
+    # Single character tokens
+    LEFT_PAREN    : "LEFT_PAREN",
+    RIGHT_PAREN   : "RIGHT_PAREN",
+    LEFT_BRACE    : "LEFT_BRACE",
+    RIGHT_BRACE   : "RIGHT_BRACE",
+    COMMA         : "COMMA",
+    DOT           : "DOT",
+    MINUS         : "MINUS",
+    PLUS          : "PLUS",
+    SEMICOLON     : "SEMICOLON",
+    SLASH         : "SLASH",
+    STAR          : "STAR",
+    # 1-2 character tokens
+    BANG          : "BANG",
+    BANG_EQUAL    : "BANG_EQUAL",
+    EQUAL         : "EQUAL",
+    GREATER_EQUAL : "GREATER_EQUAL",
+    LESS          : "LESS",
+    LESS_EQUAL    : "LESS_EQUAL",
+    # literals
+    IDENTIFIER    : "IDENDTIFIER",
+    STRING        : "STRING",
+    NUMBER        : "NUMBER",
+    # Keywords
+    AND           : "AND",
+    CLASS         : "CLASS",
+    ELSE          : "ELSE",
+    FALSE         : "FALSE",
+    FUN           : "FUN",
+    FOR           : "FOR",
+    IF            : "IF",
+    NIL           : "NIL",
+    OR            : "OR",
+    PRINT         : "PRINT",
+    RETURN        : "RETURN",
+    SUPER         : "SUPER",
+    THIS          :" THIS",
+    TRUE          : "TRUE",
+    VAR           : "VAR",
+    WHILE         : "WHILE",
+    LOX_EOF       : "EOF"
+}
 
 class Token(object):
     def __init__(self, token_type, lexeme, literal, line):
@@ -67,7 +80,10 @@ class Token(object):
 
     def __str__(self):
         s = []
-        s.append('%s %s %s\n' % (self.token_type, self.literal, self.line))
+        if self.literal is None:
+            s.append('%s line: %s\n' % (TOKEN_MAP[self.token_type], self.line))
+        else:
+            s.append('%s %s line: %s\n' % (TOKEN_MAP[self.token_type], self.literal, self.line))
 
         return ''.join(s)
 
