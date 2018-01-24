@@ -13,7 +13,6 @@ import time
 
 # Format here is 'type' : [args]
 
-
 class GenerateAST(object):
     """
     Class to generate source files for AST objects
@@ -26,8 +25,6 @@ class GenerateAST(object):
             'Literal'  : ['value'],
             'Unary'    : ['op', 'right']
         }
-
-        #self._define_ast(self.output_dir, "Expr", self.ast_types.keys())
         # Debug
         self.verbose = verbose
 
@@ -80,14 +77,17 @@ class GenerateAST(object):
         s.append('\tdef __eq__(self, other):\n')
         s.append('\t\treturn self.__dict__ == other.__dict__\n')
         s.append('\n')
+        # Add accept method
+        s.append('\tdef accept(self, visitor):\n')
+        s.append('\t\tvisitor.visit(self)\n')
+        s.append('\n')
 
         return ''.join(s)
 
-    def _define_ast(self, output_dir, basename, types_list):
+    def _define_ast(self, output_dir, basename, types_list):    # TODO : rename?
         time.ctime()
         cur_time = time.strftime('%l:%M%p %Z on %b %d %Y')
         path = '%s/%s.py' % (output_dir, basename)
-
         # Print the content of the python file
         s = []
         s.append('"""\n')
@@ -102,22 +102,32 @@ class GenerateAST(object):
         s.append('\n')
         s.append('from loxpy import Token\n')
         s.append('\n\n')
-
         # Base class
         s.append('class %s(object):\n' % str(basename))
-        s.append('\tpass\n')
+        s.append('\tdef accept(self, visitor):\n')
+        s.append('\t\traise NotImplementedError("This method should be called on dervied classes")\n')
         s.append('\n\n')
-
         # The AST classes
         for t in types_list:
             classname = t
             s.append(self._define_type(basename, t, self.ast_types[t]))
             s.append('\n')
-
         text = ''.join(s)
         # Write out the string to dist
         with open(path, 'w') as fp:
             fp.write(text)
+
+    def _define_visitor(self, basename, arg_list):
+        s = []
+        s.append('\tdef visit(self,')
+        for n, a in enumerate(arg_list):
+            if n == len(arg_list) - 1:
+                s.append('%s' % str(a))
+            else:
+                s.append('%s,' % str(a))
+        s.append('):\n')
+
+        return ''.join(s)
 
     def main(self):
         self._define_ast(self.output_dir, "Expression", self.ast_types.keys())

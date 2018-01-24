@@ -1,6 +1,6 @@
 """
 Abstract class Expression
-Generated automatically at 11:29PM NZDT on Jan 24 2018
+Generated automatically at 12:10AM NZDT on Jan 25 2018
 """
 
 import os
@@ -11,7 +11,8 @@ from loxpy import Token
 
 
 class Expression(object):
-	pass
+	def accept(self, visitor):
+		raise NotImplementedError("This method should be called on dervied classes")
 
 
 class Binary(Expression):
@@ -34,6 +35,9 @@ class Binary(Expression):
 	def __eq__(self, other):
 		return self.__dict__ == other.__dict__
 
+	def accept(self, visitor):
+		visitor.visit(self)
+
 
 class Grouping(Expression):
 	def ___init__(self, expression):
@@ -51,6 +55,9 @@ class Grouping(Expression):
 	def __eq__(self, other):
 		return self.__dict__ == other.__dict__
 
+	def accept(self, visitor):
+		visitor.visit(self)
+
 
 class Literal(Expression):
 	def ___init__(self, value):
@@ -67,6 +74,9 @@ class Literal(Expression):
 
 	def __eq__(self, other):
 		return self.__dict__ == other.__dict__
+
+	def accept(self, visitor):
+		visitor.visit(self)
 
 
 class Unary(Expression):
@@ -87,5 +97,8 @@ class Unary(Expression):
 
 	def __eq__(self, other):
 		return self.__dict__ == other.__dict__
+
+	def accept(self, visitor):
+		visitor.visit(self)
 
 
