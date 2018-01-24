@@ -10,6 +10,16 @@ from loxpy import Scanner
 # Debug
 #from pudb import set_trace; set_trace()
 
+had_error = False
+# error reporting helper functions
+def report(line, where, message):
+    print('[line %d] Error %s : %s' % (line, str(where), str(message)))
+    had_error = True
+
+def error(line, message):
+    report(line, "", message)
+
+
 class Lox(object):
     """
     Lox interpreter object.
