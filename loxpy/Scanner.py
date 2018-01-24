@@ -12,7 +12,7 @@ from loxpy import Token
 
 class Scanner(object):
     def __init__(self, source, verbose=False):
-        if type(source) is not str:     # TODO : actually, this should be a list of strings
+        if type(source) is not str:
             raise ValueError('source must be a string')
 
         self.source = source
@@ -52,8 +52,7 @@ class Scanner(object):
 
     def __repr__(self):
         s = []
-        s.append('Scanner:\n')
-        s.append('start : %d\t current: %d\t line: %d\n' % (self.src_start, self.src_current, self.src_line))
+        s.append('Scanner [start : %d\t current: %d\t line: %d]' % (self.src_start, self.src_current, self.src_line))
 
         return ''.join(s)
 
@@ -69,7 +68,12 @@ class Scanner(object):
         while self._isalphanumeric(self._peek()):
             self._advance()
 
-        self._add_token(Token.IDENTIFIER)
+        text = self.source[self.src_start:self.src_current]
+        if text in self.reserved_words.keys():
+            token_type = self.reserved_words[text]
+        else:
+            token_type = Token.IDENTIFIER
+        self._add_token(token_type)
 
     def _isalpha(self, c):
         if ord(c) in range(65,91) or ord(c) in range(97, 123):
@@ -114,7 +118,7 @@ class Scanner(object):
 
         # Now add a new number token
         self._add_token(Token.NUMBER,
-                        float(self.source[self.src_start:self.src_current]))
+                float(self.source[self.src_start:self.src_current]))
 
     def _peek(self):
         if self._src_end():

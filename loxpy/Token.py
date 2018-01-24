@@ -81,11 +81,16 @@ class Token(object):
     def __str__(self):
         s = []
         if self.literal is None:
-            s.append('%s line: %s\n' % (TOKEN_MAP[self.token_type], self.line))
+            s.append('%s %s line: %s\n' % (TOKEN_MAP[self.token_type], self.lexeme, self.line))
         else:
-            s.append('%s %s line: %s\n' % (TOKEN_MAP[self.token_type], self.literal, self.line))
+            s.append('%s %s %s line: %s\n' % (TOKEN_MAP[self.token_type], self.lexeme, self.literal, self.line))
 
         return ''.join(s)
 
     def __repr__(self):
         return self.__str__()
+
+    def __eq__(self, other):
+        return self.__dict__  == other.__dict__
+        #if self.token_type != other.token_type:
+        #    return False
