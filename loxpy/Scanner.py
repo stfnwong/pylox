@@ -11,7 +11,7 @@ from loxpy import Token
 #from pudb import set_trace; set_trace()
 
 class Scanner(object):
-    def __init__(self, source):
+    def __init__(self, source, verbose=False):
         if type(source) is not str:     # TODO : actually, this should be a list of strings
             raise ValueError('source must be a string')
 
@@ -40,6 +40,8 @@ class Scanner(object):
             "var"    : Token.VAR,
             "while"  : Token.WHILE
         }
+        # debug mode
+        self.verbose = verbose
 
     def __str__(self):
         s = []
@@ -55,7 +57,7 @@ class Scanner(object):
 
         return ''.join(s)
 
-
+    # Internal lexing functions
     def _src_end(self):
         return self.src_current >= len(self.source)
 
@@ -146,7 +148,7 @@ class Scanner(object):
             text = ''
         else:
             text = self.source[self.src_start : self.src_current]
-        token = Token.Token(token_type, text, literal, self.src_current)
+        token = Token.Token(token_type, text, literal, self.src_line)
         self.token_list.append(token)
 
 
@@ -223,11 +225,16 @@ class Scanner(object):
             else:
                 print("line %d: unexpected character %s" % (self.src_line, c))
 
+        if self.verbose:
+            print('%s' % self.__repr__())
+
 
     def scan(self):
         """
         Scan across the entire source and produce a list of all tokens
         """
+        self.src_current = 0
+        self.src_start = 0
         while(self._src_end() == False):
             self.src_start = self.src_current
             self._scan_token()

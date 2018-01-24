@@ -25,10 +25,11 @@ def load_source(filename):
 class TestScanner(unittest.TestCase):
     def setUp(self):
         self.operator_src = 'lox_src/op.lox'
+        self.verbose = True
 
     def test_operator(self):
         src = load_source(self.operator_src)
-        scanner = Scanner.Scanner(src)
+        scanner = Scanner.Scanner(src, verbose=self.verbose)
         token_list = scanner.scan()
 
         for t in token_list:
