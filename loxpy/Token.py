@@ -12,7 +12,7 @@ Stefan Wong 2018
 LEFT_PAREN, RIGHT_PAREN, LEFT_BRACE, RIGHT_BRACE, COMMA, DOT,
 MINUS, PLUS, SEMICOLON, SLASH, STAR,
 # 1-2 character tokens
-BANG, BANG_EQUAL, EQUAL, GREATER_EQUAL, LESS, LESS_EQUAL,
+BANG, BANG_EQUAL, EQUAL_EQUAL, EQUAL, GREATER, GREATER_EQUAL, LESS, LESS_EQUAL,
 # literals
 IDENTIFIER, STRING, NUMBER,
 # Keywords
@@ -20,7 +20,7 @@ AND, CLASS, ELSE, FALSE, FUN, FOR, IF, NIL, OR,
 PRINT, RETURN, SUPER, THIS, TRUE, VAR, WHILE,
 # EFO
 LOX_EOF
-) = (x for x in range(37))
+) = (x for x in range(39))
 
 TOKEN_MAP = {
     # Single character tokens
@@ -37,9 +37,10 @@ TOKEN_MAP = {
     STAR          : "STAR",
     # 1-2 character tokens
     BANG          : "BANG",
-    EQUAL_EQUAL   : "EQUAL_EQUAL",
     BANG_EQUAL    : "BANG_EQUAL",
+    EQUAL_EQUAL   : "EQUAL_EQUAL",
     EQUAL         : "EQUAL",
+    GREATER       : "GREATER",
     GREATER_EQUAL : "GREATER_EQUAL",
     LESS          : "LESS",
     LESS_EQUAL    : "LESS_EQUAL",
@@ -84,6 +85,7 @@ TOKEN_SYMBOL = {
     BANG_EQUAL    : "!=",
     EQUAL_EQUAL   : "==",
     EQUAL         : "=",
+    GREATER       : ">",
     GREATER_EQUAL : ">=",
     LESS          : "<",
     LESS_EQUAL    : "<=",
