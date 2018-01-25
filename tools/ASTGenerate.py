@@ -40,22 +40,22 @@ class ASTGenerate(object):
 
         s = []
         s.append('class %s(%s):\n' % (classname, basename))
-        s.append('\tdef ___init__(self')
+        s.append('    def __init__(self')
         for f in field_list:
             s.append(', %s' % str(f))
         s.append('):\n')
         # assign args to internal data members
         if 'op' in field_list:
-            s.append('\t\tif type(op) is not Token.Token:\n')
-            s.append('\t\t\traise ValueError("op must be a token")\n')
+            s.append('        if type(op) is not Token.Token:\n')
+            s.append('            raise ValueError("op must be a token")\n')
         for f in field_list:
-            s.append('\t\tself.%s = %s\n' % (str(f), str(f)))
+            s.append('        self.%s = %s\n' % (str(f), str(f)))
         s.append('\n')
 
         # Add __str__
-        s.append('\tdef __str__(self):\n')
-        s.append('\t\ts = []\n')
-        s.append('\t\ts.append("')
+        s.append('    def __str__(self):\n')
+        s.append('        s = []\n')
+        s.append('        s.append("')
         for n in range(len(field_list)):
             if n == len(field_list) - 1:
                 s.append('%s\\n')
@@ -68,18 +68,18 @@ class ASTGenerate(object):
             else:
                 s.append('str(self.%s), ' % str(f))
         s.append('))\n\n')
-        s.append('\t\treturn "".join(s)\n\n')
+        s.append('        return "".join(s)\n\n')
         # Add __repr__
-        s.append('\tdef __repr__(self):\n')
-        s.append('\t\treturn self.__str__()\n')
+        s.append('    def __repr__(self):\n')
+        s.append('        return self.__str__()\n')
         s.append('\n')
         # Add __eq__
-        s.append('\tdef __eq__(self, other):\n')
-        s.append('\t\treturn self.__dict__ == other.__dict__\n')
+        s.append('    def __eq__(self, other):\n')
+        s.append('        return self.__dict__ == other.__dict__\n')
         s.append('\n')
         # Add accept method
-        s.append('\tdef accept(self, visitor):\n')
-        s.append('\t\tvisitor.visit(self)\n')
+        s.append('    def accept(self, visitor):\n')
+        s.append('        visitor.visit(self)\n')
         s.append('\n')
 
         return ''.join(s)
@@ -104,8 +104,8 @@ class ASTGenerate(object):
         s.append('\n\n')
         # Base class
         s.append('class %s(object):\n' % str(basename))
-        s.append('\tdef accept(self, visitor):\n')
-        s.append('\t\traise NotImplementedError("This method should be called on dervied classes")\n')
+        s.append('    def accept(self, visitor):\n')
+        s.append('        raise NotImplementedError("This method should be called on dervied classes")\n')
         s.append('\n\n')
         # The AST classes
         for t in types_list:
@@ -118,7 +118,7 @@ class ASTGenerate(object):
 
     def _define_visitor(self, basename, arg_list):
         s = []
-        s.append('\tdef visit(self,')
+        s.append('    def visit(self,')
         for n, a in enumerate(arg_list):
             if n == len(arg_list) - 1:
                 s.append('%s' % str(a))

@@ -7,6 +7,9 @@ Stefan Wong 2018
 from loxpy import Expression
 from loxpy import Token
 
+# Debug
+#from pudb import set_trace; set_trace()
+
 # ParseError exception
 class ParseError(Exception):
     def __init__(self, expr, msg):

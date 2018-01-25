@@ -20,7 +20,7 @@ from loxpy import Scanner
 class TestParser(unittest.TestCase):
     def setUp(self):
         self.verbose = True
-        self.simple_expr = 'var a = 2 + 2;'
+        self.simple_expr = '2 + 2;'
 
     def test_simple_expr(self):
         scanner = Scanner.Scanner(self.simple_expr)
@@ -30,6 +30,7 @@ class TestParser(unittest.TestCase):
         # TODO : actually exmine the parsed output
         print(parser)
         parsed_output = parser.parse()
+        print(type(parsed_output))
         print(parsed_output)
 
 if __name__ == '__main__':
