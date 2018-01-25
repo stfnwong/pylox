@@ -1,5 +1,5 @@
 """
-GENERATEAST
+ASTGENERATE
 Generate a Lox AST
 
 Stefan Wong 2018
@@ -13,7 +13,7 @@ import time
 
 # Format here is 'type' : [args]
 
-class GenerateAST(object):
+class ASTGenerate(object):
     """
     Class to generate source files for AST objects
     """
@@ -109,7 +109,6 @@ class GenerateAST(object):
         s.append('\n\n')
         # The AST classes
         for t in types_list:
-            classname = t
             s.append(self._define_type(basename, t, self.ast_types[t]))
             s.append('\n')
         text = ''.join(s)
@@ -135,5 +134,5 @@ class GenerateAST(object):
 if __name__ == '__main__':
     # Generate Expressions for use in the project
     output_dir = 'loxpy'
-    gen = GenerateAST(output_dir, verbose=True)
+    gen = ASTGenerate(output_dir, verbose=True)
     gen.main()
