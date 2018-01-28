@@ -25,8 +25,8 @@ def load_source(filename):
 
 class TestScanner(unittest.TestCase):
     def setUp(self):
-        self.operator_src = 'lox_src/op.lox'
-        self.simple_op_src = 'lox_src/op_simple.lox'
+        self.operator_src = 'loxsrc/op.lox'
+        self.simple_op_src = 'loxsrc/op_simple.lox'
         self.verbose = True
 
     def test_operator(self):
@@ -55,6 +55,16 @@ class TestScanner(unittest.TestCase):
                 print("output   : %s " % t)
                 print("expected : %s " % exp_tokens[n])
                 self.assertEqual(t, exp_tokens[n])      # cause test to fail
+
+    def test_bang(self):
+        src = load_source('loxsrc/op_bang.lox')
+        scanner = Scanner.Scanner(src, verbose=self.verbose)
+        token_list = scanner.scan()
+
+        if self.verbose:
+            print("Output token list:")
+            for n, t in enumerate(token_list):
+                print('%d : %s' % (n, str(t)))
 
 
 if __name__ == '__main__':

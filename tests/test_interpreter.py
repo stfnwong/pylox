@@ -1,0 +1,34 @@
+"""
+TEST_INTERPRETER
+
+Stefan Wong 2018
+"""
+
+import os
+import sys
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+import unittest
+# modules under test
+from loxpy import Interpreter
+from loxpy import Expression
+from loxpy import Token
+
+# debug
+from pudb import set_trace; set_trace()
+
+class TestInterpreter(unittest.TestCase):
+    def setUp(self):
+        self.verbose = True
+
+    def test_interpret_unary(self):
+        # Create test expression
+        tok_bang = Token.Token(Token.BANG, "!", None, 1)
+        tok_iden = Token.Token(Token.IDENTIFIER, "a", None, 1)
+        expr = Expression.Unary(tok_bang, tok_iden)
+        # Get an interpreter
+        interp = Interpreter.Interpreter()
+        interp.interpret(expr)
+
+if __name__ == "__main__":
+    unittest.main()

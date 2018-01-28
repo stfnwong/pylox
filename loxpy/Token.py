@@ -135,6 +135,6 @@ class Token(object):
         return self.__str__()
 
     def __eq__(self, other):
+        if self.token_type != other.token_type:
+            return False
         return self.__dict__  == other.__dict__
-        #if self.token_type != other.token_type:
-        #    return False
