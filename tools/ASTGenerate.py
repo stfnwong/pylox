@@ -79,7 +79,7 @@ class ASTGenerate(object):
         s.append('\n')
         # Add accept method
         s.append('    def accept(self, visitor):\n')
-        s.append('        visitor.visit(self)\n')
+        s.append('        visitor.visit_%s_expr(self)\n' % str(classname).lower())
         s.append('\n')
 
         return ''.join(s)
@@ -117,6 +117,10 @@ class ASTGenerate(object):
             fp.write(text)
 
     def _define_visitor(self, basename, arg_list):
+        """
+        DEFINE_VISITOR
+        For each class, define the method in ASTPrint that the class should visit
+        """
         s = []
         s.append('    def visit(self,')
         for n, a in enumerate(arg_list):

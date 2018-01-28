@@ -30,7 +30,8 @@ class TestASTPrint(unittest.TestCase):
         test_expr = Expression.Binary(left, op, right)
         expr_list = [test_expr]
         ast_print = ASTPrint.ASTPrint()
-        ast_string = ast_print._parenthesize('expr', expr_list)
+        ast_string = ast_print.ast_print(test_expr)
+        #ast_string = ast_print._parenthesize('expr', expr_list)
 
         print(ast_string)
 

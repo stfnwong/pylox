@@ -1,6 +1,6 @@
 """
 Abstract class Expression
-Generated automatically at 11:00PM NZDT on Jan 25 2018
+Generated automatically at  2:55PM NZDT on Jan 28 2018
 """
 
 import os
@@ -36,7 +36,7 @@ class Binary(Expression):
         return self.__dict__ == other.__dict__
 
     def accept(self, visitor):
-        visitor.visit(self)
+        visitor.visit_binary_expr(self)
 
 
 class Grouping(Expression):
@@ -56,7 +56,7 @@ class Grouping(Expression):
         return self.__dict__ == other.__dict__
 
     def accept(self, visitor):
-        visitor.visit(self)
+        visitor.visit_grouping_expr(self)
 
 
 class Literal(Expression):
@@ -76,7 +76,7 @@ class Literal(Expression):
         return self.__dict__ == other.__dict__
 
     def accept(self, visitor):
-        visitor.visit(self)
+        visitor.visit_literal_expr(self)
 
 
 class Unary(Expression):
@@ -99,6 +99,6 @@ class Unary(Expression):
         return self.__dict__ == other.__dict__
 
     def accept(self, visitor):
-        visitor.visit(self)
+        visitor.visit_unary_expr(self)
 
 
