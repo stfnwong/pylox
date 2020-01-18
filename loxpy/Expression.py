@@ -11,6 +11,14 @@ from loxpy import Token
 
 
 class Expression:
+    def __init__(self) -> None:
+        # NOTE : I am just doing this to cheat with mypy,
+        # because these members were previously only in the
+        # derived classes
+        self.left  :Any = None
+        self.op    :Any= None
+        self.right :Any = None
+
     # TODO : type hint for function is Callable[[],]
     def accept(self, visitor) -> None:
         raise NotImplementedError("This method should be called on dervied classes")
@@ -20,9 +28,9 @@ class Binary(Expression):
     def __init__(self, left:Type[Expression], op:Token.Token, right:Type[Expression]) -> None:
         if type(op) is not Token.Token:
             raise ValueError("op must be a token")
-        self.left  = left
-        self.op    = op
-        self.right = right
+        self.left  :Type[Expression] = left
+        self.op    :Token.Token      = op
+        self.right :Type[Expression] = right
 
     def __str__(self) -> str:
         s = []

@@ -5,24 +5,28 @@ Token Scanner class
 Stefan Wong 2018
 """
 
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import Union
 from loxpy import Token
 
 # Debug
 #from pudb import set_trace; set_trace()
 
-class Scanner(object):
-    def __init__(self, source, verbose=False):
+class Scanner:
+    def __init__(self, source:str, verbose:bool=False) -> None:
         if type(source) is not str:
             raise ValueError('source must be a string')
 
-        self.source = source
-        self.token_list = []
+        self.source      :str  = source
+        self.token_list  :list = []
         # Source position
-        self.src_start = 0
-        self.src_current = 0
-        self.src_line = 1
+        self.src_start   :int  = 0
+        self.src_current :int  = 0
+        self.src_line    :int  = 1
         # reserved words
-        self.reserved_words = {
+        self.reserved_words : Dict[str, int] = {
             "and"    : Token.AND,
             "class"  : Token.CLASS,
             "else"   : Token.ELSE,
@@ -41,30 +45,28 @@ class Scanner(object):
             "while"  : Token.WHILE
         }
         # debug mode
-        self.verbose = verbose
+        self.verbose:bool = verbose
 
-    def __str__(self):
+    def __str__(self) -> str:
         s = []
         s.append('Lox Scanner\n')
         s.append('source length : %d\n' % len(self.source))
-
         return ''.join(s)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         s = []
         s.append('Scanner [start : %d\t current: %d\t line: %d]' % (self.src_start, self.src_current, self.src_line))
-
         return ''.join(s)
 
     # Internal lexing functions
-    def _src_end(self):
+    def _src_end(self) -> bool:
         return self.src_current >= len(self.source)
 
-    def _advance(self):
+    def _advance(self) -> str:
         self.src_current += 1
         return self.source[self.src_current-1]
 
-    def _identifier(self):
+    def _identifier(self) -> None:
         while self._isalphanumeric(self._peek()):
             self._advance()
 
@@ -75,17 +77,17 @@ class Scanner(object):
             token_type = Token.IDENTIFIER
         self._add_token(token_type)
 
-    def _isalpha(self, c):
+    def _isalpha(self, c:str) -> bool:
         if ord(c) in range(65,91) or ord(c) in range(97, 123):
             return True
         return False
 
-    def _isalphanumeric(self, c):
+    def _isalphanumeric(self, c:str) -> bool:
         if self._isalpha(c) or self._isdigit(c):
             return True
         return False
 
-    def _isdigit(self, c):
+    def _isdigit(self, c:str) -> bool:
         # While we could use str.isdigit() here, this function allows us
         # to write self._isdigit(self._peek()) and consume the output
         # of self._peek() in a loop
@@ -94,7 +96,7 @@ class Scanner(object):
 
         return False
 
-    def _match(self, expected_char):
+    def _match(self, expected_char:str) -> bool:
         """
         Only consume input if this is the character we expect
         """
@@ -106,7 +108,7 @@ class Scanner(object):
 
         return True
 
-    def _number(self):
+    def _number(self) -> None:
         while self._isdigit(self._peek()) is True:
             self._advance()
 
@@ -120,17 +122,17 @@ class Scanner(object):
         self._add_token(Token.NUMBER,
                 float(self.source[self.src_start:self.src_current]))
 
-    def _peek(self):
+    def _peek(self) -> str:
         if self._src_end():
             return '\0'
         return self.source[self.src_current]
 
-    def _peek_next(self):
+    def _peek_next(self) -> str:
         if self._src_end() or (self.src_current + 1) > len(self.source):
             return '\0'
         return self.source[self.src_current + 1]
 
-    def _parse_string(self):
+    def _parse_string(self) -> None:
         while self._peek() != '"' and self._src_end() is not False:
             if self._peek() == '\n':
                 self.src_line += 1
@@ -140,14 +142,14 @@ class Scanner(object):
         if self._src_end():
             print('line %d: unterminated string\n' % (self.src_line))
             return
+
         # Closing quote
         self._advance()
         # trim surrounding quotes
         value = self.source[self.src_start + 1 : self.src_current - 1]
         self._add_token(Token.STRING, value)
 
-    def _add_token(self, token_type, literal=None):
-
+    def _add_token(self, token_type:int, literal:Any=None) -> None:
         if literal is None:
             text = ''
         else:
@@ -155,8 +157,7 @@ class Scanner(object):
         token = Token.Token(token_type, text, literal, self.src_line)
         self.token_list.append(token)
 
-
-    def _scan_token(self):
+    def _scan_token(self) -> None:
         """
         Scan a single token from the source
         """
@@ -232,8 +233,7 @@ class Scanner(object):
         if self.verbose:
             print('%s' % self.__repr__())
 
-
-    def scan(self):
+    def scan(self) -> List[Token.Token]:
         """
         Scan across the entire source and produce a list of all tokens
         """

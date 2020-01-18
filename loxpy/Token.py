@@ -5,6 +5,9 @@ Methods and classes for dealing with Tokens
 Stefan Wong 2018
 """
 
+from typing import Any
+from typing import Union
+
 # Make tokens into an enum (transform to a dict indexed by an integer
 
 # single character tokens
@@ -20,7 +23,7 @@ AND, CLASS, ELSE, FALSE, FUN, FOR, IF, NIL, OR,
 PRINT, RETURN, SUPER, THIS, TRUE, VAR, WHILE,
 # EFO
 LOX_EOF
-) = (x for x in range(39))
+) = (int(x) for x in range(39))
 
 TOKEN_MAP = {
     # Single character tokens
@@ -111,7 +114,7 @@ TOKEN_SYMBOL = {
 }
 
 class Token:
-    def __init__(self, token_type:int, lexeme:str, literal:str, line:int) -> None:
+    def __init__(self, token_type:int, lexeme:str, literal:Any, line:int) -> None:
         if type(lexeme) is not str:
             raise ValueError("Lexeme must be a string")
         if type(line) is not int:
@@ -119,22 +122,22 @@ class Token:
 
         self.token_type :int = token_type
         self.lexeme     :str = lexeme
-        self.literal    :str = literal
+        self.literal    :Any = literal
         self.line       :int = line
 
     def __str__(self) -> str:
         s = []
         if self.literal is None:
-            s.append('%s %s line: %s\n' % (TOKEN_MAP[self.token_type], self.lexeme, self.line))
+            s.append('%s [%s] line: %s' % (TOKEN_MAP[self.token_type], self.lexeme, self.line))
         else:
-            s.append('%s %s %s line: %s\n' % (TOKEN_MAP[self.token_type], self.lexeme, self.literal, self.line))
+            s.append('%s [%s] %s line: %s' % (TOKEN_MAP[self.token_type], self.lexeme, self.literal, self.line))
 
         return ''.join(s)
 
     def __repr__(self) -> str:
         return self.__str__()
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other:'Token') -> bool:
         if self.token_type != other.token_type:
             return False
         return self.__dict__  == other.__dict__

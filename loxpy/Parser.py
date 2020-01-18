@@ -14,9 +14,9 @@ from loxpy import Token
 
 # ParseError exception
 class ParseError(Exception):
-    def __init__(self, expr, msg):
-        self.expression = expr
-        self.message = msg
+    def __init__(self, expr:Expression.Expression, msg:str) -> None:
+        self.expression :Expression.Expression = expr
+        self.message    :str = msg
 
 
 class Parser:
@@ -133,13 +133,15 @@ class Parser:
 
         return self._primary()
 
-    def _primary(self) -> Type[Expression.Expression]:
+    def _primary(self) -> Expression.Literal:
         if self._match([Token.FALSE]):
             expr = Expression.Literal(False)
             return expr
+
         if self._match([Token.TRUE]):
             expr = Expression.Literal(True)
             return expr
+
         if self._match([Token.NIL]):
             expr = Expression.Literal(None)
             return expr
@@ -149,7 +151,8 @@ class Parser:
             return expr
 
         if self._match([Token.LEFT_PAREN]):
-            expr = expression()
+            expr = Expression.Literal()     # <- TODO : check this
+            return expr
 
     def parse(self) -> Type[Expression.Expression]:
         """

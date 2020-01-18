@@ -7,3 +7,5 @@
 
 # Ignore ctags files
 tags
+
+.mypy_cache

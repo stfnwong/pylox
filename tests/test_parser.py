@@ -13,7 +13,7 @@ from loxpy import Parser
 from loxpy import Scanner
 
 # Debug
-from pudb import set_trace; set_trace()
+#from pudb import set_trace; set_trace()
 
 
 class TestParser(unittest.TestCase):
