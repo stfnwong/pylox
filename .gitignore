@@ -1,0 +1,11 @@
+# Ignore swap files 
+*.swp
+# Ignore swo files 
+*.swp
+# Ignore pyc files 
+*.pyc
+
+# Ignore ctags files
+tags
+
+.mypy_cache
