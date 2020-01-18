@@ -6,8 +6,6 @@ Stefan Wong 2018
 
 import os
 import sys
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
 import unittest
 # modules under test
 from loxpy import Interpreter
@@ -17,19 +15,19 @@ from loxpy import Expression
 from loxpy import Token
 
 # debug
-from pudb import set_trace; set_trace()
+#from pudb import set_trace; set_trace()
 
-def load_source(filename):
+def load_source(filename:str) -> str:
     with open(filename, 'r') as fp:
         source = fp.read()
     return str(source)
 
 
 class TestInterpreter(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.verbose = True
 
-    def test_interpret_unary(self):
+    def test_interpret_unary(self) -> None:
         # Create test expression
         tok_bang = Token.Token(Token.BANG, "!", None, 1)
         tok_iden = Token.Token(Token.IDENTIFIER, "a", None, 1)

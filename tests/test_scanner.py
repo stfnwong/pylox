@@ -7,9 +7,6 @@ Stefan Wong 2018
 
 import os
 import sys
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
-
 import unittest
 # module under test
 from loxpy import Scanner
@@ -18,18 +15,19 @@ from loxpy import Token
 # Debug
 #from pudb import set_trace; set_trace()
 
-def load_source(filename):
+def load_source(filename:str) -> str:
     with open(filename, 'r') as fp:
         source = fp.read()
     return str(source)
 
-class TestScanner(unittest.TestCase):
-    def setUp(self):
-        self.operator_src = 'loxsrc/op.lox'
-        self.simple_op_src = 'loxsrc/op_simple.lox'
-        self.verbose = True
 
-    def test_operator(self):
+class TestScanner(unittest.TestCase):
+    def setUp(self) -> None:
+        self.operator_src  = 'loxsrc/op.lox'
+        self.simple_op_src = 'loxsrc/op_simple.lox'
+        self.verbose       = True
+
+    def test_operator(self) -> None:
         src = load_source(self.simple_op_src)
         scanner = Scanner.Scanner(src, verbose=self.verbose)
         token_list = scanner.scan()
@@ -56,7 +54,7 @@ class TestScanner(unittest.TestCase):
                 print("expected : %s " % exp_tokens[n])
                 self.assertEqual(t, exp_tokens[n])      # cause test to fail
 
-    def test_bang(self):
+    def test_bang(self) -> None:
         src = load_source('loxsrc/op_bang.lox')
         scanner = Scanner.Scanner(src, verbose=self.verbose)
         token_list = scanner.scan()

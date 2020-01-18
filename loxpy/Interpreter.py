@@ -4,21 +4,24 @@ Interpret a collection of Lox expressions
 
 Stefan Wong 2018
 """
+from typing import Type
+from typing import Union
 
 from loxpy import Token
 from loxpy import Expression
 
+
 class InterpreterError(Exception):
-    def __init__(self, token, msg):
-        self.token = token
+    def __init__(self, token:Type[Token.Token], msg:str) -> None:
+        self.token   = token
         self.message = msg
 
 
 class Interpreter(object):
-    def __init__(self):
+    def __init__(self) -> None:
         pass
 
-    def is_true(self, expr):
+    def is_true(self, expr) -> bool:
         """
         Implement Ruby-style truth (False and None are false,
         others are true)
@@ -29,7 +32,7 @@ class Interpreter(object):
             return expr.value
         return True
 
-    def evaluate(self, expr):
+    def evaluate(self, expr) -> Type[Expression.Expression]:
         if issubclass(type(expr), Expression.Expression):
             return expr.accept(self)
         if type(expr) is Token.Token:
@@ -38,13 +41,13 @@ class Interpreter(object):
         return None
 
     # ======== Visitor functions ======== ##
-    def visit_literal_expr(self, expr):
+    def visit_literal_expr(self, expr) -> Type[Expression.Expression]:
         return expr.value()
 
-    def visit_grouping_expr(self, expr):
+    def visit_grouping_expr(self, expr) -> Type[Expression.Expression]:
         return self.evaluate(expr.expression)
 
-    def visit_unary_expr(self, expr):
+    def visit_unary_expr(self, expr) -> Union[float, bool, None]:
         right = self.evaluate(expr.right)
         if type(right) is None:
             raise TypeError('Incorrect expression for right operand of unary expression [visit_unary_expr()]')
@@ -58,7 +61,7 @@ class Interpreter(object):
         return None
 
     # Entry point method
-    def interpret(self, expr):
+    def interpret(self, expr) -> Type[Expression.Expression]:
         """
         INTERPRET
         Interpret the Lox expression expr

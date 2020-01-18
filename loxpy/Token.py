@@ -110,19 +110,19 @@ TOKEN_SYMBOL = {
 
 }
 
-class Token(object):
-    def __init__(self, token_type, lexeme, literal, line):
+class Token:
+    def __init__(self, token_type:int, lexeme:str, literal:str, line:int) -> None:
         if type(lexeme) is not str:
             raise ValueError("Lexeme must be a string")
         if type(line) is not int:
             raise ValueError("line must be an int")
 
-        self.token_type = token_type
-        self.lexeme = lexeme
-        self.literal = literal
-        self.line = line
+        self.token_type :int = token_type
+        self.lexeme     :str = lexeme
+        self.literal    :str = literal
+        self.line       :int = line
 
-    def __str__(self):
+    def __str__(self) -> str:
         s = []
         if self.literal is None:
             s.append('%s %s line: %s\n' % (TOKEN_MAP[self.token_type], self.lexeme, self.line))
@@ -131,10 +131,10 @@ class Token(object):
 
         return ''.join(s)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.__str__()
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         if self.token_type != other.token_type:
             return False
         return self.__dict__  == other.__dict__
