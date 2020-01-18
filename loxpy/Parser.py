@@ -20,7 +20,7 @@ class ParseError(Exception):
 class Parser(object):
     def __init__(self, token_list):
         if type(token_list) is not list:
-            raise ValueError('token_list must be a list')
+            raise TypeError('token_list must be a list')
         self.token_list = token_list
         self.current = 0
 

@@ -8,6 +8,12 @@ Stefan Wong 2018
 from loxpy import Token
 from loxpy import Expression
 
+class InterpreterError(Exception):
+    def __init__(self, token, msg):
+        self.token = token
+        self.message = msg
+
+
 class Interpreter(object):
     def __init__(self):
         pass
@@ -26,18 +32,22 @@ class Interpreter(object):
     def evaluate(self, expr):
         if issubclass(type(expr), Expression.Expression):
             return expr.accept(self)
-        return None     # TODO: what to do here?
+        if type(expr) is Token.Token:
+            return expr
 
-    # Visitor functions
+        return None
+
+    # ======== Visitor functions ======== ##
     def visit_literal_expr(self, expr):
         return expr.value()
 
-    # Parenthesis
     def visit_grouping_expr(self, expr):
         return self.evaluate(expr.expression)
 
     def visit_unary_expr(self, expr):
         right = self.evaluate(expr.right)
+        if type(right) is None:
+            raise TypeError('Incorrect expression for right operand of unary expression [visit_unary_expr()]')
 
         if right.op.token_type == Token.MINUS:
             return -float(right.literal)        # I presume this is what we want rather than the lexeme
@@ -46,7 +56,6 @@ class Interpreter(object):
 
         # Unreachable
         return None
-
 
     # Entry point method
     def interpret(self, expr):

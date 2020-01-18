@@ -24,7 +24,7 @@ class ASTPrint(object):
     def _parenthesize(self, name, expr_list):
 
         if type(expr_list) is not list:
-            raise ValueError('expr_list must be a list')
+            raise TypeError('expr_list must be a list')
 
         s = []
         s.append('(')

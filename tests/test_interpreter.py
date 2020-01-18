@@ -11,11 +11,19 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 import unittest
 # modules under test
 from loxpy import Interpreter
+from loxpy import Parser
+from loxpy import Scanner
 from loxpy import Expression
 from loxpy import Token
 
 # debug
 from pudb import set_trace; set_trace()
+
+def load_source(filename):
+    with open(filename, 'r') as fp:
+        source = fp.read()
+    return str(source)
+
 
 class TestInterpreter(unittest.TestCase):
     def setUp(self):
@@ -29,6 +37,16 @@ class TestInterpreter(unittest.TestCase):
         # Get an interpreter
         interp = Interpreter.Interpreter()
         interp.interpret(expr)
+
+    def test_interpret_unary_from_source(self):
+        unary_file = 'loxsrc/unary.lox'
+        unary_source = load_source(unary_file)
+
+        # Parse the source
+        scanner = Scanner.Scanner(unary_source)
+        unary_tokens = scanner.scan()
+        parser = Parser.Parser(unary_tokens)
+        unary_expr = parser.parse()
 
 if __name__ == "__main__":
     unittest.main()
