@@ -35,7 +35,7 @@ class Interpreter:
         return True
 
     def evaluate(self, expr) -> Union[Token.Token, None]:
-        if issubclass(type(expr), Expression.Expression):
+        if isinstance(expr, Expression.Expression):
             return expr.accept(self)
         if isinstance(expr, Token.Token):
             return expr
