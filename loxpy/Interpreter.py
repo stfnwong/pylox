@@ -34,7 +34,7 @@ class Interpreter:
 
         return True
 
-    def evaluate(self, expr) -> Union[Token.Token]:
+    def evaluate(self, expr) -> Union[Token.Token, None]:
         if issubclass(type(expr), Expression.Expression):
             return expr.accept(self)
         if isinstance(expr, Token.Token):
@@ -59,11 +59,11 @@ class Interpreter:
         elif right.token_type == Token.BANG:
             return not self.is_true(right)
 
-        # Unreachable
+        # Unreachable ?
         return None
 
     # Entry point method
-    def interpret(self, expr:Type[Expression.Expression]) -> Type[Expression.Expression]:
+    def interpret(self, expr:Type[Expression.Expression]) -> None:
         """
         INTERPRET
         Interpret the Lox expression expr

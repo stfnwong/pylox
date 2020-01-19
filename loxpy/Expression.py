@@ -16,8 +16,9 @@ class Expression:
         # because these members were previously only in the
         # derived classes
         self.left  :Any = None
-        self.op    :Any= None
+        self.op    :Any = None
         self.right :Any = None
+        self.value :Any = None
 
     # TODO : type hint for function is Callable[[],]
     def accept(self, visitor) -> None:

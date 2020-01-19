@@ -110,10 +110,15 @@ TOKEN_SYMBOL = {
     VAR           : "var",
     WHILE         : "while",
     LOX_EOF       : "EOF"
-
 }
 
+
 class Token:
+    """
+    Token.
+
+    Represents a token in the Lox source.
+    """
     def __init__(self, token_type:int, lexeme:str, literal:Any, line:int) -> None:
         if type(lexeme) is not str:
             raise ValueError("Lexeme must be a string")
@@ -137,7 +142,11 @@ class Token:
     def __repr__(self) -> str:
         return self.__str__()
 
-    def __eq__(self, other:'Token') -> bool:
+    def __eq__(self, other:object) -> bool:
+        if not isinstance(other, Token):
+            return NotImplemented
+
         if self.token_type != other.token_type:
             return False
+
         return self.__dict__  == other.__dict__
