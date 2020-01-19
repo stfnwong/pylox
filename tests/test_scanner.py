@@ -25,6 +25,7 @@ class TestScanner(unittest.TestCase):
     def setUp(self) -> None:
         self.operator_src  = 'loxsrc/op.lox'
         self.simple_op_src = 'loxsrc/op_simple.lox'
+        self.bang_src      = 'loxsrc/op_bang.lox'
         self.verbose       = True
 
     def test_operator(self) -> None:
@@ -32,10 +33,9 @@ class TestScanner(unittest.TestCase):
         scanner = Scanner.Scanner(src, verbose=self.verbose)
         token_list = scanner.scan()
 
-        if self.verbose:
-            print("Output token list:")
-            for n, t in enumerate(token_list):
-                print('%d : %s' % (n, str(t)))
+        print("[%s] Output token list:" % self.simple_op_src)
+        for n, t in enumerate(token_list):
+            print('%d : %s' % (n, str(t)))
 
         exp_tokens = []     # expected output
         exp_tokens.append(Token.Token(Token.VAR       , '' , None, 1))
@@ -47,22 +47,44 @@ class TestScanner(unittest.TestCase):
         exp_tokens.append(Token.Token(Token.SEMICOLON,  '' , None, 1))
         exp_tokens.append(Token.Token(Token.LOX_EOF,    '' , None, 2))
 
+        self.assertEqual(len(exp_tokens), len(token_list))
+
         for n, t in enumerate(token_list):
             if t != exp_tokens[n]:
                 print("Token %d mismatch" % n)
                 print("output   : %s " % t)
                 print("expected : %s " % exp_tokens[n])
-                self.assertEqual(t, exp_tokens[n])      # cause test to fail
+            self.assertEqual(t, exp_tokens[n])
 
     def test_bang(self) -> None:
-        src = load_source('loxsrc/op_bang.lox')
+        src = load_source(self.bang_src)
         scanner = Scanner.Scanner(src, verbose=self.verbose)
         token_list = scanner.scan()
 
-        if self.verbose:
-            print("Output token list:")
-            for n, t in enumerate(token_list):
-                print('%d : %s' % (n, str(t)))
+        exp_tokens = []
+        exp_tokens.append(Token.Token(Token.VAR       , '' , None, 1))
+        exp_tokens.append(Token.Token(Token.IDENTIFIER, '' , None, 1))
+        exp_tokens.append(Token.Token(Token.EQUAL,      '' , None, 1))
+        exp_tokens.append(Token.Token(Token.TRUE,       '' , None, 1))
+
+        exp_tokens.append(Token.Token(Token.IDENTIFIER, '' , None, 2))
+        exp_tokens.append(Token.Token(Token.EQUAL,      '' , None, 2))
+        exp_tokens.append(Token.Token(Token.BANG,       '' , None, 2))
+        exp_tokens.append(Token.Token(Token.IDENTIFIER, '' , None, 2))
+        exp_tokens.append(Token.Token(Token.LOX_EOF,    '' , None, 3))
+
+        print("[%s] Output token list:" % self.bang_src)
+        for n, t in enumerate(token_list):
+            print('%d : %s' % (n, str(t)))
+
+        self.assertEqual(len(exp_tokens), len(token_list))
+
+        for n, t in enumerate(token_list):
+            if t != exp_tokens[n]:
+                print("Token %d mismatch" % n)
+                print("output   : %s " % t)
+                print("expected : %s " % exp_tokens[n])
+            self.assertEqual(t, exp_tokens[n])
 
 
 if __name__ == '__main__':
