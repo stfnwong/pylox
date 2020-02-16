@@ -15,7 +15,7 @@ from loxpy import Expression
 from loxpy import Token
 
 # debug
-#from pudb import set_trace; set_trace()
+from pudb import set_trace; set_trace()
 
 
 def load_source(filename:str) -> str:
@@ -28,16 +28,21 @@ class TestInterpreter(unittest.TestCase):
     def setUp(self) -> None:
         self.verbose:bool = True
 
+    def test_interpret_bang(self) -> None:
+        pass
+
     def test_interpret_unary(self) -> None:
         # Get an interpreter
-        interp = Interpreter.Interpreter()
+        interp = Interpreter.Interpreter(verbose = self.verbose)
         # Create test expression
         tok_bang = Token.Token(Token.BANG, "!", None, 1)
         tok_iden = Token.Token(Token.IDENTIFIER, "a", None, 1)
         expr     = Expression.Unary(tok_bang, tok_iden)
         print('Interpreting expression [%s]' % str(expr))
+
         # interpret the expression
-        interp.interpret(expr)
+        value = interp.interpret(expr)
+        print(value)
 
     def test_interpret_unary_from_source(self) -> None:
         unary_file = 'loxsrc/unary.lox'
@@ -48,6 +53,9 @@ class TestInterpreter(unittest.TestCase):
         unary_tokens = scanner.scan()
         parser = Parser.Parser(unary_tokens)
         unary_expr = parser.parse()
+
+    def test_interpret_binary(self) -> None:
+        pass
 
 if __name__ == "__main__":
     unittest.main()
