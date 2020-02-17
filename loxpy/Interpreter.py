@@ -68,7 +68,7 @@ class Interpreter:
             raise TypeError('Incorrect expression for right operand of unary expression [visit_unary_expr()]')
 
         if right.token_type == Token.MINUS:
-            return -float(right.literal)        # I presume this is what we want rather than the lexeme
+            return -float(right.lexeme)        # I presume this is what we want rather than the lexeme
         elif right.token_type == Token.BANG:
             return not self.is_true(right)
 
@@ -80,21 +80,21 @@ class Interpreter:
         right = self.evaluate(expr.right)
 
         if expr.op.token_type == Token.MINUS:
-            return float(left.literal) - float(right.literal)
+            return float(left.lexeme) - float(right.lexeme)
         elif expr.op.token_type == Token.SLASH:
-            return float(left.literal) / float(right.literal)
+            return float(left.lexeme) / float(right.lexeme)
         elif expr.op.token_type == Token.STAR:
-            return float(left.literal) * float(right.literal)
+            return float(left.lexeme) * float(right.lexeme)
         elif expr.op.token_type == Token.PLUS:
             pass
         elif expr.op.token_type == Token.GREATER:
-            return float(left.literal) > float(right.literal)
+            return float(left.lexeme) > float(right.lexeme)
         elif expr.op.token_type == Token.GREATER_EQUAL:
-            return float(left.literal) >= float(right.literal)
+            return float(left.lexeme) >= float(right.lexeme)
         elif expr.op.token_type == Token.LESS:
-            return float(left.literal) < float(right.literal)
+            return float(left.lexeme) < float(right.lexeme)
         elif expr.op.token_type == Token.LESS_EQUAL:
-            return float(left.literal) <= float(right.literal)
+            return float(left.lexeme) <= float(right.lexeme)
 
         # unreachable?
         return None

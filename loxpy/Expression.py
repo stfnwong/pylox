@@ -7,6 +7,7 @@ import os
 import sys
 from typing import Any
 from typing import Type
+from typing import Union
 from loxpy import Token
 
 
@@ -45,8 +46,8 @@ class Binary(Expression):
     def __eq__(self, other) -> bool:
         return self.__dict__ == other.__dict__
 
-    def accept(self, visitor) -> None:
-        visitor.visit_binary_expr(self)
+    def accept(self, visitor) -> Union[float, None]:
+        return visitor.visit_binary_expr(self)
 
 
 class Grouping(Expression):
@@ -64,8 +65,8 @@ class Grouping(Expression):
     def __eq__(self, other) -> bool:
         return self.__dict__ == other.__dict__
 
-    def accept(self, visitor) -> None:
-        visitor.visit_grouping_expr(self)
+    def accept(self, visitor) -> Type[Expression]:
+        return visitor.visit_grouping_expr(self)
 
 
 class Literal(Expression):
@@ -84,8 +85,8 @@ class Literal(Expression):
     def __eq__(self, other) -> bool:
         return self.__dict__ == other.__dict__
 
-    def accept(self, visitor) -> None:
-        visitor.visit_literal_expr(self)
+    def accept(self, visitor) -> Type[Expression]:
+        return visitor.visit_literal_expr(self)
 
 
 class Unary(Expression):
@@ -107,5 +108,5 @@ class Unary(Expression):
     def __eq__(self, other) -> bool:
         return self.__dict__ == other.__dict__
 
-    def accept(self, visitor) -> None:
-        visitor.visit_unary_expr(self)
+    def accept(self, visitor) -> Union[float, bool, None]:
+        return visitor.visit_unary_expr(self)
