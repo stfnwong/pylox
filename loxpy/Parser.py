@@ -154,13 +154,19 @@ class Parser:
             expr = Expression.Literal()     # <- TODO : check this
             return expr
 
+    #def _statement(self
+
     def parse(self) -> Type[Expression.Expression]:
         """
         Parse an expression
         """
-        try:
-            return self._expression()
-        except ParseError as e:
-            print('Parse error for expression %s (%s)' % (e.expression, e.message))
-            return None
+
+        statements = []
+        while(!
+
+        #try:
+        #    return self._expression()
+        #except ParseError as e:
+        #    print('Parse error for expression %s (%s)' % (e.expression, e.message))
+        #    return None
 

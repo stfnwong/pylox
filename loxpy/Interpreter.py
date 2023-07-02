@@ -15,6 +15,13 @@ from loxpy import Expression
 
 class InterpreterError(Exception):
     def __init__(self, token:Type[Token.Token], msg:str) -> None:
+        super(InterpreterError, self).__init__(msg)
+        self.token   :Type[Token.Token] = token
+        self.message :str               = msg
+
+class LoxRuntimeError(Exception):
+    def __init__(self, Token:Type[Token.Token], msg:str) -> None:
+        super(LoxRuntimeError, self).__init__(msg)
         self.token   :Type[Token.Token] = token
         self.message :str               = msg
 
@@ -53,7 +60,16 @@ class Interpreter:
 
         return None
 
-    #def check_number_operand(self,
+    def check_number_operand(self, operator:Token.Token, operand:float) -> None:
+        if not isinstance(operand, float) or not isinstance(operand, int):
+            raise LoxRuntimeError('Operand must be a number')
+
+    def check_number_operands(self, operator:Token.Token, left:float, right:float) -> None:
+        if not isinstance(left, float) or isinstance(right, float):
+            raise LoxRuntimeError('Left operand must be a number')
+
+        if not isinstance(right, float) or isinstance(right, float):
+            raise LoxRuntimeError('Right operand must be a number')
 
     # ======== Visitor functions ======== ##
     def visit_literal_expr(self, expr:Type[Expression.Expression]) -> Type[Expression.Expression]:
@@ -67,6 +83,8 @@ class Interpreter:
         if right is None:
             raise TypeError('Incorrect expression for right operand of unary expression [visit_unary_expr()]')
 
+        self.check_number_operand(expr.op, right)
+
         if right.token_type == Token.MINUS:
             return -float(right.lexeme)        # I presume this is what we want rather than the lexeme
         elif right.token_type == Token.BANG:
@@ -79,7 +97,10 @@ class Interpreter:
         left = self.evaluate(expr.left)
         right = self.evaluate(expr.right)
 
+        self.check_number_operands(expr.op, left, right)
+
         if expr.op.token_type == Token.MINUS:
+            self.check_number_operands(expr.op, left, right)
             return float(left.lexeme) - float(right.lexeme)
         elif expr.op.token_type == Token.SLASH:
             return float(left.lexeme) / float(right.lexeme)
@@ -95,6 +116,10 @@ class Interpreter:
             return float(left.lexeme) < float(right.lexeme)
         elif expr.op.token_type == Token.LESS_EQUAL:
             return float(left.lexeme) <= float(right.lexeme)
+        elif expr.op.token_type == Token.BANG_EQUAL:
+            return !self.is_equal(left, right)
+        elif expr.op.token_type == Token.EQUAL_EQUAL:
+            return self.is_equal(left, right)
 
         # unreachable?
         return None
@@ -112,6 +137,6 @@ class Interpreter:
 
             return value
 
-        except Exception as e:     # TODO : Create some exceptions to catch>
+        except Exception as e:
             print('Interpreting error [%s]' % str(e)) #TODO : hook up the proper logging
             return None
