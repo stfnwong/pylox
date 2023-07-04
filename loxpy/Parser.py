@@ -4,7 +4,7 @@ PARSER
 Stefan Wong 2018
 """
 
-from typing import List, Type
+from typing import List, Type, Optional
 from loxpy import Expression
 from loxpy import Token
 
@@ -156,17 +156,16 @@ class Parser:
 
     #def _statement(self
 
-    def parse(self) -> Type[Expression.Expression]:
+    def parse(self) -> Optional[Type[Expression.Expression]]:
         """
         Parse an expression
         """
 
         statements = []
-        while(!
 
-        #try:
-        #    return self._expression()
-        #except ParseError as e:
-        #    print('Parse error for expression %s (%s)' % (e.expression, e.message))
-        #    return None
+        try:
+            return self._expression()
+        except ParseError as e:
+            print('Parse error for expression %s (%s)' % (e.expression, e.message))
+            return None
 

@@ -23,9 +23,9 @@ def load_source(filename:str) -> str:
 
 class TestScanner(unittest.TestCase):
     def setUp(self) -> None:
-        self.operator_src  = 'loxsrc/op.lox'
-        self.simple_op_src = 'loxsrc/op_simple.lox'
-        self.bang_src      = 'loxsrc/op_bang.lox'
+        self.operator_src  = 'programs/op.lox'
+        self.simple_op_src = 'programs/op_simple.lox'
+        self.bang_src      = 'programs/op_bang.lox'
         self.verbose       = True
 
     def test_operator(self) -> None:

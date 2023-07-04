@@ -5,10 +5,7 @@ Token Scanner class
 Stefan Wong 2018
 """
 
-from typing import Any
-from typing import Dict
-from typing import List
-from typing import Union
+from typing import Any, Dict, List, Union
 from loxpy import Token
 
 # Debug

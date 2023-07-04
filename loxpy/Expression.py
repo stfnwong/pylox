@@ -1,13 +1,10 @@
 """
 Abstract class Expression
-Generated automatically at  2:55PM NZDT on Jan 28 2018
+
+TODO: Remove generator and write by hand...
 """
 
-import os
-import sys
-from typing import Any
-from typing import Type
-from typing import Union
+from typing import Any, Type, Optional, Union
 from loxpy import Token
 
 
@@ -16,10 +13,10 @@ class Expression:
         # NOTE : I am just doing this to cheat with mypy,
         # because these members were previously only in the
         # derived classes
-        self.left  :Any = None
-        self.op    :Any = None
-        self.right :Any = None
-        self.value :Any = None
+        self.left  :Optional[Any] = None
+        self.op    :Optional[Any] = None
+        self.right :Optional[Any] = None
+        self.value :Optional[Any] = None
 
     # TODO : type hint for function is Callable[[],]
     def accept(self, visitor) -> None:
@@ -27,6 +24,7 @@ class Expression:
 
 
 class Binary(Expression):
+    # TODO: not sure that this is the correct way to use Type[]....
     def __init__(self, left:Type[Expression], op:Token.Token, right:Type[Expression]) -> None:
         if type(op) is not Token.Token:
             raise ValueError("op must be a token")
@@ -46,7 +44,7 @@ class Binary(Expression):
     def __eq__(self, other) -> bool:
         return self.__dict__ == other.__dict__
 
-    def accept(self, visitor) -> Union[float, None]:
+    def accept(self, visitor) -> Optional[float]:
         return visitor.visit_binary_expr(self)
 
 

@@ -1,12 +1,8 @@
 """
 TOKEN
-Methods and classes for dealing with Tokens
-
-Stefan Wong 2018
 """
 
-from typing import Any
-from typing import Union
+from typing import Any, Union
 
 # Make tokens into an enum (transform to a dict indexed by an integer
 
@@ -113,6 +109,7 @@ TOKEN_SYMBOL = {
 }
 
 
+# TODO: re-write as dataclass
 class Token:
     """
     Token.

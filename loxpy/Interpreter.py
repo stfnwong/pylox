@@ -117,7 +117,7 @@ class Interpreter:
         elif expr.op.token_type == Token.LESS_EQUAL:
             return float(left.lexeme) <= float(right.lexeme)
         elif expr.op.token_type == Token.BANG_EQUAL:
-            return !self.is_equal(left, right)
+            return not self.is_equal(left, right)
         elif expr.op.token_type == Token.EQUAL_EQUAL:
             return self.is_equal(left, right)
 
