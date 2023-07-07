@@ -87,12 +87,13 @@ class Literal(Expression):
         return visitor.visit_literal_expr(self)
 
 
+# TODO: re-write this
 class Unary(Expression):
-    def __init__(self, op:Token.Token, right) -> None:
+    def __init__(self, op:Token.Token, right: Token.Token) -> None:
         if type(op) is not Token.Token:
             raise ValueError("op must be a token")
         self.op    = op
-        self.right = right
+        self.right = right   # this has to be a number
 
     def __str__(self) -> str:
         s = []

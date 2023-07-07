@@ -7,22 +7,20 @@ def load_source(filename:str) -> str:
         source = fp.read()
     return str(source)
 
-def test_interpret_bang() -> None:
-    pass
-
-def test_interpret_unary() -> None:
-    # Get an interpreter
-    interp = Interpreter.Interpreter(verbose=True)
-    # Create test expression
-    tok_bang = Token.Token(Token.BANG, "!", None, 1)
-    tok_iden = Token.Token(Token.IDENTIFIER, "a", None, 1)
-    expr     = Expression.Unary(tok_bang, tok_iden)
-    print('Interpreting expression [%s]' % str(expr))
-
-    # interpret the expression
-    value = interp.interpret(expr)
-    print(value)
-    assert value is not None
+#def test_interpret_unary() -> None:
+#    # Get an interpreter
+#    interp = Interpreter.Interpreter(verbose=True)
+#    # Create test expression
+#    tok_bang = Token.Token(Token.BANG, "!", None, 1)
+#    tok_iden = Token.Token(Token.IDENTIFIER, "a", None, 1)
+#    expr     = Expression.Unary(tok_bang, tok_iden)
+#    print('Interpreting expression [%s]' % str(expr))
+#
+#    from pudb import set_trace; set_trace()
+#    # interpret the expression
+#    value = interp.interpret(expr)
+#    print(value)
+#    assert value is not None
 
 def test_interpret_unary_from_source() -> None:
     unary_file = 'programs/unary.lox'

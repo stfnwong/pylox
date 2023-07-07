@@ -156,13 +156,13 @@ class Parser:
 
     #def _statement(self
 
+    # TODO: List[Type[Expression]] ? 
     def parse(self) -> Optional[Type[Expression.Expression]]:
         """
         Parse an expression
         """
 
-        statements = []
-
+        #statements = []
         try:
             return self._expression()
         except ParseError as e:

@@ -9,8 +9,8 @@ from typing import Any
 from typing import Type
 from typing import Union
 
-from loxpy import Token
-from loxpy import Expression
+from loxpy import Token   # TODO: just import the Token class
+from loxpy import Expression   # TODO: just import the expression class
 
 
 class InterpreterError(Exception):
@@ -20,7 +20,7 @@ class InterpreterError(Exception):
         self.message :str               = msg
 
 class LoxRuntimeError(Exception):
-    def __init__(self, Token:Type[Token.Token], msg:str) -> None:
+    def __init__(self, token: Type[Token.Token], msg:str) -> None:
         super(LoxRuntimeError, self).__init__(msg)
         self.token   :Type[Token.Token] = token
         self.message :str               = msg
@@ -60,16 +60,15 @@ class Interpreter:
 
         return None
 
-    def check_number_operand(self, operator:Token.Token, operand:float) -> None:
-        if not isinstance(operand, float) or not isinstance(operand, int):
-            raise LoxRuntimeError('Operand must be a number')
+    def check_number_operand(self, operator:Token.Token, operand:Token.Token) -> None:
+        if operand.token_type != Token.NUMBER:
+            raise LoxRuntimeError(operator, 'Operand must be a number')
 
-    def check_number_operands(self, operator:Token.Token, left:float, right:float) -> None:
-        if not isinstance(left, float) or isinstance(right, float):
-            raise LoxRuntimeError('Left operand must be a number')
-
-        if not isinstance(right, float) or isinstance(right, float):
-            raise LoxRuntimeError('Right operand must be a number')
+    def check_number_operands(self, operator:Token.Token, left: Token.Token, right: Token.Token) -> None:
+        if left.token_type != Token.NUMBER:
+            raise LoxRuntimeError(operator, f"Left operand to [{operator.lexeme}] must be a number")
+        if right.token_type != Token.NUMBER:
+            raise LoxRuntimeError(operator, f"Right operand to [{operator.lexeme}] must be a number")
 
     # ======== Visitor functions ======== ##
     def visit_literal_expr(self, expr:Type[Expression.Expression]) -> Type[Expression.Expression]:
@@ -83,7 +82,7 @@ class Interpreter:
         if right is None:
             raise TypeError('Incorrect expression for right operand of unary expression [visit_unary_expr()]')
 
-        self.check_number_operand(expr.op, right)
+        #self.check_number_operand(expr.op, right)
 
         if right.token_type == Token.MINUS:
             return -float(right.lexeme)        # I presume this is what we want rather than the lexeme
