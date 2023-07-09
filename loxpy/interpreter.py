@@ -2,35 +2,37 @@
 INTERPRETER
 Interpret a collection of Lox expressions
 
-Stefan Wong 2018
 """
 
-from typing import Any
-from typing import Type
-from typing import Union
-
-from loxpy import Token   # TODO: just import the Token class
-from loxpy import Expression   # TODO: just import the expression class
+from typing import Any, Optional, Union
+from loxpy.token import Token, TokenType
+from loxpy.expr import (
+    Expr,
+    BinaryExpr,
+    LiteralExpr,
+    GroupingExpr,
+    UnaryExpr
+)
 
 
 class InterpreterError(Exception):
-    def __init__(self, token:Type[Token.Token], msg:str) -> None:
+    def __init__(self, token: Token, msg: str) -> None:
         super(InterpreterError, self).__init__(msg)
-        self.token   :Type[Token.Token] = token
-        self.message :str               = msg
+        self.token = token
+        self.message = msg
 
 class LoxRuntimeError(Exception):
-    def __init__(self, token: Type[Token.Token], msg:str) -> None:
+    def __init__(self, token: Token, msg: str) -> None:
         super(LoxRuntimeError, self).__init__(msg)
-        self.token   :Type[Token.Token] = token
-        self.message :str               = msg
+        self.token = token
+        self.message = msg
 
 
 class Interpreter:
     def __init__(self, verbose:bool=False) -> None:
         self.verbose:bool = verbose
 
-    def is_true(self, expr:Union[None, Expression.Expression]) -> bool:
+    def is_true(self, expr: Expr) -> bool:
         """
         Implement Ruby-style truth (False and None are false,
         others are true)
@@ -38,7 +40,7 @@ class Interpreter:
         if expr is None:
             return False
 
-        if hasattr(expr, 'value') and isinstance(expr.value, bool):
+        if isinstance(expr, LiteralExpr):
             return expr.value
 
         return True
@@ -51,80 +53,81 @@ class Interpreter:
 
         return a == b
 
-    def evaluate(self, expr) -> Union[Token.Token, None]:
+    # TODO: revise this implementation
+    def evaluate(self, expr) -> Optional[Token]:
         print('Evaluating expression of type %s' % str(type(expr)))
-        if isinstance(expr, Expression.Expression):
-            return expr.accept(self)
-        if isinstance(expr, Token.Token):
+        if isinstance(expr, Expr):
+            return expr.accept(self)  # TODO: sus
+        if isinstance(expr, Token):
             return expr
 
         return None
 
-    def check_number_operand(self, operator:Token.Token, operand:Token.Token) -> None:
-        if operand.token_type != Token.NUMBER:
+    def check_number_operand(self, operator: Token, operand: Token) -> None:
+        if operand.token_type != TokenType.NUMBER:
             raise LoxRuntimeError(operator, 'Operand must be a number')
 
-    def check_number_operands(self, operator:Token.Token, left: Token.Token, right: Token.Token) -> None:
-        if left.token_type != Token.NUMBER:
+    def check_number_operands(self, operator: Token, left: Token, right: Token) -> None:
+        if left.token_type != TokenType.NUMBER:
             raise LoxRuntimeError(operator, f"Left operand to [{operator.lexeme}] must be a number")
-        if right.token_type != Token.NUMBER:
+        if right.token_type != TokenType.NUMBER:
             raise LoxRuntimeError(operator, f"Right operand to [{operator.lexeme}] must be a number")
 
     # ======== Visitor functions ======== ##
-    def visit_literal_expr(self, expr:Type[Expression.Expression]) -> Type[Expression.Expression]:
+    def visit_literal_expr(self, expr: Expr) -> Expr:
         return expr.value()
 
-    def visit_grouping_expr(self, expr:Type[Expression.Expression]) -> Type[Expression.Expression]:
+    def visit_grouping_expr(self, expr: GroupingExpr) -> Expr:
         return self.evaluate(expr.expression)
 
-    def visit_unary_expr(self, expr:Type[Expression.Expression]) -> Union[float, bool, None]:
+    def visit_unary_expr(self, expr: UnaryExpr) -> Union[float, bool, None]:
         right = self.evaluate(expr.right)
         if right is None:
             raise TypeError('Incorrect expression for right operand of unary expression [visit_unary_expr()]')
 
         #self.check_number_operand(expr.op, right)
 
-        if right.token_type == Token.MINUS:
+        if right.token_type == TokenType.MINUS:
             return -float(right.lexeme)        # I presume this is what we want rather than the lexeme
-        elif right.token_type == Token.BANG:
+        elif right.token_type == TokenType.BANG:
             return not self.is_true(right)
 
         # Unreachable ?
         return None
 
-    def visit_binary_expr(self, expr:Type[Expression.Expression]) -> Union[float, None]:
+    def visit_binary_expr(self, expr: BinaryExpr) -> Union[float, None]:
         left = self.evaluate(expr.left)
         right = self.evaluate(expr.right)
 
         self.check_number_operands(expr.op, left, right)
 
-        if expr.op.token_type == Token.MINUS:
+        if expr.op.token_type == TokenType.MINUS:
             self.check_number_operands(expr.op, left, right)
             return float(left.lexeme) - float(right.lexeme)
-        elif expr.op.token_type == Token.SLASH:
+        elif expr.op.token_type == TokenType.SLASH:
             return float(left.lexeme) / float(right.lexeme)
-        elif expr.op.token_type == Token.STAR:
+        elif expr.op.token_type == TokenType.STAR:
             return float(left.lexeme) * float(right.lexeme)
-        elif expr.op.token_type == Token.PLUS:
+        elif expr.op.token_type == TokenType.PLUS:
             pass
-        elif expr.op.token_type == Token.GREATER:
+        elif expr.op.token_type == TokenType.GREATER:
             return float(left.lexeme) > float(right.lexeme)
-        elif expr.op.token_type == Token.GREATER_EQUAL:
+        elif expr.op.token_type == TokenType.GREATER_EQUAL:
             return float(left.lexeme) >= float(right.lexeme)
-        elif expr.op.token_type == Token.LESS:
+        elif expr.op.token_type == TokenType.LESS:
             return float(left.lexeme) < float(right.lexeme)
-        elif expr.op.token_type == Token.LESS_EQUAL:
+        elif expr.op.token_type == TokenType.LESS_EQUAL:
             return float(left.lexeme) <= float(right.lexeme)
-        elif expr.op.token_type == Token.BANG_EQUAL:
+        elif expr.op.token_type == TokenType.BANG_EQUAL:
             return not self.is_equal(left, right)
-        elif expr.op.token_type == Token.EQUAL_EQUAL:
+        elif expr.op.token_type == TokenType.EQUAL_EQUAL:
             return self.is_equal(left, right)
 
         # unreachable?
         return None
 
     # Entry point method
-    def interpret(self, expr:Type[Expression.Expression]) -> Union[Expression.Expression, None]:
+    def interpret(self, expr: Expr) -> Optional[Expr]:
         """
         INTERPRET
         Interpret the Lox expression expr

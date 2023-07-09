@@ -1,5 +1,8 @@
-# modules under test
-from loxpy import Expression, Interpreter, Parser, Scanner, Token
+from loxpy.expr import Expr, BinaryExpr, LiteralExpr
+from loxpy.token import Token, TokenType
+from loxpy.scanner import Scanner
+from loxpy.parser import Parser
+from loxpy.interpreter import Interpreter
 
 
 def load_source(filename:str) -> str:
@@ -7,12 +10,22 @@ def load_source(filename:str) -> str:
         source = fp.read()
     return str(source)
 
+def parse_source(expr_src: str) -> Expr:
+    scanner       = Scanner(expr_src)
+    token_list    = scanner.scan()
+    parser        = Parser(token_list)
+    parsed_output = parser.parse()
+
+    return parsed_output
+
+
+
 #def test_interpret_unary() -> None:
 #    # Get an interpreter
 #    interp = Interpreter.Interpreter(verbose=True)
 #    # Create test expression
-#    tok_bang = Token.Token(Token.BANG, "!", None, 1)
-#    tok_iden = Token.Token(Token.IDENTIFIER, "a", None, 1)
+#    tok_bang = Token(Token.BANG, "!", None, 1)
+#    tok_iden = Token(Token.IDENTIFIER, "a", None, 1)
 #    expr     = Expression.Unary(tok_bang, tok_iden)
 #    print('Interpreting expression [%s]' % str(expr))
 #
@@ -22,23 +35,19 @@ def load_source(filename:str) -> str:
 #    print(value)
 #    assert value is not None
 
-def test_interpret_unary_from_source() -> None:
-    unary_file = 'programs/unary.lox'
-    unary_source = load_source(unary_file)
-
-    # Parse the source
-    scanner = Scanner.Scanner(unary_source)
-    unary_tokens = scanner.scan()
-    parser = Parser.Parser(unary_tokens)
-    unary_expr = parser.parse()
+#def test_interpret_unary_from_source() -> None:
+#    unary_file = 'programs/unary.lox'
+#    parsed_output = parse_source(load_source(unary_file))
+#
 
 def test_interpret_binary() -> None:
-    interp = Interpreter.Interpreter(verbose=True)
-    tok_num1 = Token.Token(Token.NUMBER, "2", None, 1)
-    tok_mul  = Token.Token(Token.STAR, "*", None, 1)
-    tok_num2 = Token.Token(Token.NUMBER, "4", None, 1)
+    interp = Interpreter(verbose=True)
+    tok_num1 = Token(TokenType.NUMBER, "2", None, 1)
+    tok_mul  = Token(TokenType.STAR, "*", None, 1)
+    tok_num2 = Token(TokenType.NUMBER, "4", None, 1)
 
-    expr     = Expression.Binary(tok_num1, tok_mul, tok_num2)
+    from pudb import set_trace; set_trace()
+    expr     = BinaryExpr(tok_mul, LiteralExpr(tok_num1), LiteralExpr(tok_num2))
     #print('Interpreting expression [%s]' % str(expr))
 
     # interpret the expression
