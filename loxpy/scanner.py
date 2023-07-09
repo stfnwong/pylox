@@ -8,16 +8,14 @@ Stefan Wong 2018
 from typing import Any, Dict, List
 from loxpy.token import Token, TokenType
 
-# Debug
-#from pudb import set_trace; set_trace()
 
 class Scanner:
-    def __init__(self, source:str, verbose:bool=False) -> None:
+    def __init__(self, source: str, verbose: bool=False) -> None:
         if type(source) is not str:
             raise ValueError('source must be a string')
 
         self.source      :str  = source
-        self.token_list  :list = []
+        self.token_list  :List[Token] = []
         # Source position
         self.src_start   :int  = 0
         self.src_current :int  = 0
@@ -42,18 +40,10 @@ class Scanner:
             "while"  : TokenType.WHILE
         }
         # debug mode
-        self.verbose:bool = verbose
-
-    def __str__(self) -> str:
-        s = []
-        s.append('Lox Scanner\n')
-        s.append('source length : %d\n' % len(self.source))
-        return ''.join(s)
+        self.verbose: bool = verbose
 
     def __repr__(self) -> str:
-        s = []
-        s.append('Scanner [start : %d\t current: %d\t line: %d]' % (self.src_start, self.src_current, self.src_line))
-        return ''.join(s)
+        return f"Scanner [start : {self.src_start}\t current: {self.src_current}\t line: {self.src_line}]"
 
     # Internal lexing functions
     def _src_end(self) -> bool:
@@ -139,7 +129,7 @@ class Scanner:
 
         # Handle unterminated string
         if self._src_end():
-            print('line %d: unterminated string\n' % (self.src_line))
+            print(f"line {self.src_line}: unterminated string")
             return
 
         # Closing quote
@@ -227,7 +217,7 @@ class Scanner:
             elif self._isalpha(c):
                 self._identifier()
             else:
-                print("line %d: unexpected character %s" % (self.src_line, c))
+                print(f"line {self.src_line}: unexpected character {c}")
 
         if self.verbose:
             print('%s' % self.__repr__())
