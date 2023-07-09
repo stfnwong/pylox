@@ -3,6 +3,7 @@ from loxpy.token import Token, TokenType
 from loxpy.scanner import Scanner
 from loxpy.parser import Parser
 from loxpy.interpreter import Interpreter
+from loxpy.util import float_equal
 
 
 def load_source(filename:str) -> str:
@@ -46,11 +47,8 @@ def test_interpret_binary() -> None:
     tok_mul  = Token(TokenType.STAR, "*", None, 1)
     tok_num2 = Token(TokenType.NUMBER, "4", None, 1)
 
-    from pudb import set_trace; set_trace()
     expr     = BinaryExpr(tok_mul, LiteralExpr(tok_num1), LiteralExpr(tok_num2))
-    #print('Interpreting expression [%s]' % str(expr))
 
-    # interpret the expression
+    exp_value = 8.0
     value = interp.interpret(expr)
-    print(value)
-    assert value is not None
+    assert float_equal(value, exp_value)

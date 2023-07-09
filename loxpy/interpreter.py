@@ -37,6 +37,7 @@ class Interpreter:
         Implement Ruby-style truth (False and None are false,
         others are true)
         """
+
         if expr is None:
             return False
 
@@ -55,7 +56,9 @@ class Interpreter:
 
     # TODO: revise this implementation
     def evaluate(self, expr) -> Optional[Token]:
-        print('Evaluating expression of type %s' % str(type(expr)))
+        if self.verbose:
+            print(f"Evaluating {expr}")
+
         if isinstance(expr, Expr):
             return expr.accept(self)  # TODO: sus
         if isinstance(expr, Token):
@@ -74,8 +77,8 @@ class Interpreter:
             raise LoxRuntimeError(operator, f"Right operand to [{operator.lexeme}] must be a number")
 
     # ======== Visitor functions ======== ##
-    def visit_literal_expr(self, expr: Expr) -> Expr:
-        return expr.value()
+    def visit_literal_expr(self, expr: LiteralExpr) -> Expr:
+        return expr.value
 
     def visit_grouping_expr(self, expr: GroupingExpr) -> Expr:
         return self.evaluate(expr.expression)
