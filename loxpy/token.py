@@ -149,3 +149,14 @@ class Token:
     lexeme: str
     literal: Any
     line: int
+
+    # TODO: dataclass doens't seem to like having seperate __str__() and __repr__() methods
+    # Ideally I'd like to keep the original __repr__ method also
+    def __str__(self) -> str:
+        return f"{self.lexeme}"
+
+    def __repr__(self) -> str:
+        r = ",".join(
+            f"{k}={v!r}" for k, v in self.__dict__.items()
+        )
+        return f"{self.__class__.__name__}{r}"

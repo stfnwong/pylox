@@ -11,7 +11,6 @@ from loxpy.expr import (
     LiteralExpr,
     UnaryExpr
 )
-# TODO: change module names to lower case
 from loxpy.token import Token, TokenType
 
 
@@ -157,7 +156,7 @@ class Parser:
             return expr
 
         if self._match([TokenType.LEFT_PAREN]):
-            expr = LiteralExpr(None)     # TODO: need to implement expression()
+            expr = LiteralExpr(None)     # TODO: incomplete
             return expr
 
     def parse(self) -> Expr:
