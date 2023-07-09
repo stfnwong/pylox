@@ -18,7 +18,8 @@ class Expr(ABC):
     def accept(self, visitor) -> Self:
         pass
 
-# All derived classes have a __str__() method to make the ASTPrinter work
+
+# All derived classes have a custom __str__() method to make the ASTPrinter work
 
 @dataclass
 class BinaryExpr(Expr):

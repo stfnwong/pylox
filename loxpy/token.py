@@ -147,10 +147,10 @@ class Token:
 
     token_type: TokenType
     lexeme: str
-    literal: Any
+    literal: Any    # Later it might be worth reducing the scope of this
     line: int
 
-    # TODO: dataclass doens't seem to like having seperate __str__() and __repr__() methods
+    # NOTE: dataclass doens't seem to like having seperate __str__() and __repr__() methods
     # Ideally I'd like to keep the original __repr__ method also
     def __str__(self) -> str:
         return f"{self.lexeme}"
