@@ -2,6 +2,7 @@
 TOKEN
 """
 
+from dataclasses import dataclass
 from enum import auto, Enum
 from typing import Any
 
@@ -137,41 +138,14 @@ TOKEN_SYMBOL = {
 }
 
 
-# TODO: re-write as dataclass
+@dataclass
 class Token:
     """
     Token.
-
     Represents a token in the Lox source.
     """
-    def __init__(self, token_type: TokenType, lexeme:str, literal:Any, line:int) -> None:
-        if type(lexeme) is not str:
-            raise ValueError("Lexeme must be a string")
-        if type(line) is not int:
-            raise ValueError("line must be an int")
 
-        self.token_type : TokenType = token_type
-        self.lexeme     :str = lexeme
-        self.literal    :Any = literal
-        self.line       :int = line
-
-    def __str__(self) -> str:
-        s = []
-        if self.literal is None:
-            s.append('%s [%s] line: %s' % (TOKEN_MAP[self.token_type], self.lexeme, self.line))
-        else:
-            s.append('%s [%s] %s line: %s' % (TOKEN_MAP[self.token_type], self.lexeme, self.literal, self.line))
-
-        return ''.join(s)
-
-    def __repr__(self) -> str:
-        return self.__str__()
-
-    def __eq__(self, other:object) -> bool:
-        if not isinstance(other, Token):
-            return NotImplemented
-
-        if self.token_type != other.token_type:
-            return False
-
-        return self.__dict__  == other.__dict__
+    token_type: TokenType
+    lexeme: str
+    literal: Any
+    line: int
