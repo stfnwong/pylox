@@ -7,7 +7,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Optional, Self, Union
 
-from loxpy.Token import Token
+from loxpy.token import Token
 
 
 
