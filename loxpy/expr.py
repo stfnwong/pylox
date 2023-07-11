@@ -58,8 +58,8 @@ class LiteralExpr(Expr):
 
 @dataclass
 class UnaryExpr(Expr):
-    right: Expr
     op: Token
+    right: Expr
 
     def __str__(self) -> str:
         return f"UnaryExpr({self.op}, {self.right})"

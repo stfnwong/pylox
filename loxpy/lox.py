@@ -1,35 +1,35 @@
 """
 LOX Base Class
 
-Stefan Wong 2018
 """
 
 import sys
-from loxpy import Scanner
+from loxpy.scanner import Scanner
 
-# Debug
-#from pudb import set_trace; set_trace()
 
-had_error = False
+HAD_ERROR = False
+
 # error reporting helper functions
-def report(line, where, message):
-    print('[line %d] Error %s : %s' % (line, str(where), str(message)))
-    had_error = True
+def report(line: int, where: str, message: str) -> None:
+    print(f"[line {line}] Error: {where} : {message}")
+    HAD_ERROR = True
 
 def error(line, message):
     report(line, "", message)
 
 
-class Lox(object):
+class Lox:
     """
-    Lox interpreter object.
+    Lox interpreter wrapper.
     """
-    def __init__(self):
+
+    def __init__(self, verbose:bool = False):
+        self.verbose = verbose
         self.scanner = None         # Create a new scanner object when we call run
         self.token_list = []
 
     def _run(self, source):
-        self.scanner = Scanner.Scanner(source)
+        self.scanner = Scanner(source)
         self.token_list = self.scanner.scan()
 
         # Dump tokens to console
@@ -38,10 +38,10 @@ class Lox(object):
 
         sys.exit(1)
 
-    def runFile(self, filename):
+    def run_file(self, filename: str):
         with open(filename, 'r') as fp:
             source = fp.read()
         self._run(str(source))
 
-    def runPrompt(self):
+    def run_prompt(self):
         print('TODO: not yet implemented')

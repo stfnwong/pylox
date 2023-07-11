@@ -64,6 +64,7 @@ class Interpreter:
         if isinstance(expr, Token):
             return expr
 
+        # unreachable?
         return None
 
     def check_number_operand(self, operator: Token, operand: Token) -> None:
