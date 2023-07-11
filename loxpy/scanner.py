@@ -5,58 +5,45 @@ Token Scanner class
 Stefan Wong 2018
 """
 
-from typing import Any
-from typing import Dict
-from typing import List
-from typing import Union
-from loxpy import Token
+from typing import Any, Dict, List
+from loxpy.token import Token, TokenType
 
-# Debug
-#from pudb import set_trace; set_trace()
 
 class Scanner:
-    def __init__(self, source:str, verbose:bool=False) -> None:
+    def __init__(self, source: str, verbose: bool=False) -> None:
         if type(source) is not str:
             raise ValueError('source must be a string')
 
         self.source      :str  = source
-        self.token_list  :list = []
+        self.token_list  :List[Token] = []
         # Source position
         self.src_start   :int  = 0
         self.src_current :int  = 0
         self.src_line    :int  = 1
         # reserved words
-        self.reserved_words : Dict[str, int] = {
-            "and"    : Token.AND,
-            "class"  : Token.CLASS,
-            "else"   : Token.ELSE,
-            "false"  : Token.FALSE,
-            "for"    : Token.FOR,
-            "fun"    : Token.FUN,
-            "if"     : Token.IF,
-            "nil"    : Token.NIL,
-            "or"     : Token.OR,
-            "print"  : Token.PRINT,
-            "return" : Token.RETURN,
-            "super"  : Token.SUPER,
-            "this"   : Token.THIS,
-            "true"   : Token.TRUE,
-            "var"    : Token.VAR,
-            "while"  : Token.WHILE
+        self.reserved_words : Dict[str, TokenType] = {
+            "and"    : TokenType.AND,
+            "class"  : TokenType.CLASS,
+            "else"   : TokenType.ELSE,
+            "false"  : TokenType.FALSE,
+            "for"    : TokenType.FOR,
+            "fun"    : TokenType.FUN,
+            "if"     : TokenType.IF,
+            "nil"    : TokenType.NIL,
+            "or"     : TokenType.OR,
+            "print"  : TokenType.PRINT,
+            "return" : TokenType.RETURN,
+            "super"  : TokenType.SUPER,
+            "this"   : TokenType.THIS,
+            "true"   : TokenType.TRUE,
+            "var"    : TokenType.VAR,
+            "while"  : TokenType.WHILE
         }
         # debug mode
-        self.verbose:bool = verbose
-
-    def __str__(self) -> str:
-        s = []
-        s.append('Lox Scanner\n')
-        s.append('source length : %d\n' % len(self.source))
-        return ''.join(s)
+        self.verbose: bool = verbose
 
     def __repr__(self) -> str:
-        s = []
-        s.append('Scanner [start : %d\t current: %d\t line: %d]' % (self.src_start, self.src_current, self.src_line))
-        return ''.join(s)
+        return f"Scanner [start : {self.src_start}\t current: {self.src_current}\t line: {self.src_line}]"
 
     # Internal lexing functions
     def _src_end(self) -> bool:
@@ -74,7 +61,7 @@ class Scanner:
         if text in self.reserved_words.keys():
             token_type = self.reserved_words[text]
         else:
-            token_type = Token.IDENTIFIER
+            token_type = TokenType.IDENTIFIER
         self._add_token(token_type)
 
     def _isalpha(self, c:str) -> bool:
@@ -119,8 +106,10 @@ class Scanner:
                 self._advance()
 
         # Now add a new number token
-        self._add_token(Token.NUMBER,
-                float(self.source[self.src_start:self.src_current]))
+        self._add_token(
+            TokenType.NUMBER,
+            float(self.source[self.src_start:self.src_current])
+        )
 
     def _peek(self) -> str:
         if self._src_end():
@@ -140,21 +129,21 @@ class Scanner:
 
         # Handle unterminated string
         if self._src_end():
-            print('line %d: unterminated string\n' % (self.src_line))
+            print(f"line {self.src_line}: unterminated string")
             return
 
         # Closing quote
         self._advance()
         # trim surrounding quotes
         value = self.source[self.src_start + 1 : self.src_current - 1]
-        self._add_token(Token.STRING, value)
+        self._add_token(TokenType.STRING, value)
 
-    def _add_token(self, token_type:int, literal:Any=None) -> None:
+    def _add_token(self, token_type: TokenType, literal:Any=None) -> None:
         if literal is None:
             text = ''
         else:
             text = self.source[self.src_start : self.src_current]
-        token = Token.Token(token_type, text, literal, self.src_line)
+        token = Token(token_type, text, literal, self.src_line)
         self.token_list.append(token)
 
     def _scan_token(self) -> None:
@@ -164,46 +153,46 @@ class Scanner:
         c = self._advance()
         # single character tokens
         if c == '(':
-            self._add_token(Token.LEFT_PAREN)
+            self._add_token(TokenType.LEFT_PAREN)
         elif c == ')':
-            self._add_token(Token.RIGHT_PAREN)
+            self._add_token(TokenType.RIGHT_PAREN)
         elif c == '{':
-            self._add_token(Token.LEFT_BRACE)
+            self._add_token(TokenType.LEFT_BRACE)
         elif c == '}':
-            self._add_token(Token.RIGHT_BRACE)
+            self._add_token(TokenType.RIGHT_BRACE)
         elif c == ',':
-            self._add_token(Token.COMMA)
+            self._add_token(TokenType.COMMA)
         elif c == '.':
-            self._add_token(Token.DOT)
+            self._add_token(TokenType.DOT)
         elif c == '-':
-            self._add_token(Token.MINUS)
+            self._add_token(TokenType.MINUS)
         elif c == '+':
-            self._add_token(Token.PLUS)
+            self._add_token(TokenType.PLUS)
         elif c == ';':
-            self._add_token(Token.SEMICOLON)
+            self._add_token(TokenType.SEMICOLON)
         elif c == '*':
-            self._add_token(Token.STAR)
+            self._add_token(TokenType.STAR)
         # Two character tokens
         elif c == '!':
             if self._match('='):
-                self._add_token(Token.BANG_EQUAL)
+                self._add_token(TokenType.BANG_EQUAL)
             else:
-                self._add_token(Token.BANG)
+                self._add_token(TokenType.BANG)
         elif c == '=':
             if self._match('='):
-                self._add_token(Token.EQUAL_EQUAL)
+                self._add_token(TokenType.EQUAL_EQUAL)
             else:
-                self._add_token(Token.EQUAL)
+                self._add_token(TokenType.EQUAL)
         elif c == '<':
             if self._match('='):
-                self._add_token(Token.LESS_EQUAL)
+                self._add_token(TokenType.LESS_EQUAL)
             else:
-                self._add_token(Token.LESS)
+                self._add_token(TokenType.LESS)
         elif c == '>':
             if self._match('='):
-                self._add_token(Token.GREATER_EQUAL)
+                self._add_token(TokenType.GREATER_EQUAL)
             else:
-                self._add_token(Token.GREATER)
+                self._add_token(TokenType.GREATER)
         # Because comments in Lox begin with a slash, we need
         # some extra logic here
         elif c == '/':
@@ -212,7 +201,7 @@ class Scanner:
                 while(self._peek() != '\n' and self._src_end() == False):
                     self._advance()
             else:
-                self._add_token(Token.SLASH)
+                self._add_token(TokenType.SLASH)
         # String literals
         elif c == '"':
             self._parse_string()
@@ -228,12 +217,12 @@ class Scanner:
             elif self._isalpha(c):
                 self._identifier()
             else:
-                print("line %d: unexpected character %s" % (self.src_line, c))
+                print(f"line {self.src_line}: unexpected character {c}")
 
         if self.verbose:
             print('%s' % self.__repr__())
 
-    def scan(self) -> List[Token.Token]:
+    def scan(self) -> List[Token]:
         """
         Scan across the entire source and produce a list of all tokens
         """
@@ -243,7 +232,7 @@ class Scanner:
             self.src_start = self.src_current
             self._scan_token()
 
-        token = Token.Token(Token.LOX_EOF, "", None, self.src_line)
+        token = Token(TokenType.LOX_EOF, "", None, self.src_line)
         self.token_list.append(token)
 
         return self.token_list

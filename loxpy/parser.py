@@ -4,23 +4,28 @@ PARSER
 Stefan Wong 2018
 """
 
-from typing import List, Type
-from loxpy import Expression
-from loxpy import Token
+from typing import List, TypeVar
+from loxpy.expr import (
+    BinaryExpr,
+    Expr,
+    LiteralExpr,
+    UnaryExpr
+)
+from loxpy.token import Token, TokenType
 
-# Debug
-#from pudb import set_trace; set_trace()
+
+E = TypeVar("E", covariant=True, bound=Expr | BinaryExpr | LiteralExpr | UnaryExpr)
 
 
 # ParseError exception
 class ParseError(Exception):
-    def __init__(self, expr:Expression.Expression, msg:str) -> None:
-        self.expression :Expression.Expression = expr
+    def __init__(self, expr: Expr, msg:str) -> None:
+        self.expression :Expr = expr
         self.message    :str = msg
 
 
 class Parser:
-    def __init__(self, token_list:List[Token.Token]) -> None:
+    def __init__(self, token_list: List[Token]) -> None:
         if type(token_list) is not list:
             raise TypeError('token_list must be a list')
         self.token_list :list = token_list
@@ -34,14 +39,14 @@ class Parser:
         return ''.join(s)
 
     # Methods for seeking through the token list
-    def _advance(self) -> Type[Token.Token]:     # Does not consume token
+    def _advance(self) -> Token:
         if self._at_end() is False:
             self.current += 1
         return self._previous()
 
     def _at_end(self) -> bool:
         cur_token = self._peek()
-        if cur_token.token_type == Token.LOX_EOF:
+        if cur_token.token_type == TokenType.LOX_EOF:
             return True
         return False
 
@@ -54,16 +59,16 @@ class Parser:
             return True
         return False
 
-    def _consume(self, token_type:int, msg:str) -> Type[Token.Token]:
+    def _consume(self, token_type: int, msg:str) -> Token:
         if self._check(token_type):
             return self._advance()
 
         raise ParseError(self._peek(), msg)
 
-    def _peek(self) -> Type[Token.Token]:
+    def _peek(self) -> Token:
         return self.token_list[self.current]
 
-    def _previous(self) -> Type[Token.Token]:
+    def _previous(self) -> Token:
         return self.token_list[self.current - 1]
 
     # Methods that implement rules for productions
@@ -75,92 +80,94 @@ class Parser:
 
         return False
 
-    def _equality(self) -> Type[Expression.Binary]:
+    def _equality(self) -> Expr:
         expr = self._comparison()
 
-        eq_tokens = [Token.BANG_EQUAL, Token.EQUAL_EQUAL]
+        eq_tokens = [TokenType.BANG_EQUAL, TokenType.EQUAL_EQUAL]
         while self._match(eq_tokens):
             operator = self._previous()
             right = self._comparison()
-            expr = Expression.Binary(expr, operator, right)
+            expr = BinaryExpr(operator, expr, right)
 
         return expr
 
-    def _expression(self) -> Type[Expression.Expression]:
+    def _expression(self) -> Expr:
         return self._equality()
 
-    def _comparison(self) -> Type[Expression.Binary]:
+    def _comparison(self) -> BinaryExpr:
         expr = self._addition()
-        comp_tokens = [Token.GREATER, Token.GREATER_EQUAL,
-                       Token.LESS, Token.LESS_EQUAL]
+        comp_tokens = [TokenType.GREATER, TokenType.GREATER_EQUAL,
+                       TokenType.LESS, TokenType.LESS_EQUAL]
 
         while self._match(comp_tokens):
             operator = self._previous()
             right    = self._addition()
-            expr     = Expression.Binary(expr, operator, right)
+            expr     = BinaryExpr(operator, expr, right)
 
         return expr
 
-    def _addition(self) -> Type[Expression.Binary]:
+    def _addition(self) -> BinaryExpr:
         expr = self._multiplication()
-        add_tokens = [Token.MINUS, Token.PLUS]
+        add_tokens = [TokenType.MINUS, TokenType.PLUS]
 
         while self._match(add_tokens):
             operator = self._previous()
             right    = self._multiplication()
-            expr     = Expression.Binary(expr, operator, right)
+            expr     = BinaryExpr(operator, expr, right)
 
         return expr
 
-    def _multiplication(self) -> Type[Expression.Binary]:
+    def _multiplication(self) -> BinaryExpr:
         expr = self._unary()
-        mul_tokens = [Token.SLASH, Token.STAR]
+        mul_tokens = [TokenType.SLASH, TokenType.STAR]
 
         while self._match(mul_tokens):
             operator = self._previous()
             right = self._unary()
-            expr = Expression.Binary(expr, operator, right)
+            expr = BinaryExpr(operator, expr, right)
 
         return expr
 
-    def _unary(self) -> Type[Expression.Unary]:
-        un_tokens = [Token.BANG, Token.MINUS]
+    def _unary(self) -> UnaryExpr:
+        un_tokens = [TokenType.BANG, TokenType.MINUS]
         if self._match(un_tokens):
             operator = self._previous()
             right = self._unary()
-            expr = Expression.Unary(operator, right)
+            expr = UnaryExpr(operator, right)
             return expr
 
         return self._primary()
 
-    def _primary(self) -> Expression.Literal:
-        if self._match([Token.FALSE]):
-            expr = Expression.Literal(False)
+    def _primary(self) -> LiteralExpr:
+        if self._match([TokenType.FALSE]):
+            expr = LiteralExpr(False)
             return expr
 
-        if self._match([Token.TRUE]):
-            expr = Expression.Literal(True)
+        if self._match([TokenType.TRUE]):
+            expr = LiteralExpr(True)
             return expr
 
-        if self._match([Token.NIL]):
-            expr = Expression.Literal(None)
+        if self._match([TokenType.NIL]):
+            expr = LiteralExpr(None)
             return expr
 
-        if self._match([Token.NUMBER, Token.STRING]):
-            expr = Expression.Literal(self._previous())
+        if self._match([TokenType.NUMBER, TokenType.STRING]):
+            expr = LiteralExpr(self._previous())
             return expr
 
-        if self._match([Token.LEFT_PAREN]):
-            expr = Expression.Literal()     # <- TODO : check this
+        if self._match([TokenType.LEFT_PAREN]):
+            expr = LiteralExpr(None)     # TODO: incomplete
             return expr
 
-    def parse(self) -> Type[Expression.Expression]:
+    def parse(self) -> Expr:
         """
         Parse an expression
         """
+
+        #statements = []
         try:
             return self._expression()
         except ParseError as e:
             print('Parse error for expression %s (%s)' % (e.expression, e.message))
-            return None
+            raise
 

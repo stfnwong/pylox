@@ -1,5 +1,4 @@
 " Lox highlight file for vim
-" Stefan Wong 2018
 
 if exists("b:current_syntax")
     finish
