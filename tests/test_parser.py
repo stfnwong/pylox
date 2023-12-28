@@ -1,15 +1,15 @@
 # Modules under test
+from typing import List
+
 from loxpy.parser import Parser
 from loxpy.scanner import Scanner
 from loxpy.token import Token, TokenType
-
-
-
 from loxpy.expr import Expr, BinaryExpr, LiteralExpr
+from loxpy.statement import Stmt, ExprStmt
 
 
 
-def parse_input(expr_src: str) -> Expr:
+def parse_input(expr_src: str) -> List[Stmt]:
     scanner       = Scanner(expr_src)
     token_list    = scanner.scan()
     parser        = Parser(token_list)
@@ -24,7 +24,7 @@ def test_simple_add() -> None:
     token_left    = Token(TokenType.NUMBER, '2', float(2), 1)
     token_op      = Token(TokenType.PLUS, '', None, 1)
     token_right   = Token(TokenType.NUMBER, '2', float(2), 1)
-    exp_output    = BinaryExpr(token_op, LiteralExpr(token_left), LiteralExpr(token_right))
+    exp_output    = [ExprStmt(BinaryExpr(token_op, LiteralExpr(token_left), LiteralExpr(token_right)))]
 
     parsed_output = parse_input(simple_expr)
 
@@ -36,7 +36,7 @@ def test_simple_sub() -> None:
     token_left    = Token(TokenType.NUMBER, '4', float(4), 1)
     token_op      = Token(TokenType.MINUS, '', None, 1)
     token_right   = Token(TokenType.NUMBER, '2', float(2), 1)
-    exp_output    = BinaryExpr(token_op, LiteralExpr(token_left), LiteralExpr(token_right))
+    exp_output    = [ExprStmt(BinaryExpr(token_op, LiteralExpr(token_left), LiteralExpr(token_right)))]
 
     parsed_output = parse_input(simple_expr)
 
@@ -48,7 +48,7 @@ def test_simple_mul() -> None:
     token_left    = Token(TokenType.NUMBER, '4', float(4), 1)
     token_op      = Token(TokenType.STAR, '', None, 1)
     token_right   = Token(TokenType.NUMBER, '4', float(4), 1)
-    exp_output    = BinaryExpr(token_op, LiteralExpr(token_left), LiteralExpr(token_right))
+    exp_output    = [ExprStmt(BinaryExpr(token_op, LiteralExpr(token_left), LiteralExpr(token_right)))]
 
     parsed_output = parse_input(simple_expr)
 
@@ -60,7 +60,7 @@ def test_simple_div() -> None:
     token_left    = Token(TokenType.NUMBER, '6', float(6), 1)
     token_op      = Token(TokenType.SLASH, '', None, 1)
     token_right   = Token(TokenType.NUMBER, '4', float(4), 1)
-    exp_output    = BinaryExpr(token_op, LiteralExpr(token_left), LiteralExpr(token_right))
+    exp_output    = [ExprStmt(BinaryExpr(token_op, LiteralExpr(token_left), LiteralExpr(token_right)))]
 
     parsed_output = parse_input(simple_expr)
 

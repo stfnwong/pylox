@@ -63,6 +63,7 @@ def test_bang() -> None:
         Token(TokenType.LOX_EOF,    '' , None, 3),
     ]
 
+
     #print("[%s] Output token list:" % self.bang_src)
     #for n, t in enumerate(token_list):
     #    print('%d : %s' % (n, str(t)))

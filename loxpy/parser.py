@@ -4,13 +4,15 @@ PARSER
 Stefan Wong 2018
 """
 
-from typing import List, TypeVar
+from typing import List, TypeVar, Union
 from loxpy.expr import (
     BinaryExpr,
     Expr,
     LiteralExpr,
-    UnaryExpr
+    UnaryExpr,
+    GroupingExpr
 )
+from loxpy.statement import Stmt, PrintStmt, ExprStmt
 from loxpy.token import Token, TokenType
 
 
@@ -18,18 +20,23 @@ E = TypeVar("E", covariant=True, bound=Expr | BinaryExpr | LiteralExpr | UnaryEx
 
 
 # ParseError exception
+#class ParseError(Exception):
+#    def __init__(self, expr: Expr, msg:str) -> None:
+#        self.message    :str = msg
+
+
 class ParseError(Exception):
-    def __init__(self, expr: Expr, msg:str) -> None:
-        self.expression :Expr = expr
-        self.message    :str = msg
+    def __init__(self, token: Token, msg:str) -> None:
+        self.token   :Token = token
+        self.message :str = msg
 
 
 class Parser:
     def __init__(self, token_list: List[Token]) -> None:
         if type(token_list) is not list:
             raise TypeError('token_list must be a list')
-        self.token_list :list = token_list
-        self.current    :int  = 0
+        self.token_list: List[Token] = token_list
+        self.current   : int  = 0
 
     def __str__(self) -> str:
         s = []
@@ -38,7 +45,7 @@ class Parser:
 
         return ''.join(s)
 
-    # Methods for seeking through the token list
+    # ==== Methods for moving through source ==== #
     def _advance(self) -> Token:
         if self._at_end() is False:
             self.current += 1
@@ -59,10 +66,11 @@ class Parser:
             return True
         return False
 
-    def _consume(self, token_type: int, msg:str) -> Token:
+    def _consume(self, token_type: TokenType, msg:str) -> Token:
         if self._check(token_type):
             return self._advance()
 
+        # TODO: something wrong here...
         raise ParseError(self._peek(), msg)
 
     def _peek(self) -> Token:
@@ -72,7 +80,7 @@ class Parser:
         return self.token_list[self.current - 1]
 
     # Methods that implement rules for productions
-    def _match(self, token_types):
+    def _match(self, token_types: List[TokenType]) -> bool:
         for t in token_types:
             if self._check(t):
                 self._advance()
@@ -94,30 +102,38 @@ class Parser:
     def _expression(self) -> Expr:
         return self._equality()
 
-    def _comparison(self) -> BinaryExpr:
-        expr = self._addition()
+    # ==== Statements =====
+    def _expression_statement(self) -> ExprStmt:
+        expr = self._expression()
+        self._consume(TokenType.SEMICOLON, "Expect ';' after expression")
+
+        return ExprStmt(expr)
+
+
+    def _comparison(self) -> Expr:
+        expr = self._term()
         comp_tokens = [TokenType.GREATER, TokenType.GREATER_EQUAL,
                        TokenType.LESS, TokenType.LESS_EQUAL]
 
         while self._match(comp_tokens):
             operator = self._previous()
-            right    = self._addition()
+            right    = self._term()
             expr     = BinaryExpr(operator, expr, right)
 
         return expr
 
-    def _addition(self) -> BinaryExpr:
-        expr = self._multiplication()
+    def _term(self) -> Expr:
+        expr = self._factor()
         add_tokens = [TokenType.MINUS, TokenType.PLUS]
 
         while self._match(add_tokens):
             operator = self._previous()
-            right    = self._multiplication()
+            right    = self._factor()
             expr     = BinaryExpr(operator, expr, right)
 
         return expr
 
-    def _multiplication(self) -> BinaryExpr:
+    def _factor(self) -> Expr:
         expr = self._unary()
         mul_tokens = [TokenType.SLASH, TokenType.STAR]
 
@@ -128,7 +144,7 @@ class Parser:
 
         return expr
 
-    def _unary(self) -> UnaryExpr:
+    def _unary(self) -> Expr:
         un_tokens = [TokenType.BANG, TokenType.MINUS]
         if self._match(un_tokens):
             operator = self._previous()
@@ -138,36 +154,65 @@ class Parser:
 
         return self._primary()
 
-    def _primary(self) -> LiteralExpr:
+    def _primary(self) -> Union[GroupingExpr, LiteralExpr]:
+        expr = LiteralExpr(
+            Token(
+                TokenType.NIL,
+                self.token_list[-1].lexeme,
+                self.token_list[-1].literal,
+                self.token_list[-1].line
+            )
+        )
+
         if self._match([TokenType.FALSE]):
-            expr = LiteralExpr(False)
-            return expr
+            expr.value.token_type = TokenType.FALSE
 
         if self._match([TokenType.TRUE]):
-            expr = LiteralExpr(True)
-            return expr
+            expr.value.token_type = TokenType.TRUE
 
         if self._match([TokenType.NIL]):
-            expr = LiteralExpr(None)
-            return expr
+            expr.value.token_type = TokenType.NIL
 
         if self._match([TokenType.NUMBER, TokenType.STRING]):
             expr = LiteralExpr(self._previous())
-            return expr
 
         if self._match([TokenType.LEFT_PAREN]):
-            expr = LiteralExpr(None)     # TODO: incomplete
-            return expr
+            expr = self._expression()
+            self._consume(TokenType.RIGHT_PAREN, "Expect ')' after expression")
+            return GroupingExpr(expr)
 
-    def parse(self) -> Expr:
+        return expr
+
+    def _print_statement(self) -> PrintStmt:
+        value = self._expression()
+        self._consume(TokenType.SEMICOLON, "Expect ';' after value")
+        return PrintStmt(value)
+
+    def _expr_statement(self) -> ExprStmt:
+        value = self._expression()
+        self._consume(TokenType.SEMICOLON, "Expect ';' after value")
+        return ExprStmt(value)
+
+    def _statement(self) -> Stmt:
+        if self._match([TokenType.PRINT]):
+            return self._print_statement()
+
+        return self._expr_statement()
+
+    def parse(self) -> List[Stmt]:
         """
         Parse an expression
         """
 
-        #statements = []
+        statements = []
+
         try:
-            return self._expression()
+            while not self._at_end():
+                statements.append(self._statement())
         except ParseError as e:
-            print('Parse error for expression %s (%s)' % (e.expression, e.message))
+            print(f"Parse error for expression {e.token}, ({e.message})")   # TODO: something inconsistent here
+            #print(f"Parse error for expression {e.expression}, ({e.message})")
             raise
+
+        return statements
 

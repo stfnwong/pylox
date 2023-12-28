@@ -54,13 +54,14 @@ class Interpreter:
 
         return a == b
 
-    # TODO: revise this implementation
+    # TODO: revise this implementation, ensure we always return a Token 
+    # (return a NIL Token if we fail to interpret)
     def evaluate(self, expr) -> Optional[Token]:
         if self.verbose:
             print(f"Evaluating {expr}")
 
         if isinstance(expr, Expr):
-            return expr.accept(self)  # TODO: sus
+            return expr.accept(self)  # TODO: sus....
         if isinstance(expr, Token):
             return expr
 
@@ -103,6 +104,7 @@ class Interpreter:
         left = self.evaluate(expr.left)
         right = self.evaluate(expr.right)
 
+        # TODO: does this work - left and right are both going to be Expr types...
         self.check_number_operands(expr.op, left, right)
 
         if expr.op.token_type == TokenType.MINUS:

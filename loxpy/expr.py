@@ -10,12 +10,15 @@ from typing import Optional, Self, Union
 from loxpy.token import Token
 
 
+# TODO: make the visitor explicit
+ResultType = Union[float, bool, str, None]
+
 
 @dataclass
 class Expr(ABC):
     # TODO: what is the type of the visitor?
     @abstractmethod
-    def accept(self, visitor) -> Self:
+    def accept(self, visitor) -> Union[ResultType, 'Expr']:
         pass
 
 
@@ -67,3 +70,5 @@ class UnaryExpr(Expr):
     # TODO: can this return an expression?
     def accept(self, visitor) -> Union[float, bool, None]:
         return visitor.visit_unary_expr(self)
+
+
