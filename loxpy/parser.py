@@ -210,8 +210,8 @@ class Parser:
             while not self._at_end():
                 statements.append(self._statement())
         except ParseError as e:
-            print(f"Parse error for expression {e.token}, ({e.message})")   # TODO: something inconsistent here
-            #print(f"Parse error for expression {e.expression}, ({e.message})")
+            # TODO: Should a ParseError hold a token or an expression?
+            print(f"Parse error for expression {e.token}, ({e.message})")   
             raise
 
         return statements

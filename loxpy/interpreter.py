@@ -4,7 +4,7 @@ Interpret a collection of Lox expressions
 
 """
 
-from typing import Any, Optional, Union
+from typing import Any, Sequence, Union
 from loxpy.token import Token, TokenType
 from loxpy.expr import (
     Expr,
@@ -12,6 +12,11 @@ from loxpy.expr import (
     LiteralExpr,
     GroupingExpr,
     UnaryExpr
+)
+from loxpy.statement import (
+    Stmt,
+    ExprStmt,
+    PrintStmt
 )
 
 
@@ -28,6 +33,7 @@ class LoxRuntimeError(Exception):
         self.message = msg
 
 
+
 class Interpreter:
     def __init__(self, verbose:bool=False) -> None:
         self.verbose:bool = verbose
@@ -42,7 +48,7 @@ class Interpreter:
             return False
 
         if isinstance(expr, LiteralExpr):
-            return expr.value
+            return True if expr.value else False
 
         return True
 
@@ -54,18 +60,18 @@ class Interpreter:
 
         return a == b
 
-    # TODO: revise this implementation, ensure we always return a Token 
-    # (return a NIL Token if we fail to interpret)
-    def evaluate(self, expr) -> Optional[Token]:
+    # NOTE: Original implementation returns a LoxObject (strictly a Java Object)
+    def evaluate(self, expr) -> Any:
         if self.verbose:
             print(f"Evaluating {expr}")
 
         if isinstance(expr, Expr):
-            return expr.accept(self)  # TODO: sus....
+            return expr.accept(self)
+
         if isinstance(expr, Token):
             return expr
 
-        # unreachable?
+        # TODO: unreachable?
         return None
 
     def check_number_operand(self, operator: Token, operand: Token) -> None:
@@ -78,8 +84,8 @@ class Interpreter:
         if right.token_type != TokenType.NUMBER:
             raise LoxRuntimeError(operator, f"Right operand to [{operator.lexeme}] must be a number")
 
-    # ======== Visitor functions ======== ##
-    def visit_literal_expr(self, expr: LiteralExpr) -> Expr:
+    # ======== Visitor expressions ======== ##
+    def visit_literal_expr(self, expr: LiteralExpr) -> Token:
         return expr.value
 
     def visit_grouping_expr(self, expr: GroupingExpr) -> Expr:
@@ -92,9 +98,9 @@ class Interpreter:
 
         #self.check_number_operand(expr.op, right)
 
-        if right.token_type == TokenType.MINUS:
+        if expr.op.token_type == TokenType.MINUS:
             return -float(right.lexeme)        # I presume this is what we want rather than the lexeme
-        elif right.token_type == TokenType.BANG:
+        elif expr.op.token_type == TokenType.BANG:
             return not self.is_true(right)
 
         # Unreachable ?
@@ -132,19 +138,34 @@ class Interpreter:
         # unreachable?
         return None
 
+    # ======== Visitor statements ======== ##
+    def visit_expr_stmt(self, stmt: ExprStmt) -> Any:
+        return self.evaluate(stmt.expr)
+
+    def visit_print_stmt(self, stmt: PrintStmt) -> Any:
+        value = self.evaluate(stmt.expr)
+        print(f"{value}")
+        return value
+
+    def execute(self, stmt: Stmt) -> Any:
+        return stmt.accept(self)
+
     # Entry point method
-    def interpret(self, expr: Expr) -> Optional[Expr]:
+    def interpret(self, stmts: Sequence[Stmt]) -> Sequence[Any]:
         """
-        INTERPRET
-        Interpret the Lox expression expr
+        Interpret a list of Lox Statements
         """
+
+        # TODO: note that you aren't really supposed to do this, the design is more aimed at being a
+        # REPL than it is about being a module, I just find this design easier to test.
+        out_stmts = []  
+
         try:
-            value = self.evaluate(expr)
-            if self.verbose:
-                print(str(value))
+            for stmt in stmts:
+                out_stmts.append(self.execute(stmt))
+        except LoxRuntimeError as e:
+            print(f"Got runtime error [{e.message}] at {e.token}")
+            return out_stmts            # TODO: this isn't actually a useful thing to do I think
 
-            return value
+        return out_stmts
 
-        except Exception as e:
-            print('Interpreting error [%s]' % str(e)) #TODO : hook up the proper logging
-            return None
