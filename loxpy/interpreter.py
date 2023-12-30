@@ -103,18 +103,16 @@ class Interpreter:
         left = self.evaluate(expr.left)
         right = self.evaluate(expr.right)
 
-        # TODO: does this work - left and right are both going to be Expr types...
         self.check_number_operands(expr.op, left, right)
 
         if expr.op.token_type == TokenType.MINUS:
-            self.check_number_operands(expr.op, left, right)
             return float(left.lexeme) - float(right.lexeme)
         elif expr.op.token_type == TokenType.SLASH:
             return float(left.lexeme) / float(right.lexeme)
         elif expr.op.token_type == TokenType.STAR:
             return float(left.lexeme) * float(right.lexeme)
         elif expr.op.token_type == TokenType.PLUS:
-            pass
+            return float(left.lexeme) + float(right.lexeme)
         elif expr.op.token_type == TokenType.GREATER:
             return float(left.lexeme) > float(right.lexeme)
         elif expr.op.token_type == TokenType.GREATER_EQUAL:
@@ -153,12 +151,13 @@ class Interpreter:
 
     # ======== Run ======== ##
     def execute(self, stmt: Stmt) -> Any:
+        #from pudb import set_trace; set_trace()
         return stmt.accept(self)
 
     # Entry point method
     def interpret(self, stmts: Sequence[Stmt]) -> Sequence[Any]:
         """
-        Interpret a list of Lox Statements
+        Interpret a Sequence of Lox Statements
         """
 
         # TODO: note that you aren't really supposed to do this, the design is more aimed at being a

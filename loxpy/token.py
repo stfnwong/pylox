@@ -166,4 +166,4 @@ class Token:
         r = ",".join(
             f"{k}={v!r}" for k, v in self.__dict__.items()
         )
-        return f"{self.__class__.__name__}{r}"
+        return f"{self.__class__.__name__}({r})"

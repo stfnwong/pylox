@@ -1,6 +1,6 @@
 # STATEMENTS 
 
-from typing import Optional
+from typing import Any, Optional
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
@@ -13,7 +13,7 @@ from loxpy.token import Token
 class Stmt(ABC):
 
     @abstractmethod
-    def accept(self, visitor):
+    def accept(self, visitor) -> Optional[Any]:
         raise NotImplementedError("This method must be defined in derived class")
 
 
@@ -29,9 +29,8 @@ class ExprStmt(Stmt):
 class PrintStmt(Stmt):
     expr: Expr
 
-    def accept(self, visitor):
+    def accept(self, visitor) -> Any:
         return visitor.visit_print_stmt(self)
-
 
 
 @dataclass
@@ -42,6 +41,6 @@ class VarStmt(Stmt):
     def __str__(self) -> str:
         return f"VarExpr({self.name} = {self.initializer})"
 
-    def accept(self, visitor):
+    def accept(self, visitor) -> Any:
         return visitor.visit_var_stmt(self)
 

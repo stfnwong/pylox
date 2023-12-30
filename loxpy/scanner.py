@@ -62,7 +62,7 @@ class Scanner:
             token_type = self.reserved_words[text]
         else:
             token_type = TokenType.IDENTIFIER
-        self._add_token(token_type)
+        self._add_token(token_type, text)
 
     def _isalpha(self, c:str) -> bool:
         if ord(c) in range(65,91) or ord(c) in range(97, 123):
@@ -122,7 +122,7 @@ class Scanner:
         return self.source[self.src_current + 1]
 
     def _parse_string(self) -> None:
-        while self._peek() != '"' and self._src_end() is not False:
+        while self._peek() != '"' and self._src_end() is False:
             if self._peek() == '\n':
                 self.src_line += 1
             self._advance()

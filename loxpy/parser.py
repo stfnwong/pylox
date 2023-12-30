@@ -10,21 +10,15 @@ from loxpy.expr import (
     Expr,
     LiteralExpr,
     UnaryExpr,
-    GroupingExpr
+    GroupingExpr,
+    VarExpr
 )
 from loxpy.statement import Stmt, PrintStmt, ExprStmt, VarStmt
 from loxpy.token import Token, TokenType
 from loxpy.error import LoxParseError
 
 
-E = TypeVar("E", covariant=True, bound=Expr | BinaryExpr | LiteralExpr | UnaryExpr)
-
-
-# ParseError exception
-#class ParseError(Exception):
-#    def __init__(self, expr: Expr, msg:str) -> None:
-#        self.message    :str = msg
-
+#E = TypeVar("E", covariant=True, bound=Expr | BinaryExpr | LiteralExpr | UnaryExpr)
 
 
 class Parser:

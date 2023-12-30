@@ -2,12 +2,17 @@
 This is an implementation of the Lox Language in Python. The lox language is the language developed in the excellent book [Crafting Interpreters](https://www.craftinginterpreters.com/). 
 
 ## Requirements 
-Nothing really. Unit tests are all written with the `unittest` module.
+Despite hating it I've decided to use `poetry` for dependencies. To install do
+
+`poetry install` 
+
+Optionally append `-vv` to see things scrolling, perhaps this can assure you that poetry is actually doing something.
+
+Activate the environment with `source $(poetry env info -p)/bin/activate`. Deactivate with `deactivate`.
 
 
 ## Grammar
 The grammar at the time of writing is 
-
 
 `program -> declaration | eof;`
 
