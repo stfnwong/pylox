@@ -4,7 +4,7 @@ PARSER
 Stefan Wong 2018
 """
 
-from typing import List, TypeVar, Union
+from typing import List, TypeVar, Optional, Union
 from loxpy.expr import (
     BinaryExpr,
     Expr,
@@ -12,8 +12,9 @@ from loxpy.expr import (
     UnaryExpr,
     GroupingExpr
 )
-from loxpy.statement import Stmt, PrintStmt, ExprStmt
+from loxpy.statement import Stmt, PrintStmt, ExprStmt, VarStmt
 from loxpy.token import Token, TokenType
+from loxpy.error import LoxParseError
 
 
 E = TypeVar("E", covariant=True, bound=Expr | BinaryExpr | LiteralExpr | UnaryExpr)
@@ -24,11 +25,6 @@ E = TypeVar("E", covariant=True, bound=Expr | BinaryExpr | LiteralExpr | UnaryEx
 #    def __init__(self, expr: Expr, msg:str) -> None:
 #        self.message    :str = msg
 
-
-class ParseError(Exception):
-    def __init__(self, token: Token, msg:str) -> None:
-        self.token   :Token = token
-        self.message :str = msg
 
 
 class Parser:
@@ -71,7 +67,7 @@ class Parser:
             return self._advance()
 
         # TODO: something wrong here...
-        raise ParseError(self._peek(), msg)
+        raise LoxParseError(self._peek(), msg)
 
     def _peek(self) -> Token:
         return self.token_list[self.current]
@@ -88,6 +84,43 @@ class Parser:
 
         return False
 
+    def _synchronise(self) -> None:
+        pass
+
+    # ==== Statements =====
+    def _expression_statement(self) -> ExprStmt:
+        expr = self._expression()
+        self._consume(TokenType.SEMICOLON, "Expect ';' after expression")
+
+        return ExprStmt(expr)
+
+    # ==== Productions 
+    def _expression(self) -> Expr:
+        return self._equality()
+
+    def _declaration(self) -> Optional[Stmt]:
+        try:
+            if self._match([TokenType.VAR]):
+                return self._var_declaration()
+
+            return self._statement()
+        except LoxParseError as e:
+            self._synchronise()
+            return None
+
+    def _var_declaration(self) -> Stmt:
+        name = self._consume(TokenType.IDENTIFIER, "Expect variable name")
+
+        if self._match([TokenType.EQUAL]):
+            initializer = self._expression()
+        else:
+            initializer = None
+
+        self._consume(TokenType.SEMICOLON, "Expect ';' after variable declaration")
+
+        return VarStmt(name, initializer)
+
+
     def _equality(self) -> Expr:
         expr = self._comparison()
 
@@ -99,21 +132,15 @@ class Parser:
 
         return expr
 
-    def _expression(self) -> Expr:
-        return self._equality()
-
-    # ==== Statements =====
-    def _expression_statement(self) -> ExprStmt:
-        expr = self._expression()
-        self._consume(TokenType.SEMICOLON, "Expect ';' after expression")
-
-        return ExprStmt(expr)
-
 
     def _comparison(self) -> Expr:
         expr = self._term()
-        comp_tokens = [TokenType.GREATER, TokenType.GREATER_EQUAL,
-                       TokenType.LESS, TokenType.LESS_EQUAL]
+        comp_tokens = [
+            TokenType.GREATER, 
+            TokenType.GREATER_EQUAL,
+            TokenType.LESS, 
+            TokenType.LESS_EQUAL
+        ]
 
         while self._match(comp_tokens):
             operator = self._previous()
@@ -176,6 +203,9 @@ class Parser:
         if self._match([TokenType.NUMBER, TokenType.STRING]):
             expr = LiteralExpr(self._previous())
 
+        if self._match([TokenType.IDENTIFIER]):
+            return VarExpr(self._previous())
+
         if self._match([TokenType.LEFT_PAREN]):
             expr = self._expression()
             self._consume(TokenType.RIGHT_PAREN, "Expect ')' after expression")
@@ -208,8 +238,8 @@ class Parser:
 
         try:
             while not self._at_end():
-                statements.append(self._statement())
-        except ParseError as e:
+                statements.append(self._declaration())
+        except LoxParseError as e:
             # TODO: Should a ParseError hold a token or an expression?
             print(f"Parse error for expression {e.token}, ({e.message})")   
             raise

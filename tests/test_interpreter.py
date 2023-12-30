@@ -47,6 +47,28 @@ def test_interpret_binary() -> None:
     assert float_equal(value[0], exp_value)
 
 
+# TODO: place a grouping expression on one side of a binary expression
+#def test_interpret_nested_binary() -> None:
+#    interp = Interpreter(verbose=GLOBAL_VERBOSE)
+#
+#    # Inner expr
+#    inner_num1 = Token(TokenType.NUMBER, "2", None, 1)
+#    inner_mul  = Token(TokenType.STAR, "*", None, 1)
+#    inner_num2 = Token(TokenType.NUMBER, "4", None, 1)
+#    inner_expr = BinaryExpr(inner_mul, LiteralExpr(inner_num1), LiteralExpr(inner_num2))
+#
+#    outer_num1 = Token(TokenType.NUMBER, "10", None, 1)
+#    outer_mul  = Token(TokenType.STAR, "*", None, 1)
+#    outer_expr = ExprStmt(BinaryExpr(outer_mul, inner_expr, LiteralExpr(outer_num1)))
+#
+#    #from pudb import set_trace; set_trace()
+#    value = interp.interpret([outer_expr])
+#
+#    exp_value = 80.0
+#
+#    assert float_equal(value[0], exp_value)
+#
+
 def test_interpret_print() -> None:
     interp = Interpreter(verbose=GLOBAL_VERBOSE)
 

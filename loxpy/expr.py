@@ -67,8 +67,17 @@ class UnaryExpr(Expr):
     def __str__(self) -> str:
         return f"UnaryExpr({self.op}, {self.right})"
 
-    # TODO: can this return an expression?
-    def accept(self, visitor) -> Union[float, bool, None]:
+    def accept(self, visitor) -> Union[Expr, float, bool, None]:
         return visitor.visit_unary_expr(self)
 
 
+
+@dataclass
+class VarExpr(Expr):
+    name: Token
+
+    def __str__(self) -> str:
+        return f"VarExpr({self.name.lexeme})"
+
+    def accept(self, visitor):
+        return visitor.visit_var_expr(self)

@@ -1,9 +1,11 @@
 # STATEMENTS 
 
+from typing import Optional
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
 from loxpy.expr import Expr
+from loxpy.token import Token
 
 
 
@@ -29,3 +31,17 @@ class PrintStmt(Stmt):
 
     def accept(self, visitor):
         return visitor.visit_print_stmt(self)
+
+
+
+@dataclass
+class VarStmt(Stmt):
+    name: Token
+    initializer: Optional[Expr] = None
+
+    def __str__(self) -> str:
+        return f"VarExpr({self.name} = {self.initializer})"
+
+    def accept(self, visitor):
+        return visitor.visit_var_stmt(self)
+

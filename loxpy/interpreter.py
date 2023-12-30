@@ -5,38 +5,31 @@ Interpret a collection of Lox expressions
 """
 
 from typing import Any, Sequence, Union
+
 from loxpy.token import Token, TokenType
 from loxpy.expr import (
     Expr,
     BinaryExpr,
     LiteralExpr,
     GroupingExpr,
-    UnaryExpr
+    UnaryExpr,
+    VarExpr
 )
 from loxpy.statement import (
     Stmt,
     ExprStmt,
-    PrintStmt
+    PrintStmt,
+    VarStmt
 )
-
-
-class InterpreterError(Exception):
-    def __init__(self, token: Token, msg: str) -> None:
-        super(InterpreterError, self).__init__(msg)
-        self.token = token
-        self.message = msg
-
-class LoxRuntimeError(Exception):
-    def __init__(self, token: Token, msg: str) -> None:
-        super(LoxRuntimeError, self).__init__(msg)
-        self.token = token
-        self.message = msg
+from loxpy.environment import Environment
+from loxpy.error import LoxRuntimeError
 
 
 
 class Interpreter:
     def __init__(self, verbose:bool=False) -> None:
         self.verbose:bool = verbose
+        self.environment = Environment()
 
     def is_true(self, expr: Expr) -> bool:
         """
@@ -84,7 +77,7 @@ class Interpreter:
         if right.token_type != TokenType.NUMBER:
             raise LoxRuntimeError(operator, f"Right operand to [{operator.lexeme}] must be a number")
 
-    # ======== Visitor expressions ======== ##
+    # ======== Visit expressions ======== ##
     def visit_literal_expr(self, expr: LiteralExpr) -> Token:
         return expr.value
 
@@ -138,7 +131,10 @@ class Interpreter:
         # unreachable?
         return None
 
-    # ======== Visitor statements ======== ##
+    def visit_var_expr(self, expr: VarExpr) -> Any:
+        return self.environment.get(expr.name)
+
+    # ======== Visit statements ======== ##
     def visit_expr_stmt(self, stmt: ExprStmt) -> Any:
         return self.evaluate(stmt.expr)
 
@@ -147,6 +143,15 @@ class Interpreter:
         print(f"{value}")
         return value
 
+    def visit_var_stmt(self, stmt: VarStmt) -> None:
+        if stmt.initializer is not None:
+            value = self.evaluate(stmt.initializer)
+        else:
+            value = None
+
+        self.environment.define(stmt.name.lexeme, value)
+
+    # ======== Run ======== ##
     def execute(self, stmt: Stmt) -> Any:
         return stmt.accept(self)
 

@@ -9,4 +9,5 @@ __pycache__
 # Ignore ctags files
 tags
 
+# Ignore tool caches
 .mypy_cache

@@ -143,6 +143,13 @@ class Token:
     """
     Token.
     Represents a token in the Lox source.
+
+    Arguments:
+        token_type (TokenType): the type of this token.
+        lexeme (str): The lexeme string from the source associated with this token.
+        literal (Any): Any literal. Used for literal expressions.
+        line (int): The line in the source file where the token was parsed.
+
     """
 
     token_type: TokenType
