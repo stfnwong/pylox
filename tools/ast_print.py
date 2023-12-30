@@ -20,7 +20,7 @@ from loxpy.expr import (
 
 
 
-class ASTPrint:
+class ASTPrinter:
     """
     Visitor which prints an AST in human-readable format
     """
@@ -71,5 +71,25 @@ class ASTPrint:
             raise ValueError(f"Unknown expression {expr} with type {type(expr)}")
 
     def print(self, expr: Expr) -> str:
-        return expr.accept(self)
+        return str(expr.accept(self))
 
+
+
+# Example AST from book
+if __name__ == "__main__":
+    from loxpy.token import Token, TokenType
+
+    expr = BinaryExpr(
+        Token(TokenType.STAR, "*", None, 1),
+        UnaryExpr(
+            Token(TokenType.MINUS, "-", None, 1),
+            LiteralExpr(Token(TokenType.NUMBER, "123", 123, 1))
+        ),
+        GroupingExpr(
+            LiteralExpr(Token(TokenType.NUMBER, "45.67", 45.67, 1))
+        )
+    )
+
+    printer = ASTPrinter()
+    print(printer.print(expr))
+        

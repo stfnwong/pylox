@@ -71,7 +71,6 @@ class UnaryExpr(Expr):
         return visitor.visit_unary_expr(self)
 
 
-
 @dataclass
 class VarExpr(Expr):
     name: Token
