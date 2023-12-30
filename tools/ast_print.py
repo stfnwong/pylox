@@ -58,7 +58,6 @@ class ASTPrinter:
 
     # TODO : remove this
     def visit(self, expr: Expr):
-
         if type(expr) is BinaryExpr:
             self.visit_binary_expr(expr)
         elif type(expr) is GroupingExpr:

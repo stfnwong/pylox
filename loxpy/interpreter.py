@@ -45,7 +45,7 @@ class Interpreter:
 
         return True
 
-    def is_equal(self, a:Any, b:Any) -> bool:
+    def is_equal(self, a: Any, b: Any) -> bool:
         if(a is None) and (b is None):
             return True
         if a is None:
@@ -71,10 +71,10 @@ class Interpreter:
         if operand.token_type != TokenType.NUMBER:
             raise LoxRuntimeError(operator, 'Operand must be a number')
 
-    def check_number_operands(self, operator: Token, left: Token, right: Token) -> None:
-        if left.token_type != TokenType.NUMBER:
+    def check_number_operands(self, operator: Token, left: Union[Token, float], right: Union[Token, float]) -> None:
+        if not isinstance(left, float) and left.token_type != TokenType.NUMBER:
             raise LoxRuntimeError(operator, f"Left operand to [{operator.lexeme}] must be a number")
-        if right.token_type != TokenType.NUMBER:
+        if not isinstance(right, float) and right.token_type != TokenType.NUMBER:
             raise LoxRuntimeError(operator, f"Right operand to [{operator.lexeme}] must be a number")
 
     # ======== Visit expressions ======== ##
@@ -99,28 +99,33 @@ class Interpreter:
         # Unreachable ?
         return None
 
-    def visit_binary_expr(self, expr: BinaryExpr) -> Union[float, None]:
+    def visit_binary_expr(self, expr: BinaryExpr) -> Union[float, bool, None]:
         left = self.evaluate(expr.left)
         right = self.evaluate(expr.right)
 
         self.check_number_operands(expr.op, left, right)
 
+        if isinstance(left, Token):
+            left = float(left.lexeme)
+        if isinstance(right, Token):
+            right = float(right.lexeme)
+
         if expr.op.token_type == TokenType.MINUS:
-            return float(left.lexeme) - float(right.lexeme)
+            return left - right
         elif expr.op.token_type == TokenType.SLASH:
-            return float(left.lexeme) / float(right.lexeme)
+            return left / right
         elif expr.op.token_type == TokenType.STAR:
-            return float(left.lexeme) * float(right.lexeme)
+            return left * right
         elif expr.op.token_type == TokenType.PLUS:
-            return float(left.lexeme) + float(right.lexeme)
+            return left + right
         elif expr.op.token_type == TokenType.GREATER:
-            return float(left.lexeme) > float(right.lexeme)
+            return left > right
         elif expr.op.token_type == TokenType.GREATER_EQUAL:
-            return float(left.lexeme) >= float(right.lexeme)
+            return left >= right
         elif expr.op.token_type == TokenType.LESS:
-            return float(left.lexeme) < float(right.lexeme)
+            return left < right
         elif expr.op.token_type == TokenType.LESS_EQUAL:
-            return float(left.lexeme) <= float(right.lexeme)
+            return left <= right
         elif expr.op.token_type == TokenType.BANG_EQUAL:
             return not self.is_equal(left, right)
         elif expr.op.token_type == TokenType.EQUAL_EQUAL:
