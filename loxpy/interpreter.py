@@ -67,8 +67,8 @@ class Interpreter:
         # TODO: unreachable?
         return None
 
-    def check_number_operand(self, operator: Token, operand: Token) -> None:
-        if operand.token_type != TokenType.NUMBER:
+    def check_number_operand(self, operator: Token, operand: Union[Token, float]) -> None:
+        if not isinstance(operand, float) and operand.token_type != TokenType.NUMBER:
             raise LoxRuntimeError(operator, 'Operand must be a number')
 
     def check_number_operands(self, operator: Token, left: Union[Token, float], right: Union[Token, float]) -> None:
@@ -89,10 +89,12 @@ class Interpreter:
         if right is None:
             raise TypeError('Incorrect expression for right operand of unary expression [visit_unary_expr()]')
 
-        #self.check_number_operand(expr.op, right)
-
+        self.check_number_operand(expr.op, right)
+        
         if expr.op.token_type == TokenType.MINUS:
-            return -float(right.lexeme)        # I presume this is what we want rather than the lexeme
+            if isinstance(right, Token):
+                right = float(right.lexeme)
+            return -right
         elif expr.op.token_type == TokenType.BANG:
             return not self.is_true(right)
 

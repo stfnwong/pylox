@@ -4,7 +4,7 @@ PARSER
 Stefan Wong 2018
 """
 
-from typing import List, TypeVar, Optional, Union
+from typing import Sequence, Optional, Union
 from loxpy.expr import (
     BinaryExpr,
     Expr,
@@ -22,10 +22,10 @@ from loxpy.error import LoxParseError
 
 
 class Parser:
-    def __init__(self, token_list: List[Token]) -> None:
+    def __init__(self, token_list: Sequence[Token]) -> None:
         if type(token_list) is not list:
             raise TypeError('token_list must be a list')
-        self.token_list: List[Token] = token_list
+        self.token_list: Sequence[Token] = token_list
         self.current   : int  = 0
 
     def __str__(self) -> str:
@@ -47,7 +47,7 @@ class Parser:
             return True
         return False
 
-    def _check(self, token_type) -> bool:
+    def _check(self, token_type: TokenType) -> bool:
         if self._at_end():
             return False
 
@@ -70,7 +70,7 @@ class Parser:
         return self.token_list[self.current - 1]
 
     # Methods that implement rules for productions
-    def _match(self, token_types: List[TokenType]) -> bool:
+    def _match(self, token_types: Sequence[TokenType]) -> bool:
         for t in token_types:
             if self._check(t):
                 self._advance()
@@ -100,7 +100,7 @@ class Parser:
             return self._statement()
         except LoxParseError as e:
             self._synchronise()
-            return None
+            raise e
 
     def _var_declaration(self) -> Stmt:
         name = self._consume(TokenType.IDENTIFIER, "Expect variable name")
@@ -223,20 +223,15 @@ class Parser:
 
         return self._expr_statement()
 
-    def parse(self) -> List[Stmt]:
+    def parse(self) -> Sequence[Stmt]:
         """
         Parse an expression
         """
 
         statements = []
 
-        try:
-            while not self._at_end():
-                statements.append(self._declaration())
-        except LoxParseError as e:
-            # TODO: Should a ParseError hold a token or an expression?
-            print(f"Parse error for expression {e.token}, ({e.message})")   
-            raise
+        while not self._at_end():
+            statements.append(self._declaration())
 
         return statements
 

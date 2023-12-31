@@ -1,7 +1,7 @@
 # Interactive prompt for loxpy
 # TODO: command history
 
-from sys import version_info
+from sys import argv, version_info
 
 from loxpy.error import LoxRuntimeError, LoxParseError
 from loxpy.token import Token, TokenType
@@ -49,7 +49,16 @@ class Lox:
             print(f"{runtime_error}: [line {runtime_error.token.line}]")
             self.had_runtime_error = True
 
-    # TODO: run_file()
+    def run_file(self, filename: str) -> None:
+        with open(filename, "r") as fp:
+            source = fp.read()
+
+        self.run(source)
+
+        if self.had_error:
+            exit(-1)
+        elif self.had_runtime_error:
+            exit(-2)
 
     def prompt(self) -> None:
         print(self._repl_header())
@@ -72,10 +81,14 @@ class Lox:
                 exit(0)
 
 
-def main():
+def main(args):
+
     lox = Lox()
-    lox.prompt()
+    if len(args) == 1:
+        lox.run_file(args[0])
+    else:
+        lox.prompt()
 
 
 if __name__ == "__main__":
-    main()
+    main(argv[1:])

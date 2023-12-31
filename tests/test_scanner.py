@@ -27,8 +27,8 @@ def test_operator() -> None:
     token_list = scanner.scan()
 
     exp_tokens = [
-        Token(TokenType.VAR       , '' , None, 1),
-        Token(TokenType.IDENTIFIER, '' , None, 1),
+        Token(TokenType.VAR       , "var" , "var", 1),
+        Token(TokenType.IDENTIFIER, "c" , "c", 1),
         Token(TokenType.EQUAL,      '' , None, 1),
         Token(TokenType.NUMBER,     '2', 2.0,  1),
         Token(TokenType.PLUS,       '' , None, 1),
@@ -42,25 +42,27 @@ def test_operator() -> None:
     for n, (tok, exp_tok) in enumerate(zip(token_list, exp_tokens)):
         if VERBOSE and tok != exp_tok:
             print(f"Token [{n}], expected {exp_tok}, got {tok}")
-
         assert tok == exp_tok
 
 
 def test_bang() -> None:
     scanner = Scanner(load_source(BANG_SRC), verbose=VERBOSE)
+    #from pudb import set_trace; set_trace()
     token_list = scanner.scan()
 
     exp_tokens = [
-        Token(TokenType.VAR       , '' , None, 1),
-        Token(TokenType.IDENTIFIER, '' , None, 1),
-        Token(TokenType.EQUAL,      '' , None, 1),
-        Token(TokenType.TRUE,       '' , None, 1),
+        Token(TokenType.VAR       , "var",  "var", 1),
+        Token(TokenType.IDENTIFIER, "a" ,   "a", 1),
+        Token(TokenType.EQUAL,      "" ,   None, 1),
+        Token(TokenType.TRUE,       "true", "true", 1),
+        Token(TokenType.SEMICOLON,  "",    None, 1),
 
-        Token(TokenType.IDENTIFIER, '' , None, 2),
-        Token(TokenType.EQUAL,      '' , None, 2),
-        Token(TokenType.BANG,       '' , None, 2),
-        Token(TokenType.IDENTIFIER, '' , None, 2),
-        Token(TokenType.LOX_EOF,    '' , None, 3),
+        Token(TokenType.IDENTIFIER, "a", "a", 2),
+        Token(TokenType.EQUAL,      "", None, 2),
+        Token(TokenType.BANG,       "", None, 2),
+        Token(TokenType.IDENTIFIER, "a", "a", 2),
+        Token(TokenType.SEMICOLON,  "", None, 2),
+        Token(TokenType.LOX_EOF,    "" , None, 3),
     ]
 
 

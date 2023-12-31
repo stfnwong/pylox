@@ -1,5 +1,5 @@
 # modules under test
-from tools.ast_print import ASTPrint
+from tools.ast_print import ASTPrinter
 from loxpy.expr import BinaryExpr, LiteralExpr
 from loxpy.token import Token, TokenType
 
@@ -11,7 +11,7 @@ def test_parenthesize():
     op        = Token(TokenType.PLUS, '+', None, 1)
     right     = Token(TokenType.NUMBER, '4', 4.0, 1)
     test_expr = BinaryExpr(op, LiteralExpr(left), LiteralExpr(right))
-    ast_print = ASTPrint()
+    ast_print = ASTPrinter()
 
     ast_string = ast_print.print(test_expr)
     exp_string = "(+ 2 4)"

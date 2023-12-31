@@ -1,10 +1,12 @@
 # Modules under test
 from typing import List
+import pytest
 
+from loxpy.error import LoxParseError
 from loxpy.parser import Parser
 from loxpy.scanner import Scanner
 from loxpy.token import Token, TokenType
-from loxpy.expr import Expr, BinaryExpr, LiteralExpr
+from loxpy.expr import BinaryExpr, LiteralExpr
 from loxpy.statement import Stmt, ExprStmt
 
 
@@ -65,3 +67,14 @@ def test_simple_div() -> None:
     parsed_output = parse_input(simple_expr)
 
     assert parsed_output == exp_output
+
+
+def test_raise_parse_error() -> None:
+    source = "print 1"    # No trailing semicolon should raise LoxParseError
+    scanner       = Scanner(source)
+    token_list    = scanner.scan()
+    parser        = Parser(token_list)
+
+    with pytest.raises(LoxParseError):
+        parsed_output = parser.parse()
+    
