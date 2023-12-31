@@ -5,7 +5,7 @@ Abstract class Expr
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Optional, Self, Union
+from typing import Any, Optional, Union
 
 from loxpy.token import Token
 
@@ -78,5 +78,17 @@ class VarExpr(Expr):
     def __str__(self) -> str:
         return f"VarExpr({self.name.lexeme})"
 
-    def accept(self, visitor):
+    def accept(self, visitor) -> Any:
         return visitor.visit_var_expr(self)
+
+
+@dataclass
+class AssignmentExpr(Expr):
+    name: Token
+    value: Expr
+
+    def __str__(self) -> str:
+        return f"AssignmentExpr({self.name})"
+
+    def accept(self, visitor) -> Any:
+        return visitor.visit_assignment_expr(self)

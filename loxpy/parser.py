@@ -11,7 +11,8 @@ from loxpy.expr import (
     LiteralExpr,
     UnaryExpr,
     GroupingExpr,
-    VarExpr
+    VarExpr,
+    AssignmentExpr
 )
 from loxpy.statement import Stmt, PrintStmt, ExprStmt, VarStmt
 from loxpy.token import Token, TokenType
@@ -69,6 +70,28 @@ class Parser:
     def _previous(self) -> Token:
         return self.token_list[self.current - 1]
 
+    def _synchronise(self) -> None:
+        self._advance()
+
+        while not self._at_end():
+            if self._previous().token_type == TokenType.SEMICOLON:
+                return
+
+            adv = (
+                TokenType.CLASS,
+                TokenType.FUN,
+                TokenType.VAR,
+                TokenType.FOR,
+                TokenType.IF,
+                TokenType.WHILE,
+                TokenType.PRINT,
+                TokenType.RETURN,
+            )
+            if self._peek().token_type in adv:
+                return
+
+            self._advance()
+
     # Methods that implement rules for productions
     def _match(self, token_types: Sequence[TokenType]) -> bool:
         for t in token_types:
@@ -77,9 +100,6 @@ class Parser:
                 return True
 
         return False
-
-    def _synchronise(self) -> None:
-        pass
 
     # ==== Statements =====
     def _expression_statement(self) -> ExprStmt:
@@ -90,7 +110,22 @@ class Parser:
 
     # ==== Productions 
     def _expression(self) -> Expr:
-        return self._equality()
+        return self._assignment()
+
+    def _assignment(self) -> Expr:
+        expr = self._equality()
+
+        if self._match([TokenType.EQUAL]):
+            equals = self._previous()
+            value = self._assignment()
+
+            if isinstance(expr, VarExpr):
+                name = expr.name
+                return AssignmentExpr(name, value)
+
+            raise LoxParseError(equals, "Invalid assignment target")
+
+        return expr
 
     def _declaration(self) -> Optional[Stmt]:
         try:
@@ -125,7 +160,6 @@ class Parser:
             expr = BinaryExpr(operator, expr, right)
 
         return expr
-
 
     def _comparison(self) -> Expr:
         expr = self._term()

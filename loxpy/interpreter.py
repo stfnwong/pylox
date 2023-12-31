@@ -13,7 +13,8 @@ from loxpy.expr import (
     LiteralExpr,
     GroupingExpr,
     UnaryExpr,
-    VarExpr
+    VarExpr,
+    AssignmentExpr
 )
 from loxpy.statement import (
     Stmt,
@@ -138,6 +139,12 @@ class Interpreter:
 
     def visit_var_expr(self, expr: VarExpr) -> Any:
         return self.environment.get(expr.name)
+
+    def visit_assignment_expr(self, expr: AssignmentExpr) -> Any:
+        value = self.evaluate(expr.value)
+        self.environment.assign(expr.name, value)
+
+        return value
 
     # ======== Visit statements ======== ##
     def visit_expr_stmt(self, stmt: ExprStmt) -> Any:

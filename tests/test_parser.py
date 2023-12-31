@@ -32,6 +32,7 @@ def test_simple_add() -> None:
 
     assert parsed_output == exp_output
 
+
 def test_simple_sub() -> None:
     simple_expr = "4 - 2;"
     # Format the expected output
@@ -44,6 +45,7 @@ def test_simple_sub() -> None:
 
     assert parsed_output == exp_output
 
+
 def test_simple_mul() -> None:
     simple_expr = "4 * 4;"
     # Format the expected output
@@ -55,6 +57,7 @@ def test_simple_mul() -> None:
     parsed_output = parse_input(simple_expr)
 
     assert parsed_output == exp_output
+
 
 def test_simple_div() -> None:
     simple_expr = "6 / 4;"
@@ -78,3 +81,5 @@ def test_raise_parse_error() -> None:
     with pytest.raises(LoxParseError):
         parsed_output = parser.parse()
     
+
+# TODO: write a test that exercises _synchronise()
