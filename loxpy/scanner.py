@@ -2,7 +2,6 @@
 SCANNER
 Token Scanner class
 
-Stefan Wong 2018
 """
 
 from typing import Any, Dict, List
@@ -139,10 +138,7 @@ class Scanner:
         self._add_token(TokenType.STRING, value)
 
     def _add_token(self, token_type: TokenType, literal:Any=None) -> None:
-        if literal is None:
-            text = ''
-        else:
-            text = self.source[self.src_start : self.src_current]
+        text = self.source[self.src_start : self.src_current]
         token = Token(token_type, text, literal, self.src_line)
         self.token_list.append(token)
 
