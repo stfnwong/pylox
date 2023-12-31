@@ -1,11 +1,12 @@
-from typing import Any, Dict
+from typing import Any, Dict, Optional, Self
 
 from loxpy.token import Token
 from loxpy.error import LoxRuntimeError
 
 
 class Environment:
-    def __init__(self):
+    def __init__(self, enclosing: Optional[Self]=None):
+        self.enclosing: Optional[Self] = enclosing
         self.values: Dict[str, Any] = {}
 
     def __len__(self) -> int:
@@ -19,11 +20,18 @@ class Environment:
             self.values[name.lexeme] = value
             return
 
+        if self.enclosing:
+            self.enclosing.assign(name, value)
+            return
+
         raise LoxRuntimeError(name, f"Undefined variable {name.lexeme}")
 
     def get(self, name: Token) -> Any:
         if name.lexeme in self.values:
             return self.values[name.lexeme]
+
+        if self.enclosing:
+            return self.enclosing.get(name)
 
         raise LoxRuntimeError(name, f"Undefined variable {name.lexeme}")
 
