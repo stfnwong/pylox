@@ -11,6 +11,7 @@ from loxpy.expr import (
     Expr,
     BinaryExpr,
     LiteralExpr,
+    LogicalExpr,
     GroupingExpr,
     UnaryExpr,
     VarExpr,
@@ -44,7 +45,7 @@ class Interpreter:
             return False
 
         if isinstance(expr, LiteralExpr):
-            return True if expr.value else False
+            return True if (expr.value and expr.value.token_type != TokenType.NIL) else False
 
         return True
 
@@ -83,6 +84,18 @@ class Interpreter:
     # ======== Visit expressions ======== ##
     def visit_literal_expr(self, expr: LiteralExpr) -> Token:
         return expr.value
+    
+    def visit_logical_expr(self, expr: LogicalExpr) -> Any:
+        left = self.evaluate(expr.left)
+
+        if expr.op.token_type == TokenType.OR:
+            if self.is_true(expr.left):
+                return left
+        else:
+            if not self.is_true(expr.left):
+                return left
+
+        return self.evaluate(expr.right)
 
     def visit_grouping_expr(self, expr: GroupingExpr) -> Expr:
         return self.evaluate(expr.expression)

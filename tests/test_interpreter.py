@@ -1,7 +1,7 @@
 from typing import Sequence
 
 from loxpy.expr import BinaryExpr, LiteralExpr, UnaryExpr
-from loxpy.statement import Stmt, ExprStmt
+from loxpy.statement import Stmt, ExprStmt, PrintStmt
 from loxpy.token import Token, TokenType
 from loxpy.scanner import Scanner
 from loxpy.parser import Parser
@@ -72,5 +72,14 @@ def test_interpret_binary() -> None:
 def test_interpret_print() -> None:
     interp = Interpreter(verbose=GLOBAL_VERBOSE)
 
-    tok_print = Token(TokenType.PRINT, "print", None, 1)
     tok_string = Token(TokenType.STRING, "bet you can't print this", None, 1)
+    stmts = [PrintStmt(LiteralExpr(tok_string))]
+
+    ret = interp.interpret(stmts)
+    assert len(ret) == 1
+    assert ret[0] == tok_string
+
+    
+
+
+

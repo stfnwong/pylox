@@ -43,6 +43,7 @@ class Lox:
             stmts = parser.parse()
 
             self.interp.interpret(stmts)
+
         except LoxParseError as parse_error:
             self.error(parse_error.token, str(parse_error))
         except LoxRuntimeError as runtime_error:

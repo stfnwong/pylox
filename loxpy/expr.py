@@ -60,6 +60,19 @@ class LiteralExpr(Expr):
 
 
 @dataclass
+class LogicalExpr(Expr):
+    op: Token
+    left: Expr
+    right: Expr
+
+    def __str__(self) -> str:
+        return f"LogicalExpr({self.op}, {self.left}, {self.right})"
+
+    def accept(self, visitor) -> Expr:
+        return visitor.visit_logical_expr(self)
+
+
+@dataclass
 class UnaryExpr(Expr):
     op: Token
     right: Expr

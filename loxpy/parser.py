@@ -9,6 +9,7 @@ from loxpy.expr import (
     BinaryExpr,
     Expr,
     LiteralExpr,
+    LogicalExpr,
     UnaryExpr,
     GroupingExpr,
     VarExpr,
@@ -120,7 +121,7 @@ class Parser:
         return self._assignment()
 
     def _assignment(self) -> Expr:
-        expr = self._equality()
+        expr = self._or()
 
         if self._match([TokenType.EQUAL]):
             equals = self._previous()
@@ -131,6 +132,26 @@ class Parser:
                 return AssignmentExpr(name, value)
 
             raise LoxParseError(equals, "Invalid assignment target")
+
+        return expr
+
+    def _and(self) -> Expr:
+        expr = self._equality()
+
+        while self._match([TokenType.AND]):
+            op = self._previous()
+            right = self._equality()
+            expr = LogicalExpr(op, expr, right)
+
+        return expr
+
+    def _or(self) -> Expr:
+        expr = self._and()
+
+        while self._match([TokenType.OR]):
+            op = self._previous()
+            right = self._and()
+            expr = LogicalExpr(op, expr, right)
 
         return expr
 
