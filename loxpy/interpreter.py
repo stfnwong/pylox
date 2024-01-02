@@ -10,6 +10,7 @@ from loxpy.token import Token, TokenType
 from loxpy.expr import (
     Expr,
     BinaryExpr,
+    CallExpr,
     LiteralExpr,
     LogicalExpr,
     GroupingExpr,
@@ -17,6 +18,7 @@ from loxpy.expr import (
     VarExpr,
     AssignmentExpr
 )
+
 from loxpy.statement import (
     Stmt,
     ExprStmt,
@@ -26,15 +28,29 @@ from loxpy.statement import (
     BlockStmt,
     WhileStmt
 )
+
 from loxpy.environment import Environment
+from loxpy.callable import LoxCallable
 from loxpy.error import LoxRuntimeError
 
+from loxpy.builtins import BUILTIN_MAP
+
+
+def load_builtins() -> Environment:
+    env = Environment()
+
+    for name, func in BUILTIN_MAP.items():
+        tok = Token(TokenType.FUN, name, None, 0)
+        env.define(tok, func)
+
+    return env
 
 
 class Interpreter:
-    def __init__(self, verbose:bool=False) -> None:
-        self.verbose:bool = verbose
-        self.environment = Environment()
+    def __init__(self, verbose: bool=False) -> None:
+        self.verbose: bool = verbose
+        self.globals = load_builtins()
+        self.environment = self.globals
 
     def is_true(self, expr: Optional[Union[Expr, bool]]) -> bool:
         """
@@ -153,12 +169,30 @@ class Interpreter:
         # unreachable?
         return None
 
+    def visit_call_expr(self, expr: CallExpr) -> Any:
+        function = self.evaluate(expr.callee)
+
+        if not isinstance(function, LoxCallable):
+            raise LoxRuntimeError(expr.paren, "Can only call functions")
+
+        args = []
+        for arg in expr.arguments:
+            args.append(self.evaluate(arg))
+
+        if len(args) != function.arity():
+            raise LoxRuntimeError(expr.paren, f"Expected {function.arity()} arguments, got {len(args)}")
+
+        try:
+            return function.call(self, args)
+        except (NotImplementedError, TypeError, ValueError) as e:
+            raise LoxRuntimeError(expr.paren, str(e))
+
     def visit_var_expr(self, expr: VarExpr) -> Any:
         return self.environment.get(expr.name)
 
     def visit_assignment_expr(self, expr: AssignmentExpr) -> Any:
         value = self.evaluate(expr.value)
-        self.environment.assign(expr.name, value)       # TODO: issue here?
+        self.environment.assign(expr.name, value)  
 
         return value
 

@@ -5,12 +5,12 @@ Abstract class Expr
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Any, Optional, Union
+from typing import Any, Optional, Sequence, Union
 
 from loxpy.token import Token
 
 
-# TODO: make the visitor explicit
+# TODO: make the visitor type explicit?
 ResultType = Union[float, bool, str, None]
 
 
@@ -24,6 +24,7 @@ class Expr(ABC):
 
 # All derived classes have a custom __str__() method to make the ASTPrinter work
 
+
 @dataclass
 class BinaryExpr(Expr):
     op: Token
@@ -35,6 +36,19 @@ class BinaryExpr(Expr):
 
     def accept(self, visitor) -> Optional[float]:
         return visitor.visit_binary_expr(self)
+
+
+@dataclass
+class CallExpr(Expr):
+    callee: Expr
+    paren: Token
+    arguments: Sequence[Expr]
+
+    def __str__(self) -> str:
+        return f"CallExpr({self.arguments})"
+
+    def accept(self, visitor) -> Any:
+        return visitor.visit_call_expr(self)
 
 
 @dataclass

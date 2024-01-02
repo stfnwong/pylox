@@ -6,8 +6,9 @@ Implements parsing for the Lox language.
 
 from typing import Sequence, Optional, Union
 from loxpy.expr import (
-    BinaryExpr,
     Expr,
+    BinaryExpr,
+    CallExpr,
     LiteralExpr,
     LogicalExpr,
     UnaryExpr,
@@ -37,6 +38,7 @@ class Parser:
             raise TypeError('token_list must be a list')
         self.token_list: Sequence[Token] = token_list
         self.current   : int  = 0
+        self.max_args = 255
 
     def __str__(self) -> str:
         s = []
@@ -236,7 +238,33 @@ class Parser:
             expr = UnaryExpr(operator, right)
             return expr
 
-        return self._primary()
+        return self._call()
+
+    def _finish_call(self, callee: Expr) -> Expr:
+        args = []
+
+        # If the next token is ')' then no need to parse arguments
+        if not self._check(TokenType.RIGHT_PAREN):
+            args.append(self._expression())
+            while self._match([TokenType.COMMA]):
+                if len(args) >= self.max_args:
+                    raise LoxParseError(self._peek(), f"Can't have more than {self.max_args} arguments to function")
+                args.append(self._expression())
+
+        paren = self._consume(TokenType.RIGHT_PAREN, "Expect ')' after arguments")
+
+        return CallExpr(callee, paren, args)
+
+    def _call(self) -> Expr:
+        expr = self._primary()
+
+        while True:
+            if self._match([TokenType.LEFT_PAREN]):
+                expr = self._finish_call(expr)
+            else:
+                break
+
+        return expr
 
     def _primary(self) -> Union[GroupingExpr, LiteralExpr, VarExpr]:
         expr = LiteralExpr(

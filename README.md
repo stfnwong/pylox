@@ -36,6 +36,9 @@ parsing technique in the book doesn't work well with left-recursive grammars.
 
 Short-circuit logic is implemented in the grammar as a low-precedence production.
 
+Function calls are implemented in the grammar as a high-precedence operator `()` 
+that matches a `primary` expression followed by zero or more function calls.
+
 `expression -> assignment`
 `assignment -> IDENTIFIER "=" assignment | logic_or`
 `logic_or -> logic_and ( "or" logic_and )*`
@@ -44,10 +47,16 @@ Short-circuit logic is implemented in the grammar as a low-precedence production
 `comparison -> term ( ( ">" | ">=" | "<" | "<=" ) term )*`
 `term -> factor ( ( "+" | "-" ) factor )*`
 `factor -> unary ( ( "/" | "*" ) unary )*`
-`unary -> ( "!" | "-" ) unary | primary`
+`unary -> ( "!" | "-" ) unary | call`
+`call -> primary ( "(" arguments? ")" )*`
 
 `primary -> "true" | "false" | "nil" | NUMBER | STRING 
             | "(" expression ")" | IDENTIFIER ;`
+
+
+Function arguments have the grammar 
+
+`arguments -> expression ( "," expression )*`
 
 
 ## TODOs:

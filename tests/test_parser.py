@@ -121,9 +121,9 @@ def test_parse_iter() -> None:
     source = load_source(ITER_PROGRAM)
     parsed_output = parse_input(source)
 
-    # We expect one VarStmt, one WhileStmt
-    assert len(parsed_output) == 2
+    # We expect one VarStmt, one WhileStmt, one PrintStmt
+    assert len(parsed_output) == 3
     
-    exp_types = [VarStmt, WhileStmt]
+    exp_types = [VarStmt, WhileStmt, PrintStmt]
     for p, t in zip(parsed_output, exp_types):
         assert type(p) == t
