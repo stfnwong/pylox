@@ -16,6 +16,7 @@ from loxpy.expr import (
 )
 from loxpy.statement import (
     Stmt, 
+    IfStmt,
     PrintStmt, 
     ExprStmt, 
     VarStmt, 
@@ -247,6 +248,19 @@ class Parser:
 
         return expr
 
+    def _if_statement(self) -> IfStmt:
+        self._consume(TokenType.LEFT_PAREN, "Expect '(' after if")
+        cond = self._expression()
+        self._consume(TokenType.RIGHT_PAREN, "Expect ')' after if condition")
+
+        then_branch = self._statement()
+        if self._match([TokenType.ELSE]):
+            else_branch = self._statement()
+        else:
+            else_branch = None
+
+        return IfStmt(cond, then_branch, else_branch)
+
     def _print_statement(self) -> PrintStmt:
         value = self._expression()
         self._consume(TokenType.SEMICOLON, "Expect ';' after value")
@@ -268,6 +282,8 @@ class Parser:
         return ExprStmt(value)
 
     def _statement(self) -> Stmt:
+        if self._match([TokenType.IF]):
+            return self._if_statement()
         if self._match([TokenType.PRINT]):
             return self._print_statement()
 

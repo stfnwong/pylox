@@ -15,7 +15,8 @@ from loxpy.expr import (
     BinaryExpr,
     LiteralExpr,
     GroupingExpr,
-    UnaryExpr
+    UnaryExpr,
+    VarExpr
 )
 
 
@@ -48,13 +49,16 @@ class ASTPrinter:
     def visit_grouping_expr(self, expr: GroupingExpr) -> str:
         return self._parenthesize("group", [expr.expression])
 
-    def visit_literal_expr(self, expr):
+    def visit_literal_expr(self, expr: LiteralExpr) -> str:
         if expr.value is None:
             return "nil"
         return str(expr.value)
 
-    def visit_unary_expr(self, expr):
+    def visit_unary_expr(self, expr: UnaryExpr):
         return self._parenthesize(expr.op.lexeme, [expr.right])
+
+    def visit_var_expr(self, expr: VarExpr) -> str:
+        pass
 
     # TODO : remove this
     def visit(self, expr: Expr):
@@ -78,6 +82,7 @@ class ASTPrinter:
 if __name__ == "__main__":
     from loxpy.token import Token, TokenType
 
+    from pudb import set_trace; set_trace()
     expr = BinaryExpr(
         Token(TokenType.STAR, "*", None, 1),
         UnaryExpr(
@@ -91,4 +96,3 @@ if __name__ == "__main__":
 
     printer = ASTPrinter()
     print(printer.print(expr))
-        

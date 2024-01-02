@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from loxpy.expr import Expr
 from loxpy.token import Token
 
+# TODO: what should the type of the visitor be?
 
 
 @dataclass
@@ -23,6 +24,16 @@ class ExprStmt(Stmt):
 
     def accept(self, visitor):
         return visitor.visit_expr_stmt(self)
+
+
+@dataclass
+class IfStmt(Stmt):
+    condition: Expr
+    then_branch: Stmt
+    else_branch: Optional[Stmt]
+
+    def accept(self, visitor):
+        return visitor.visit_if_stmt(self)
 
 
 @dataclass 

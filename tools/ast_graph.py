@@ -2,14 +2,12 @@
 ASTGraph
 Create a graph of the AST with graphviz
 
-Stefan Wong 2018
 """
 
-import os
-import sys
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from loxpy import Expression
+from typing import Sequence
+from loxpy.expr import Expr
+
 
 class ASTGraph(object):
     def __init__(self):
@@ -23,20 +21,21 @@ class ASTGraph(object):
         self.dot_body = []
         self.ncount = 1
 
-    def _gen_node(self, name, expr_list):
+    def _gen_node(self, name: str, expr_list: Sequence[Expr]):
         pass
 
-    def visit_literal_expr(self, expr):
-        s = 'node%d [label="%s"]\n' % (self.ncount, str(type(expr)))
+    def visit_literal_expr(self, expr: Expr):
+        s = f"Node{self.ncount} [label={str(type(expr))}]"
         self.ncount += 1
         self.dot_body.append(s)
 
-    def visit_unary_expr(self, expr):
-        s = 'node%d [label="%s"]\n' % (self.ncount, str(type(expr)))
+    def visit_unary_expr(self, expr: Expr):
+        s = f"Node{self.ncount} [label={str(type(expr))}]"
         self.ncount += 1
         self.dot_body.append(s)
 
-    def visit_binary_expr(self, expr):
-        s = 'node%d [label="%s"]\n' % (self.ncount, str(type(expr)))
+    def visit_binary_expr(self, expr: Expr):
+        s = f"Node{self.ncount} [label={str(type(expr))}]"
         self.ncount += 1
+        self.dot_body.append(s)
 

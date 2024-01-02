@@ -19,6 +19,7 @@ from loxpy.expr import (
 from loxpy.statement import (
     Stmt,
     ExprStmt,
+    IfStmt,
     PrintStmt,
     VarStmt,
     BlockStmt
@@ -155,6 +156,14 @@ class Interpreter:
         value = self.evaluate(stmt.expr)
         print(f"{value}")
         return value
+
+    def visit_if_stmt(self, stmt: IfStmt) -> Any:
+        if self.is_true(self.evaluate(stmt.condition)):
+            return self.execute(stmt.then_branch)
+        elif stmt.else_branch:
+            return self.execute(stmt.else_branch)
+
+        return None
 
     def visit_var_stmt(self, stmt: VarStmt) -> None:
         if stmt.initializer is not None:
