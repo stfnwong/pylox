@@ -31,6 +31,16 @@ def parse_input(expr_src: str) -> Sequence[Stmt]:
     return parsed_output
 
 
+def test_raise_parse_error() -> None:
+    source = "print 1"    # No trailing semicolon should raise LoxParseError
+    scanner       = Scanner(source)
+    token_list    = scanner.scan()
+    parser        = Parser(token_list)
+
+    with pytest.raises(LoxParseError):
+        parser.parse()
+
+
 def test_simple_add() -> None:
     simple_expr = "2 + 2;"
     # Format the expected output
@@ -83,14 +93,9 @@ def test_simple_div() -> None:
     assert parsed_output == exp_output
 
 
-def test_raise_parse_error() -> None:
-    source = "print 1"    # No trailing semicolon should raise LoxParseError
-    scanner       = Scanner(source)
-    token_list    = scanner.scan()
-    parser        = Parser(token_list)
 
-    with pytest.raises(LoxParseError):
-        parser.parse()
+def test_parse_logic() -> None:
+    pass
 
 
 # TODO: write a test that exercises _synchronise()

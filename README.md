@@ -12,24 +12,25 @@ Activate the environment with `source $(poetry env info -p)/bin/activate`. Deact
 
 
 ## Grammar
-The grammar at the time of writing is 
+
+### Statements
+The statement grammar at the time of writing is 
 
 `program -> declaration | eof;`
-
 `declaration -> var_decl | statement;`
-
-Later we will have separate declarations for functions. For now 
-
 `var_decl -> "var" IDENTIFIER { "=" expression }? ";"`
-`statement -> expr_stmt | if_stmt | print_stmt | while_stmt | block; `
+`statement -> expr_stmt | for_stmt | if_stmt | print_stmt | while_stmt | block; `
+`expr_stmt -> expression ";"`
+`for_stmt -> "(" ( var_decl | expr_stmt | ";" ) expression? ";" expression ";" ")" statement;`  (Desugared to while loop)
 `if_stmt -> "(" expression ")" statment "else" statement ")"?`
+`print_stmt -> "print" expression ";"`
 `while_stmt -> "while" "(" expression ")" statement`
 `block -> "{" declaration* "}"`
-`expr_stmt -> expression ";"`
-`print_stmt -> "print" expression ";"`
 
 
-Stratified part of grammar in order of precedence. Note that we choose not to use 
+### Stratified part of grammar in order of precedence. 
+
+Note that we choose not to use 
 left recursive rules like `factor -> factor ( "/" | "*" ) unary | unary` as the 
 parsing technique in the book doesn't work well with left-recursive grammars.
 
@@ -48,3 +49,7 @@ Short-circuit logic is implemented in the grammar as a low-precedence production
 `primary -> "true" | "false" | "nil" | NUMBER | STRING 
             | "(" expression ")" | IDENTIFIER ;`
 
+
+## TODOs:
+- Implement `break` statement. Syntax for `break` is the keyword "`break`" followed by "`;`". 
+- The `break` keyword causes execution to jump to the end of the nearest enclosing loop.

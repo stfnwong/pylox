@@ -231,7 +231,7 @@ class Interpreter:
             for stmt in stmts:
                 out_stmts.append(self.execute(stmt))
         except LoxRuntimeError as e:
-            print(f"Got runtime error [{e.message}] at {e.token}")
+            print(f"Got runtime error [{e.message}] at {e.token} (line {e.token.line})")
             return out_stmts            # TODO: this isn't actually a useful thing to do I think
 
         return out_stmts

@@ -82,14 +82,26 @@ def test_interpret_print() -> None:
     assert ret[0] == tok_string
 
 
+def test_interpret_iter() -> None:
+    source = load_source("programs/iter.lox")
+    stmts = parse_input(source)
 
-#def test_interpret_iter() -> None:
-#    source = load_source("programs/iter.lox")
-#    stmts = parse_input(source)
-#
-#    interp = Interpreter(verbose=GLOBAL_VERBOSE)
-#    from pudb import set_trace; set_trace()
-#    ret = interp.interpret(stmts)
-#
-#    print(ret)
-#
+    interp = Interpreter(verbose=GLOBAL_VERBOSE)
+    interp.interpret(stmts)
+
+    expected_state = {"i": 10.0}
+    for var_name in expected_state:
+        assert var_name in interp.environment.values
+        assert interp.environment.values[var_name] == expected_state[var_name]
+
+
+def test_interpret_fib_for() -> None:
+    source = load_source("programs/fib_for.lox")
+    stmts = parse_input(source)
+    interp = Interpreter(verbose=GLOBAL_VERBOSE)
+    interp.interpret(stmts)
+
+    expected_state = {"a": 1597.0, "temp": 987.0}
+    for var_name in expected_state:
+        assert var_name in interp.environment.values
+        assert interp.environment.values[var_name] == expected_state[var_name]

@@ -283,6 +283,48 @@ class Parser:
 
         return IfStmt(cond, then_branch, else_branch)
 
+    def _for_statement(self) -> Union[BlockStmt, WhileStmt]:
+        self._consume(TokenType.LEFT_PAREN, "Expect '(' after 'for'")
+
+        if self._match([TokenType.SEMICOLON]):
+            init = None
+        elif self._match([TokenType.VAR]):
+            init = self._var_declaration()
+        else:
+            init = self._expr_statement()
+
+        if not self._check(TokenType.SEMICOLON):
+            cond = self._expression()
+        else:
+            cond = None
+        self._consume(TokenType.SEMICOLON, "Expect ';' after for condition")
+
+        if not self._check(TokenType.RIGHT_PAREN):
+            increment = self._expression()
+        else:
+            increment = None
+        self._consume(TokenType.RIGHT_PAREN, "Expect ')' after for increment")
+
+        body = self._statement()
+
+        if increment:
+            body = BlockStmt([body, ExprStmt(increment)])
+
+        # If we don't have a condition then we force the condition to true,
+        # resulting in an infinite loop. (Future work, add break?)
+        if not cond:
+            cond = LiteralExpr(
+                Token(TokenType.TRUE, "true", "true", self.token_list[self.current].line)
+            )
+
+        body = WhileStmt(cond, body)
+
+        # Take the condition and the body and build a new block out of it
+        if init:
+            body = BlockStmt([init, body])
+
+        return body
+
     def _print_statement(self) -> PrintStmt:
         value = self._expression()
         self._consume(TokenType.SEMICOLON, "Expect ';' after value")
@@ -312,6 +354,9 @@ class Parser:
         return ExprStmt(value)
 
     def _statement(self) -> Stmt:
+        if self._match([TokenType.FOR]):
+            return self._for_statement()
+
         if self._match([TokenType.IF]):
             return self._if_statement()
 

@@ -20,7 +20,7 @@ class Environment:
             self.values[name.lexeme] = value
             return
 
-        if self.enclosing:
+        if self.enclosing is not None:
             self.enclosing.assign(name, value)
             return
 
@@ -30,7 +30,7 @@ class Environment:
         if name.lexeme in self.values:
             return self.values[name.lexeme]
 
-        if self.enclosing:
+        if self.enclosing is not None:
             return self.enclosing.get(name)
 
         raise LoxRuntimeError(name, f"Undefined variable {name.lexeme}")
