@@ -1,6 +1,6 @@
 # STATEMENTS 
 
-from typing import Any, Optional
+from typing import Any, List, Optional
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
@@ -23,6 +23,14 @@ class ExprStmt(Stmt):
 
     def accept(self, visitor):
         return visitor.visit_expr_stmt(self)
+
+
+@dataclass 
+class BlockStmt(Stmt):
+    stmts: List[Stmt]
+
+    def accept(self, visitor):
+        return visitor.visit_block_stmt(self)
 
 
 @dataclass

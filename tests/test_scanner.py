@@ -6,7 +6,7 @@ Unit tests for Scanner module
 
 from loxpy.scanner import Scanner
 from loxpy.token import Token, TokenType
-
+from loxpy.util import load_source
 
 
 OPERATOR_SRC  = 'programs/op.lox'
@@ -15,11 +15,6 @@ BANG_SRC      = 'programs/op_bang.lox'
 
 VERBOSE = False   # Turn this on to make test print more output
 
-
-def load_source(filename:str) -> str:
-    with open(filename, 'r') as fp:
-        source = fp.read()
-    return str(source)
 
 
 def test_operator() -> None:

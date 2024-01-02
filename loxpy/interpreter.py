@@ -20,7 +20,8 @@ from loxpy.statement import (
     Stmt,
     ExprStmt,
     PrintStmt,
-    VarStmt
+    VarStmt,
+    BlockStmt
 )
 from loxpy.environment import Environment
 from loxpy.error import LoxRuntimeError
@@ -163,10 +164,26 @@ class Interpreter:
 
         self.environment.define(stmt.name.lexeme, value)
 
+    # NOTE that I am returning all the results, which is not what the interpreter does in the book
+    def visit_block_stmt(self, stmt: BlockStmt) -> Sequence[Any]:
+        return self.execute_block(stmt.stmts, Environment(self.environment))
+
     # ======== Run ======== ##
     def execute(self, stmt: Stmt) -> Any:
-        #from pudb import set_trace; set_trace()
         return stmt.accept(self)
+
+    def execute_block(self, stmts: Sequence[Stmt], env: Environment) -> Any:
+        prev_env = self.environment
+        ret = []
+
+        try:
+            self.environment = env
+            for stmt in stmts:
+                ret.append(self.execute(stmt))
+        finally:
+            self.environment = prev_env
+
+        return ret
 
     # Entry point method
     def interpret(self, stmts: Sequence[Stmt]) -> Sequence[Any]:

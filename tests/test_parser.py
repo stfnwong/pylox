@@ -2,13 +2,16 @@
 from typing import List
 import pytest
 
+from loxpy.util import load_source
 from loxpy.error import LoxParseError
 from loxpy.parser import Parser
 from loxpy.scanner import Scanner
 from loxpy.token import Token, TokenType
-from loxpy.expr import BinaryExpr, LiteralExpr
-from loxpy.statement import Stmt, ExprStmt
+from loxpy.expr import BinaryExpr, LiteralExpr, VarExpr
+from loxpy.statement import Stmt, BlockStmt, ExprStmt, PrintStmt, VarStmt
 
+
+BLOCK_PROGRAM = "programs/shadow.lox"
 
 
 def parse_input(expr_src: str) -> List[Stmt]:
@@ -80,6 +83,25 @@ def test_raise_parse_error() -> None:
 
     with pytest.raises(LoxParseError):
         parsed_output = parser.parse()
-    
+
 
 # TODO: write a test that exercises _synchronise()
+
+
+
+def test_parse_block() -> None:
+    source = load_source(BLOCK_PROGRAM)
+    scanner       = Scanner(source)
+    token_list    = scanner.scan()
+    parser        = Parser(token_list)
+    parsed_output = parser.parse()
+
+    # SHould be 7 statements - 3 var, one block, 3 print
+    assert len(parsed_output) == 7
+
+    exp_types = [VarStmt, VarStmt, VarStmt, BlockStmt, PrintStmt, PrintStmt, PrintStmt]
+
+    for p, t in zip(parsed_output, exp_types):
+        assert type(p) == t
+
+    # TODO: Anything else worth testing?

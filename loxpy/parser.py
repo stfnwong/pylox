@@ -1,7 +1,7 @@
 """
 PARSER
 
-Stefan Wong 2018
+Implements parsing for the Lox language.
 """
 
 from typing import Sequence, Optional, Union
@@ -14,7 +14,13 @@ from loxpy.expr import (
     VarExpr,
     AssignmentExpr
 )
-from loxpy.statement import Stmt, PrintStmt, ExprStmt, VarStmt
+from loxpy.statement import (
+    Stmt, 
+    PrintStmt, 
+    ExprStmt, 
+    VarStmt, 
+    BlockStmt
+)
 from loxpy.token import Token, TokenType
 from loxpy.error import LoxParseError
 
@@ -209,7 +215,7 @@ class Parser:
 
         return self._primary()
 
-    def _primary(self) -> Union[GroupingExpr, LiteralExpr]:
+    def _primary(self) -> Union[GroupingExpr, LiteralExpr, VarExpr]:
         expr = LiteralExpr(
             Token(
                 TokenType.NIL,
@@ -246,14 +252,27 @@ class Parser:
         self._consume(TokenType.SEMICOLON, "Expect ';' after value")
         return PrintStmt(value)
 
+    def _block_statement(self) -> BlockStmt:
+        stmts = []
+        
+        while not self._check(TokenType.RIGHT_BRACE) and not self._at_end():
+            stmts.append(self._declaration())
+        self._consume(TokenType.RIGHT_BRACE, "Expect '}' after block")
+
+        return BlockStmt(stmts)
+
     def _expr_statement(self) -> ExprStmt:
         value = self._expression()
         self._consume(TokenType.SEMICOLON, "Expect ';' after value")
+
         return ExprStmt(value)
 
     def _statement(self) -> Stmt:
         if self._match([TokenType.PRINT]):
             return self._print_statement()
+
+        if self._match([TokenType.LEFT_BRACE]):
+            return self._block_statement()
 
         return self._expr_statement()
 
