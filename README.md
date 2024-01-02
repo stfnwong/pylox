@@ -21,8 +21,9 @@ The grammar at the time of writing is
 Later we will have separate declarations for functions. For now 
 
 `var_decl -> "var" IDENTIFIER { "=" expression }? ";"`
-`statement -> expr_stmt | print_stmt | if_stmt | block; `
+`statement -> expr_stmt | if_stmt | print_stmt | while_stmt | block; `
 `if_stmt -> "(" expression ")" statment "else" statement ")"?`
+`while_stmt -> "while" "(" expression ")" statement`
 `block -> "{" declaration* "}"`
 `expr_stmt -> expression ";"`
 `print_stmt -> "print" expression ";"`

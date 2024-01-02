@@ -4,7 +4,7 @@ Interpret a collection of Lox expressions
 
 """
 
-from typing import Any, Sequence, Union
+from typing import Any, Optional, Sequence, Union
 
 from loxpy.token import Token, TokenType
 from loxpy.expr import (
@@ -23,7 +23,8 @@ from loxpy.statement import (
     IfStmt,
     PrintStmt,
     VarStmt,
-    BlockStmt
+    BlockStmt,
+    WhileStmt
 )
 from loxpy.environment import Environment
 from loxpy.error import LoxRuntimeError
@@ -35,13 +36,13 @@ class Interpreter:
         self.verbose:bool = verbose
         self.environment = Environment()
 
-    def is_true(self, expr: Expr) -> bool:
+    def is_true(self, expr: Optional[Union[Expr, bool]]) -> bool:
         """
         Implement Ruby-style truth (False and None are false,
         others are true)
         """
 
-        if expr is None:
+        if expr is None or expr is False:
             return False
 
         if isinstance(expr, LiteralExpr):
@@ -157,7 +158,7 @@ class Interpreter:
 
     def visit_assignment_expr(self, expr: AssignmentExpr) -> Any:
         value = self.evaluate(expr.value)
-        self.environment.assign(expr.name, value)
+        self.environment.assign(expr.name, value)       # TODO: issue here?
 
         return value
 
@@ -189,6 +190,15 @@ class Interpreter:
     # NOTE that I am returning all the results, which is not what the interpreter does in the book
     def visit_block_stmt(self, stmt: BlockStmt) -> Sequence[Any]:
         return self.execute_block(stmt.stmts, Environment(self.environment))
+
+    # NOTE: still returning results, ret here is a hack to maintain the pattern but
+    # it will only reuturn the last result.
+    def visit_while_stmt(self, stmt: WhileStmt) -> Any:
+        ret = None
+        while self.is_true(self.evaluate(stmt.condition)):
+            ret = self.execute(stmt.body)
+
+        return ret
 
     # ======== Run ======== ##
     def execute(self, stmt: Stmt) -> Any:

@@ -6,17 +6,19 @@ from loxpy.token import Token, TokenType
 from loxpy.scanner import Scanner
 from loxpy.parser import Parser
 from loxpy.interpreter import Interpreter
-from loxpy.util import float_equal
+from loxpy.util import load_source, float_equal
 
 
-GLOBAL_VERBOSE = True
+GLOBAL_VERBOSE = False
 
 
-#def load_source(filename: str) -> str:
-#    with open(filename, 'r') as fp:
-#        source = fp.read()
-#    return str(source)
-#
+def parse_input(expr_src: str) -> Sequence[Stmt]:
+    scanner       = Scanner(expr_src)
+    token_list    = scanner.scan()
+    parser        = Parser(token_list)
+    parsed_output = parser.parse()
+
+    return parsed_output
 
 
 
@@ -79,7 +81,15 @@ def test_interpret_print() -> None:
     assert len(ret) == 1
     assert ret[0] == tok_string
 
-    
 
 
-
+#def test_interpret_iter() -> None:
+#    source = load_source("programs/iter.lox")
+#    stmts = parse_input(source)
+#
+#    interp = Interpreter(verbose=GLOBAL_VERBOSE)
+#    from pudb import set_trace; set_trace()
+#    ret = interp.interpret(stmts)
+#
+#    print(ret)
+#

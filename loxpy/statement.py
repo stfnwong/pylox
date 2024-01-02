@@ -63,3 +63,12 @@ class VarStmt(Stmt):
     def accept(self, visitor) -> Any:
         return visitor.visit_var_stmt(self)
 
+
+@dataclass
+class WhileStmt(Stmt):
+    condition: Expr
+    body: Stmt
+
+    def accept(self, visitor) -> Any:
+        return visitor.visit_while_stmt(self)
+

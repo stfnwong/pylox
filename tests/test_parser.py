@@ -1,5 +1,5 @@
 # Modules under test
-from typing import List
+from typing import Sequence
 import pytest
 
 from loxpy.util import load_source
@@ -7,14 +7,22 @@ from loxpy.error import LoxParseError
 from loxpy.parser import Parser
 from loxpy.scanner import Scanner
 from loxpy.token import Token, TokenType
-from loxpy.expr import BinaryExpr, LiteralExpr, VarExpr
-from loxpy.statement import Stmt, BlockStmt, ExprStmt, PrintStmt, VarStmt
+from loxpy.expr import BinaryExpr, LiteralExpr
+from loxpy.statement import (
+    Stmt, 
+    BlockStmt, 
+    ExprStmt, 
+    PrintStmt, 
+    VarStmt, 
+    WhileStmt
+)
 
 
 BLOCK_PROGRAM = "programs/shadow.lox"
+ITER_PROGRAM = "programs/iter.lox"
 
 
-def parse_input(expr_src: str) -> List[Stmt]:
+def parse_input(expr_src: str) -> Sequence[Stmt]:
     scanner       = Scanner(expr_src)
     token_list    = scanner.scan()
     parser        = Parser(token_list)
@@ -82,7 +90,7 @@ def test_raise_parse_error() -> None:
     parser        = Parser(token_list)
 
     with pytest.raises(LoxParseError):
-        parsed_output = parser.parse()
+        parser.parse()
 
 
 # TODO: write a test that exercises _synchronise()
@@ -91,10 +99,7 @@ def test_raise_parse_error() -> None:
 
 def test_parse_block() -> None:
     source = load_source(BLOCK_PROGRAM)
-    scanner       = Scanner(source)
-    token_list    = scanner.scan()
-    parser        = Parser(token_list)
-    parsed_output = parser.parse()
+    parsed_output = parse_input(source)
 
     # SHould be 7 statements - 3 var, one block, 3 print
     assert len(parsed_output) == 7
@@ -105,3 +110,15 @@ def test_parse_block() -> None:
         assert type(p) == t
 
     # TODO: Anything else worth testing?
+
+
+def test_parse_iter() -> None:
+    source = load_source(ITER_PROGRAM)
+    parsed_output = parse_input(source)
+
+    # We expect one VarStmt, one WhileStmt
+    assert len(parsed_output) == 2
+    
+    exp_types = [VarStmt, WhileStmt]
+    for p, t in zip(parsed_output, exp_types):
+        assert type(p) == t
