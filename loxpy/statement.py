@@ -1,6 +1,6 @@
 # STATEMENTS 
 
-from typing import Any, List, Optional
+from typing import Any, List, Optional, Sequence
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
@@ -24,6 +24,16 @@ class ExprStmt(Stmt):
 
     def accept(self, visitor):
         return visitor.visit_expr_stmt(self)
+
+
+@dataclass
+class FuncStmt(Stmt):
+    name: Token
+    params: Sequence[Token]
+    body: Sequence[Stmt]
+
+    def accept(self, visitor):
+        return visitor.visit_func_stmt(self)
 
 
 @dataclass

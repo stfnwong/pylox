@@ -17,7 +17,10 @@ Activate the environment with `source $(poetry env info -p)/bin/activate`. Deact
 The statement grammar at the time of writing is 
 
 `program -> declaration | eof;`
-`declaration -> var_decl | statement;`
+`declaration -> func_decl | var_decl | statement;`
+`func_decl -> "func" function`
+`function -> IDENTIFIER "(" parameters? ")" block`
+`parameters -> IDENTIFIER ( "," IDENTIFIER* ")"`
 `var_decl -> "var" IDENTIFIER { "=" expression }? ";"`
 `statement -> expr_stmt | for_stmt | if_stmt | print_stmt | while_stmt | block; `
 `expr_stmt -> expression ";"`

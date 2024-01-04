@@ -22,6 +22,7 @@ from loxpy.expr import (
 from loxpy.statement import (
     Stmt,
     ExprStmt,
+    FuncStmt,
     IfStmt,
     PrintStmt,
     VarStmt,
@@ -30,7 +31,7 @@ from loxpy.statement import (
 )
 
 from loxpy.environment import Environment
-from loxpy.callable import LoxCallable
+from loxpy.callable import LoxCallable, LoxFunction
 from loxpy.error import LoxRuntimeError
 
 from loxpy.builtins import BUILTIN_MAP
@@ -40,8 +41,8 @@ def load_builtins() -> Environment:
     env = Environment()
 
     for name, func in BUILTIN_MAP.items():
-        tok = Token(TokenType.FUN, name, None, 0)
-        env.define(tok, func)
+        #tok = Token(TokenType.FUNC, name, None, 0)
+        env.define(name, func)
 
     return env
 
@@ -101,7 +102,7 @@ class Interpreter:
     # ======== Visit expressions ======== ##
     def visit_literal_expr(self, expr: LiteralExpr) -> Token:
         return expr.value
-    
+
     def visit_logical_expr(self, expr: LogicalExpr) -> Any:
         left = self.evaluate(expr.left)
 
@@ -123,7 +124,7 @@ class Interpreter:
             raise TypeError('Incorrect expression for right operand of unary expression [visit_unary_expr()]')
 
         self.check_number_operand(expr.op, right)
-        
+
         if expr.op.token_type == TokenType.MINUS:
             if isinstance(right, Token):
                 right = float(right.lexeme)
@@ -134,9 +135,16 @@ class Interpreter:
         # Unreachable ?
         return None
 
-    def visit_binary_expr(self, expr: BinaryExpr) -> Union[float, bool, None]:
+    def visit_binary_expr(self, expr: BinaryExpr) -> Union[Token, float, bool, str, None]:
         left = self.evaluate(expr.left)
         right = self.evaluate(expr.right)
+
+        # The '+' operator should also work for strings
+        # TODO: re-visit this method as it seems sus...
+        if isinstance(left, Token) and isinstance(right, Token) and left.token_type == TokenType.STRING and right.token_type == TokenType.STRING:
+               if expr.op.token_type == TokenType.PLUS:
+                   s = left.literal + right.literal
+                   return Token(TokenType.STRING, s, s, left.line)
 
         self.check_number_operands(expr.op, left, right)
 
@@ -192,13 +200,17 @@ class Interpreter:
 
     def visit_assignment_expr(self, expr: AssignmentExpr) -> Any:
         value = self.evaluate(expr.value)
-        self.environment.assign(expr.name, value)  
+        self.environment.assign(expr.name, value)
 
         return value
 
     # ======== Visit statements ======== ##
     def visit_expr_stmt(self, stmt: ExprStmt) -> Any:
         return self.evaluate(stmt.expr)
+
+    def visit_func_stmt(self, stmt: FuncStmt) -> Any:
+        func = LoxFunction(stmt)
+        self.environment.define(stmt.name.lexeme, func)
 
     def visit_print_stmt(self, stmt: PrintStmt) -> Any:
         value = self.evaluate(stmt.expr)
@@ -259,7 +271,7 @@ class Interpreter:
 
         # TODO: note that you aren't really supposed to do this, the design is more aimed at being a
         # REPL than it is about being a module, I just find this design easier to test.
-        out_stmts = []  
+        out_stmts = []
 
         try:
             for stmt in stmts:

@@ -21,6 +21,7 @@ from loxpy.statement import (
     IfStmt,
     PrintStmt, 
     ExprStmt, 
+    FuncStmt,
     VarStmt, 
     BlockStmt,
     WhileStmt
@@ -90,7 +91,7 @@ class Parser:
 
             adv = (
                 TokenType.CLASS,
-                TokenType.FUN,
+                TokenType.FUNC,
                 TokenType.VAR,
                 TokenType.FOR,
                 TokenType.IF,
@@ -158,8 +159,31 @@ class Parser:
 
         return expr
 
+    def _function(self, kind: str) -> FuncStmt:
+        name = self._consume(TokenType.IDENTIFIER, f"Expect {kind} name")
+        self._consume(TokenType.LEFT_PAREN, f"Expect '(' after {kind} name")
+        params = []
+
+        if not self._check(TokenType.RIGHT_PAREN):
+            params.append(self._consume(TokenType.IDENTIFIER, "Expect parameter name"))
+
+            while self._match([TokenType.COMMA]):
+                if len(params) >= self.max_args:
+                    raise LoxParseError(self._peek(), f"[{kind}] can't have more than {self.max_args} parameters")
+                params.append(self._consume(TokenType.IDENTIFIER, "Expect parameter name"))
+
+        self._consume(TokenType.RIGHT_PAREN, f"Expect ')' after {kind} parameter list")
+
+        # Now parse the function body 
+        self._consume(TokenType.LEFT_BRACE, f"Expect '{{' before {kind} body")
+        body = self._block_statement(return_list=True)
+        return FuncStmt(name, params, body)
+
     def _declaration(self) -> Optional[Stmt]:
         try:
+            if self._match([TokenType.FUNC]):
+                return self._function("function")
+
             if self._match([TokenType.VAR]):
                 return self._var_declaration()
 
@@ -366,12 +390,15 @@ class Parser:
 
         return WhileStmt(cond, body)
 
-    def _block_statement(self) -> BlockStmt:
+    def _block_statement(self, return_list: bool = False) -> Union[Sequence[Stmt], BlockStmt]:
         stmts = []
         
         while not self._check(TokenType.RIGHT_BRACE) and not self._at_end():
             stmts.append(self._declaration())
         self._consume(TokenType.RIGHT_BRACE, "Expect '}' after block")
+
+        if return_list:
+            return stmts
 
         return BlockStmt(stmts)
 

@@ -26,7 +26,7 @@ class Scanner:
             "else"   : TokenType.ELSE,
             "false"  : TokenType.FALSE,
             "for"    : TokenType.FOR,
-            "fun"    : TokenType.FUN,
+            "func"   : TokenType.FUNC,
             "if"     : TokenType.IF,
             "nil"    : TokenType.NIL,
             "or"     : TokenType.OR,
@@ -64,7 +64,8 @@ class Scanner:
         self._add_token(token_type, text)
 
     def _isalpha(self, c:str) -> bool:
-        if ord(c) in range(65,91) or ord(c) in range(97, 123):
+        # '_' is ASCII 95
+        if ord(c) in range(65,91) or ord(c) in range(97, 123) or ord(c) == 95:
             return True
         return False
 
@@ -131,7 +132,7 @@ class Scanner:
             print(f"line {self.src_line}: unterminated string")
             return
 
-        # Closing quote
+        # Consume closing quote
         self._advance()
         # trim surrounding quotes
         value = self.source[self.src_start + 1 : self.src_current - 1]

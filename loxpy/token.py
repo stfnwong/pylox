@@ -35,7 +35,7 @@ class TokenType(Enum):
     CLASS = auto()
     ELSE = auto()
     FALSE = auto()
-    FUN = auto()
+    FUNC = auto()
     FOR = auto()
     IF = auto()
     NIL = auto()
@@ -81,7 +81,7 @@ TOKEN_MAP = {
     TokenType.CLASS         : "CLASS",
     TokenType.ELSE          : "ELSE",
     TokenType.FALSE         : "FALSE",
-    TokenType.FUN           : "FUN",
+    TokenType.FUNC          : "FUNC",
     TokenType.FOR           : "FOR",
     TokenType.IF            : "IF",
     TokenType.NIL           : "NIL",
@@ -118,11 +118,11 @@ TOKEN_SYMBOL = {
     TokenType.LESS          : "<",
     TokenType.LESS_EQUAL    : "<=",
     # Keywords
-    TokenType.AND           : "and",
+    TokenType.AND           : "and",    # NOTE: could also extend the logic operators as &&, ||, etc
     TokenType.CLASS         : "class",
     TokenType.ELSE          : "else",
     TokenType.FALSE         : "false",
-    TokenType.FUN           : "fun",
+    TokenType.FUNC          : "func",
     TokenType.FOR           : "for",
     TokenType.IF            : "if",
     TokenType.NIL           : "nil",
