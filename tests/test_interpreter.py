@@ -131,6 +131,8 @@ def test_interpret_while() -> None:
         assert interp.environment.values[var_name] == expected_state[var_name]
 
 
+# The program in this test should have the same result as the 
+# program in the while test.
 def test_interpret_for() -> None:
     source = load_source(FOR_PROGRAM)
     stmts = parse_input(source)
@@ -142,8 +144,6 @@ def test_interpret_for() -> None:
     for var_name in expected_state:
         assert var_name in interp.environment.values
         assert interp.environment.values[var_name] == expected_state[var_name]
-
-
 
 
 def test_interpret_fib_for() -> None:

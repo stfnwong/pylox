@@ -82,7 +82,6 @@ class ASTPrinter:
 if __name__ == "__main__":
     from loxpy.token import Token, TokenType
 
-    from pudb import set_trace; set_trace()
     expr = BinaryExpr(
         Token(TokenType.STAR, "*", None, 1),
         UnaryExpr(

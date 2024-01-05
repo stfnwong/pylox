@@ -7,11 +7,12 @@ from loxpy.error import LoxParseError
 from loxpy.parser import Parser
 from loxpy.scanner import Scanner
 from loxpy.token import Token, TokenType
-from loxpy.expr import BinaryExpr, LiteralExpr
+from loxpy.expr import BinaryExpr, CallExpr, LiteralExpr
 from loxpy.statement import (
     Stmt, 
     BlockStmt, 
     ExprStmt, 
+    FuncStmt,
     PrintStmt, 
     VarStmt, 
     WhileStmt
@@ -21,6 +22,7 @@ from loxpy.statement import (
 BLOCK_PROGRAM = "programs/shadow.lox"
 WHILE_PROGRAM = "programs/while.lox"
 FOR_PROGRAM = "programs/for.lox"
+FUNC_PROGRAM = "programs/func1.lox"
 
 
 def parse_input(expr_src: str) -> Sequence[Stmt]:
@@ -154,3 +156,19 @@ def test_parse_for() -> None:
     assert isinstance(parsed_output[1].body, BlockStmt)
     assert isinstance(parsed_output[1].body.stmts[0], PrintStmt)
 
+
+
+def test_parse_func() -> None:
+    source = load_source(FUNC_PROGRAM)
+    parsed_output = parse_input(source)
+
+    # For loops with an initializer will be parsed into a single block statement.
+    # The second for loop will be parsed into a WhileStmt
+    exp_types = [FuncStmt, PrintStmt, ExprStmt]
+    assert len(parsed_output) == len(exp_types)
+    
+    for p, t in zip(parsed_output, exp_types):
+        assert type(p) == t
+
+    # Ensure the final ExprStmt contains a CallExpr
+    assert isinstance(parsed_output[2].expr, CallExpr)

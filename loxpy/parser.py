@@ -176,7 +176,7 @@ class Parser:
         self._consume(TokenType.RIGHT_PAREN, f"Expect ')' after {kind} parameter list")
 
         # Now parse the function body 
-        #self._consume(TokenType.LEFT_BRACE, f"Expect '{{' before {kind} body")
+        self._consume(TokenType.LEFT_BRACE, f"Expect '{{' before {kind} body")
         body = self._block_statement(return_list=True)
         return FuncStmt(name, params, body)
 

@@ -3,7 +3,7 @@ func make_counter() {
 	var i = 0;
 	func count() {
 		i = i + 1;
-		print(i);
+		print i;
 	}
 
 	return count;
@@ -11,7 +11,4 @@ func make_counter() {
 
 var counter = make_counter();
 counter();
-
-//for(var i = 0; i < 10; i = i + 1) {
-//	print(counter());
-//}
+counter();

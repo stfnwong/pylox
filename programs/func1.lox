@@ -1,5 +1,5 @@
 func say_hi(first, last) {
 	print "hi " + first + " " + last + "!";
 }
-print say_hi;
+print say_hi;   // prints the function itself
 say_hi("lox", "interpreter");
