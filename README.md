@@ -1,5 +1,4 @@
-# LOXLANG
-This is an implementation of the Lox Language in Python. The lox language is the language developed in the excellent book [Crafting Interpreters](https://www.craftinginterpreters.com/). 
+
 
 ## Requirements 
 Despite hating it I've decided to use `poetry` for dependencies. To install do
@@ -22,10 +21,11 @@ The statement grammar at the time of writing is
 `function -> IDENTIFIER "(" parameters? ")" block`
 `parameters -> IDENTIFIER ( "," IDENTIFIER* ")"`
 `var_decl -> "var" IDENTIFIER { "=" expression }? ";"`
-`statement -> expr_stmt | for_stmt | if_stmt | print_stmt | while_stmt | block; `
+`statement -> expr_stmt | for_stmt | if_stmt | print_stmt | return_stmt | while_stmt | block; `
 `expr_stmt -> expression ";"`
 `for_stmt -> "(" ( var_decl | expr_stmt | ";" ) expression? ";" expression ";" ")" statement;`  (Desugared to while loop)
 `if_stmt -> "(" expression ")" statment "else" statement ")"?`
+`return_stmt -> "return" expression? ";"`
 `print_stmt -> "print" expression ";"`
 `while_stmt -> "while" "(" expression ")" statement`
 `block -> "{" declaration* "}"`

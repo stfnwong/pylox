@@ -7,6 +7,12 @@ from loxpy.environment import Environment
 from loxpy.statement import FuncStmt
 
 
+class LoxReturnException(Exception):
+    def __init__(self, value: Any) -> None:
+        super(LoxReturnException, self).__init__()
+        self.value = value
+
+
 class LoxCallable(ABC):
     @abstractmethod
     def arity(self) -> int:
@@ -34,6 +40,9 @@ class LoxFunction(LoxCallable):
 
         for param, arg in zip(self.decl.params, args):
             env.define(param.lexeme, arg)
-        interp.execute_block(self.decl.body, env)
+        try:
+            interp.execute_block(self.decl.body, env)
+        except LoxReturnException as rt:
+            return rt.value
 
         return None

@@ -63,6 +63,15 @@ class PrintStmt(Stmt):
 
 
 @dataclass
+class ReturnStmt(Stmt):
+    keyword: Token
+    value: Optional[Expr] = None
+
+    def accept(self, visitor) -> Any:
+        return visitor.visit_return_stmt(self)
+
+
+@dataclass
 class VarStmt(Stmt):
     name: Token
     initializer: Optional[Expr] = None

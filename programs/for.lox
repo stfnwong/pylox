@@ -1,0 +1,9 @@
+// Just a regular for loop
+for(var i = 0; i < 10; i = i + 1) {
+	print(i);
+}
+
+// For loop with no initalizer
+for(;;) {
+	print("loop forever");
+}

@@ -20,6 +20,7 @@ from loxpy.statement import (
     Stmt, 
     IfStmt,
     PrintStmt, 
+    ReturnStmt,
     ExprStmt, 
     FuncStmt,
     VarStmt, 
@@ -104,7 +105,6 @@ class Parser:
 
             self._advance()
 
-    # Methods that implement rules for productions
     def _match(self, token_types: Sequence[TokenType]) -> bool:
         for t in token_types:
             if self._check(t):
@@ -164,6 +164,7 @@ class Parser:
         self._consume(TokenType.LEFT_PAREN, f"Expect '(' after {kind} name")
         params = []
 
+        # Parse parameters
         if not self._check(TokenType.RIGHT_PAREN):
             params.append(self._consume(TokenType.IDENTIFIER, "Expect parameter name"))
 
@@ -175,11 +176,11 @@ class Parser:
         self._consume(TokenType.RIGHT_PAREN, f"Expect ')' after {kind} parameter list")
 
         # Now parse the function body 
-        self._consume(TokenType.LEFT_BRACE, f"Expect '{{' before {kind} body")
+        #self._consume(TokenType.LEFT_BRACE, f"Expect '{{' before {kind} body")
         body = self._block_statement(return_list=True)
         return FuncStmt(name, params, body)
 
-    def _declaration(self) -> Optional[Stmt]:
+    def _declaration(self) -> Optional[Union[Stmt, Sequence[Stmt]]]:
         try:
             if self._match([TokenType.FUNC]):
                 return self._function("function")
@@ -335,9 +336,11 @@ class Parser:
 
         return IfStmt(cond, then_branch, else_branch)
 
-    def _for_statement(self) -> Union[BlockStmt, WhileStmt]:
+    def _for_statement(self) -> Stmt:
         self._consume(TokenType.LEFT_PAREN, "Expect '(' after 'for'")
 
+        # Format of the for statement is 
+        # for(init; cond; increment) { body }
         if self._match([TokenType.SEMICOLON]):
             init = None
         elif self._match([TokenType.VAR]):
@@ -380,7 +383,19 @@ class Parser:
     def _print_statement(self) -> PrintStmt:
         value = self._expression()
         self._consume(TokenType.SEMICOLON, "Expect ';' after value")
+
         return PrintStmt(value)
+
+    def _return_statement(self) -> ReturnStmt:
+        keyword = self._previous()
+        if not self._check(TokenType.SEMICOLON):
+            value = self._expression()
+        else:
+            value = None
+
+        self._consume(TokenType.SEMICOLON, "Expect ';' after return")
+
+        return ReturnStmt(keyword, value)
 
     def _while_statement(self) -> WhileStmt:
         self._consume(TokenType.LEFT_PAREN, "Expect '(' after 'while'")
@@ -418,11 +433,14 @@ class Parser:
         if self._match([TokenType.PRINT]):
             return self._print_statement()
 
+        if self._match([TokenType.RETURN]):
+            return self._return_statement()
+
         if self._match([TokenType.WHILE]):
             return self._while_statement()
 
         if self._match([TokenType.LEFT_BRACE]):
-            return self._block_statement()
+            return self._block_statement(return_list=False)
 
         return self._expr_statement()
 

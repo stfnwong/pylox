@@ -25,13 +25,14 @@ from loxpy.statement import (
     FuncStmt,
     IfStmt,
     PrintStmt,
+    ReturnStmt,
     VarStmt,
     BlockStmt,
     WhileStmt
 )
 
 from loxpy.environment import Environment
-from loxpy.callable import LoxCallable, LoxFunction
+from loxpy.callable import LoxCallable, LoxFunction, LoxReturnException
 from loxpy.error import LoxRuntimeError
 
 from loxpy.builtins import BUILTIN_MAP
@@ -39,12 +40,11 @@ from loxpy.builtins import BUILTIN_MAP
 
 def load_builtins() -> Environment:
     env = Environment()
-
     for name, func in BUILTIN_MAP.items():
-        #tok = Token(TokenType.FUNC, name, None, 0)
         env.define(name, func)
 
     return env
+
 
 
 class Interpreter:
@@ -216,6 +216,14 @@ class Interpreter:
         value = self.evaluate(stmt.expr)
         print(f"{value}")
         return value
+
+    def visit_return_stmt(self, stmt: ReturnStmt) -> None:
+        if stmt.value is not None:
+            value = self.evaluate(stmt.value)
+        else:
+            value = None
+
+        raise LoxReturnException(value)
 
     def visit_if_stmt(self, stmt: IfStmt) -> Any:
         if self.is_true(self.evaluate(stmt.condition)):
