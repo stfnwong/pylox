@@ -1,0 +1,9 @@
+// Test to interpret a single for loop. This one is seperate
+// from the other program used for parsing/scanning just to 
+// avoid the hassle of dealing with an actual infinite loop.
+
+var i;
+for(i = 0; i < 10; i = i + 1) {
+	print(i);
+}
+

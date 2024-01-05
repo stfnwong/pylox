@@ -89,9 +89,15 @@ class Interpreter:
         # TODO: unreachable?
         return None
 
-    def check_number_operand(self, operator: Token, operand: Union[Token, float]) -> None:
-        if not isinstance(operand, float) and operand.token_type != TokenType.NUMBER:
-            raise LoxRuntimeError(operator, 'Operand must be a number')
+    def check_number_operand(self, operator: Token, operand: Union[Token, float, bool]) -> None:
+        # Check if operand is a Token then it can be a number or a boolean
+        if isinstance(operand, Token):
+            if operand.token_type not in (TokenType.NUMBER, TokenType.TRUE, TokenType.FALSE):
+                raise LoxRuntimeError(operator, 'Operand must be a number or boolean')
+        else:
+            # Can also be a python number or boolean
+            if not (isinstance(operand, float) or isinstance(operand, bool)):
+                raise LoxRuntimeError(operator, 'Operand must be a number or boolean')
 
     def check_number_operands(self, operator: Token, left: Union[Token, float], right: Union[Token, float]) -> None:
         if not isinstance(left, float) and left.token_type != TokenType.NUMBER:

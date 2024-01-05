@@ -12,6 +12,7 @@ from loxpy.util import load_source, float_equal
 GLOBAL_VERBOSE = False
 
 WHILE_PROGRAM = "programs/while.lox"
+FOR_PROGRAM = "programs/for_interp.lox"
 
 
 def parse_input(expr_src: str) -> Sequence[Stmt]:
@@ -27,28 +28,61 @@ def parse_input(expr_src: str) -> Sequence[Stmt]:
 def test_interpret_unary() -> None:
     interp = Interpreter(verbose=GLOBAL_VERBOSE)
 
-    tok_num1 = Token(TokenType.NUMBER, "2", None, 1)
+    # Test unary on number types
+    operand = Token(TokenType.NUMBER, "2", None, 1)
     tok_minus  = Token(TokenType.MINUS, "-", None, 1)
-    expr = [ExprStmt(UnaryExpr(tok_minus, LiteralExpr(tok_num1)))]
+    expr = [ExprStmt(UnaryExpr(tok_minus, LiteralExpr(operand)))]
 
     value = interp.interpret(expr)
     exp_value = -2.0
 
     assert float_equal(value[0], exp_value)
 
+    # Test unary on boolean type 
+    operand = Token(TokenType.TRUE, "true", "true", 1)
+    tok_bang  = Token(TokenType.BANG, "!", None, 1)
+    expr = [ExprStmt(UnaryExpr(tok_bang, LiteralExpr(operand)))]
+
+    value = interp.interpret(expr)   # NOTE: output is a list of values
+    exp_value = False
+
+    assert exp_value == value[0]
+
+    # Bang works on number types, but it just applies "not is_true(v)" on any value v.
+    # Since the truthiness of any value is True, this will always return False for any
+    # numerical value
+    operand = Token(TokenType.NUMBER, "2", None, 1)
+    tok_bang  = Token(TokenType.BANG, "!", None, 1)
+    expr = [ExprStmt(UnaryExpr(tok_bang, LiteralExpr(operand)))]
+
+    value = interp.interpret(expr)
+    exp_value = False
+
+    assert exp_value == value[0]
+
 
 def test_interpret_binary() -> None:
     interp = Interpreter(verbose=GLOBAL_VERBOSE)
 
+    op_tokens = [
+        Token(TokenType.PLUS, "+", None, 1),
+        Token(TokenType.MINUS, "-", None, 1),
+        Token(TokenType.STAR, "*", None, 1),
+        Token(TokenType.SLASH, "/", None, 1)
+    ]
+    exp_values = [6.0, -2.0, 8.0, 0.5]
+
     tok_num1 = Token(TokenType.NUMBER, "2", None, 1)
-    tok_mul  = Token(TokenType.STAR, "*", None, 1)
     tok_num2 = Token(TokenType.NUMBER, "4", None, 1)
 
-    expr     = [ExprStmt(BinaryExpr(tok_mul, LiteralExpr(tok_num1), LiteralExpr(tok_num2)))]
-    value = interp.interpret(expr)
-    exp_value = 8.0
+    interp_values = []
+    for op_tok in op_tokens:
+        expr  = [ExprStmt(BinaryExpr(op_tok, LiteralExpr(tok_num1), LiteralExpr(tok_num2)))]
+        value = interp.interpret(expr)
+        interp_values.extend(value)
 
-    assert float_equal(value[0], exp_value)
+    for val, exp_val in zip(interp_values, exp_values):
+        assert float_equal(val, exp_val)
 
 
 # TODO: place a grouping expression on one side of a binary expression
@@ -95,6 +129,21 @@ def test_interpret_while() -> None:
     for var_name in expected_state:
         assert var_name in interp.environment.values
         assert interp.environment.values[var_name] == expected_state[var_name]
+
+
+def test_interpret_for() -> None:
+    source = load_source(FOR_PROGRAM)
+    stmts = parse_input(source)
+
+    interp = Interpreter(verbose=GLOBAL_VERBOSE)
+    interp.interpret(stmts)
+
+    expected_state = {"i": 10.0}
+    for var_name in expected_state:
+        assert var_name in interp.environment.values
+        assert interp.environment.values[var_name] == expected_state[var_name]
+
+
 
 
 def test_interpret_fib_for() -> None:
