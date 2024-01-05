@@ -11,6 +11,8 @@ from loxpy.util import load_source, float_equal
 
 GLOBAL_VERBOSE = False
 
+WHILE_PROGRAM = "programs/while.lox"
+
 
 def parse_input(expr_src: str) -> Sequence[Stmt]:
     scanner       = Scanner(expr_src)
@@ -82,8 +84,8 @@ def test_interpret_print() -> None:
     assert ret[0] == tok_string
 
 
-def test_interpret_iter() -> None:
-    source = load_source("programs/iter.lox")
+def test_interpret_while() -> None:
+    source = load_source(WHILE_PROGRAM)
     stmts = parse_input(source)
 
     interp = Interpreter(verbose=GLOBAL_VERBOSE)
