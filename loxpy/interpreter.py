@@ -215,7 +215,8 @@ class Interpreter:
         return self.evaluate(stmt.expr)
 
     def visit_func_stmt(self, stmt: FuncStmt) -> Any:
-        func = LoxFunction(stmt)
+        # Note that here we capture the environment as a closure at declaration time
+        func = LoxFunction(stmt, self.environment) 
         self.environment.define(stmt.name.lexeme, func)
 
     def visit_print_stmt(self, stmt: PrintStmt) -> Any:

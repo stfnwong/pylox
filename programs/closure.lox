@@ -10,5 +10,6 @@ func make_counter() {
 }
 
 var counter = make_counter();
-counter();
-counter();
+for(var i = 0; i < 10; i = i + 1) {
+	counter();
+}

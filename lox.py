@@ -37,7 +37,6 @@ class Lox:
 
     def run(self, source: str) -> None:
         try:
-            from pudb import set_trace; set_trace()
             scanner = Scanner(source)
             tokens = scanner.scan()
             parser = Parser(tokens)

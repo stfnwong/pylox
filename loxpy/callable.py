@@ -25,9 +25,9 @@ class LoxCallable(ABC):
 
 
 class LoxFunction(LoxCallable):
-
-    def __init__(self, decl: FuncStmt):
+    def __init__(self, decl: FuncStmt, closure: Environment):
         self.decl = decl
+        self.closure = closure
 
     def __str__(self) -> str:
         return f"<fn {self.decl.name.lexeme}>"
@@ -36,7 +36,7 @@ class LoxFunction(LoxCallable):
         return len(self.decl.params)
 
     def call(self, interp, args: Sequence[Any]) -> Any:
-        env = Environment()
+        env = Environment(self.closure)
 
         for param, arg in zip(self.decl.params, args):
             env.define(param.lexeme, arg)
