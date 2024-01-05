@@ -1,0 +1,11 @@
+func thrice(fn) {
+	for(var i = 1; i <= 3; i = i + 1) {
+		fn(i);
+	}
+}
+
+thrice(func (a) {
+	print a;
+}
+
+// Expect 1, 2, 3...
