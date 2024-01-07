@@ -49,12 +49,20 @@ class Resolver:
     def __init__(self, interp: Interpreter):
         self.cur_func = FunctionType.NONE
         self.interp = interp
-        self.scopes = deque()       # Each element is Dict[str, bool] 
+        # Each element in scopes is  Dict[str, List[bool, bool]]
+        # where 
+        # [name, [ready, used]]
+        self.scopes = deque()       
 
     def _begin_scope(self) -> None:
         self.scopes.append({})
 
     def _end_scope(self) -> None:
+        # Check if any vars were unused
+        for name, (_, used) in self.scopes[-1].items():
+            if used is False:
+                print(f"WARNING: Variable [{name}] unused")
+
         self.scopes.pop()
 
     def _declare(self, name: Token) -> None:
@@ -65,14 +73,14 @@ class Resolver:
         if name.lexeme in scope:
             raise LoxInterpreterError(name, f"[{name.lexeme}] already in this scope")
 
-        scope[name.lexeme] = False   # mark as not ready
+        scope[name.lexeme] = [False, False]   # mark as not ready
 
     def _define(self, name: Token) -> None:
         if len(self.scopes) == 0:
             return
 
         scope = self.scopes[-1]
-        scope[name.lexeme] = True   # mark as defined
+        scope[name.lexeme] = [True, False]   # mark as defined
 
     # ==== Expression visitors ==== 
     def visit_binary_expr(self, expr: BinaryExpr) -> None:
@@ -151,9 +159,6 @@ class Resolver:
 
     # In Java/C++ we can do name overloads.... what is the python equivalent? 
     # Just overload the type and do isinstance?
-    def _resolve_one(self, one: Union[Expr, Stmt]) -> None:
-        one.accept(self)
-
     def _resolve_expr(self, expr: Expr) -> None:
         expr.accept(self)
 
@@ -164,6 +169,7 @@ class Resolver:
         for depth, scope in enumerate(reversed(self.scopes)):
             if name.lexeme in scope:
                 self.interp.resolve(expr, depth)
+                scope[name.lexeme][1] = True
                 return
 
     def _resolve_function(self, func: FuncStmt, ftype: FunctionType) -> None:

@@ -19,3 +19,11 @@ class LoxRuntimeError(Exception):
         super(LoxRuntimeError, self).__init__(msg)
         self.token = token
         self.message = msg
+
+
+#class LoxResolverWarning(Exception):
+#    def __init__(self, token: Token, msg: str) -> None:
+#        super(LoxResolverWarning, self).__init__(msg)
+#        self.token = token
+#        self.message = msg
+#
