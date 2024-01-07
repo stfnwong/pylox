@@ -9,6 +9,7 @@ from loxpy.token import Token, TokenType
 from loxpy.interpreter import Interpreter
 from loxpy.scanner import Scanner
 from loxpy.parser import Parser
+from loxpy.resolver import Resolver
 
 
 USAGE = "Usage: lox [file]" 
@@ -41,6 +42,13 @@ class Lox:
             tokens = scanner.scan()
             parser = Parser(tokens)
             stmts = parser.parse()
+
+            # Only resolve if we parsed correctly
+            if self.had_error or not stmts:
+                exit(-1)
+
+            resolver = Resolver(self.interp)
+            resolver.resolve(stmts)
 
             self.interp.interpret(stmts)
 

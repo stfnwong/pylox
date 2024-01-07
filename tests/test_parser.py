@@ -19,9 +19,12 @@ from loxpy.statement import (
 )
 
 
+VAR_AND_OP_PROGRAM = "programs/op.lox"
 BLOCK_PROGRAM = "programs/shadow.lox"
 WHILE_PROGRAM = "programs/while.lox"
 FOR_PROGRAM = "programs/for.lox"
+FIB_FOR_PROGRAM = "programs/fib_for.lox"
+FIB_FUNC_PROGRAM = "programs/fib_func.lox"
 FUNC_PROGRAM = "programs/func1.lox"
 
 
@@ -44,12 +47,27 @@ def test_raise_parse_error() -> None:
         parser.parse()
 
 
+def test_var_and_op() -> None:
+    source = load_source(VAR_AND_OP_PROGRAM)
+    parsed_output = parse_input(source)
+
+    exp_types = [VarStmt, VarStmt, VarStmt]
+    assert len(parsed_output) == len(exp_types)
+
+    for p, t in zip(parsed_output, exp_types):
+        assert type(p) == t
+
+    # The last statement should have a BinaryExpr as its initializer
+    assert isinstance(parsed_output[2].initializer, BinaryExpr)
+
+
+
+
 def test_simple_add() -> None:
     simple_expr = "2 + 2;"
-    # Format the expected output
-    token_left    = Token(TokenType.NUMBER, "2", float(2), 1)
-    token_op      = Token(TokenType.PLUS, "+", None, 1)
-    token_right   = Token(TokenType.NUMBER, "2", float(2), 1)
+    token_left    = Token(TokenType.NUMBER, "2", float(2), 1, 2)
+    token_op      = Token(TokenType.PLUS, "+", None, 1, 4)
+    token_right   = Token(TokenType.NUMBER, "2", float(2), 1, 6)
     exp_output    = [ExprStmt(BinaryExpr(token_op, LiteralExpr(token_left), LiteralExpr(token_right)))]
 
     parsed_output = parse_input(simple_expr)
@@ -59,10 +77,9 @@ def test_simple_add() -> None:
 
 def test_simple_sub() -> None:
     simple_expr = "4 - 2;"
-    # Format the expected output
-    token_left    = Token(TokenType.NUMBER, "4", float(4), 1)
-    token_op      = Token(TokenType.MINUS, "-", None, 1)
-    token_right   = Token(TokenType.NUMBER, "2", float(2), 1)
+    token_left    = Token(TokenType.NUMBER, "4", float(4), 1, 2)
+    token_op      = Token(TokenType.MINUS, "-", None, 1, 4)
+    token_right   = Token(TokenType.NUMBER, "2", float(2), 1, 6)
     exp_output    = [ExprStmt(BinaryExpr(token_op, LiteralExpr(token_left), LiteralExpr(token_right)))]
 
     parsed_output = parse_input(simple_expr)
@@ -72,10 +89,9 @@ def test_simple_sub() -> None:
 
 def test_simple_mul() -> None:
     simple_expr = "4 * 4;"
-    # Format the expected output
-    token_left    = Token(TokenType.NUMBER, "4", float(4), 1)
-    token_op      = Token(TokenType.STAR, "*", None, 1)
-    token_right   = Token(TokenType.NUMBER, "4", float(4), 1)
+    token_left    = Token(TokenType.NUMBER, "4", float(4), 1, 2)
+    token_op      = Token(TokenType.STAR, "*", None, 1, 4)
+    token_right   = Token(TokenType.NUMBER, "4", float(4), 1, 6)
     exp_output    = [ExprStmt(BinaryExpr(token_op, LiteralExpr(token_left), LiteralExpr(token_right)))]
 
     parsed_output = parse_input(simple_expr)
@@ -85,10 +101,9 @@ def test_simple_mul() -> None:
 
 def test_simple_div() -> None:
     simple_expr = "6 / 4;"
-    # Format the expected output
-    token_left    = Token(TokenType.NUMBER, "6", float(6), 1)
-    token_op      = Token(TokenType.SLASH, "/", None, 1)
-    token_right   = Token(TokenType.NUMBER, "4", float(4), 1)
+    token_left    = Token(TokenType.NUMBER, "6", float(6), 1, 2)
+    token_op      = Token(TokenType.SLASH, "/", None, 1, 4)
+    token_right   = Token(TokenType.NUMBER, "4", float(4), 1, 6)
     exp_output    = [ExprStmt(BinaryExpr(token_op, LiteralExpr(token_left), LiteralExpr(token_right)))]
 
     parsed_output = parse_input(simple_expr)
@@ -156,6 +171,27 @@ def test_parse_for() -> None:
     assert isinstance(parsed_output[1].body, BlockStmt)
     assert isinstance(parsed_output[1].body.stmts[0], PrintStmt)
 
+
+def test_parse_fib_for() -> None:
+    source = load_source(FIB_FOR_PROGRAM)
+    parsed_output = parse_input(source)
+
+    exp_types = [VarStmt, VarStmt, BlockStmt]
+    assert len(parsed_output) == len(exp_types)
+
+    for p, t in zip(parsed_output, exp_types):
+        assert type(p) == t
+
+
+def test_parse_fib_func() -> None:
+    source = load_source(FIB_FUNC_PROGRAM)
+    parsed_output = parse_input(source)
+
+    exp_types = [FuncStmt, BlockStmt]
+    assert len(parsed_output) == len(exp_types)
+
+    for p, t in zip(parsed_output, exp_types):
+        assert type(p) == t
 
 
 def test_parse_func() -> None:

@@ -40,7 +40,7 @@ class FuncStmt(Stmt):
 class IfStmt(Stmt):
     condition: Expr
     then_branch: Stmt
-    else_branch: Optional[Stmt]
+    else_branch: Optional[Stmt] = None
 
     def accept(self, visitor):
         return visitor.visit_if_stmt(self)

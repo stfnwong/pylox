@@ -6,6 +6,7 @@ from loxpy.token import Token, TokenType
 from loxpy.scanner import Scanner
 from loxpy.parser import Parser
 from loxpy.interpreter import Interpreter
+from loxpy.resolver import Resolver
 from loxpy.util import load_source, float_equal
 
 
@@ -27,6 +28,7 @@ def parse_input(expr_src: str) -> Sequence[Stmt]:
 
 def test_interpret_unary() -> None:
     interp = Interpreter(verbose=GLOBAL_VERBOSE)
+    resolver = Resolver(interp)
 
     # Test unary on number types
     operand = Token(TokenType.NUMBER, "2", None, 1)
@@ -43,6 +45,7 @@ def test_interpret_unary() -> None:
     tok_bang  = Token(TokenType.BANG, "!", None, 1)
     expr = [ExprStmt(UnaryExpr(tok_bang, LiteralExpr(operand)))]
 
+    resolver.resolve(expr)
     value = interp.interpret(expr)   # NOTE: output is a list of values
     exp_value = False
 
@@ -63,6 +66,7 @@ def test_interpret_unary() -> None:
 
 def test_interpret_binary() -> None:
     interp = Interpreter(verbose=GLOBAL_VERBOSE)
+    resolver = Resolver(interp)
 
     op_tokens = [
         Token(TokenType.PLUS, "+", None, 1),
@@ -75,9 +79,11 @@ def test_interpret_binary() -> None:
     tok_num1 = Token(TokenType.NUMBER, "2", None, 1)
     tok_num2 = Token(TokenType.NUMBER, "4", None, 1)
 
+    
     interp_values = []
     for op_tok in op_tokens:
         expr  = [ExprStmt(BinaryExpr(op_tok, LiteralExpr(tok_num1), LiteralExpr(tok_num2)))]
+        resolver.resolve(expr)
         value = interp.interpret(expr)
         interp_values.extend(value)
 
@@ -109,20 +115,24 @@ def test_interpret_binary() -> None:
 
 def test_interpret_print() -> None:
     interp = Interpreter(verbose=GLOBAL_VERBOSE)
+    resolver = Resolver(interp)
 
     tok_string = Token(TokenType.STRING, "bet you can't print this", None, 1)
     stmts = [PrintStmt(LiteralExpr(tok_string))]
 
+    resolver.resolve(stmts)
     ret = interp.interpret(stmts)
     assert len(ret) == 1
     assert ret[0] == tok_string
 
 
 def test_interpret_while() -> None:
-    source = load_source(WHILE_PROGRAM)
-    stmts = parse_input(source)
+    source   = load_source(WHILE_PROGRAM)
+    stmts    = parse_input(source)
+    interp   = Interpreter(verbose=GLOBAL_VERBOSE)
+    resolver = Resolver(interp)
 
-    interp = Interpreter(verbose=GLOBAL_VERBOSE)
+    resolver.resolve(stmts)
     interp.interpret(stmts)
 
     expected_state = {"i": 10.0}
@@ -134,10 +144,12 @@ def test_interpret_while() -> None:
 # The program in this test should have the same result as the 
 # program in the while test.
 def test_interpret_for() -> None:
-    source = load_source(FOR_PROGRAM)
-    stmts = parse_input(source)
+    source   = load_source(FOR_PROGRAM)
+    stmts    = parse_input(source)
+    interp   = Interpreter(verbose=GLOBAL_VERBOSE)
+    resolver = Resolver(interp)
 
-    interp = Interpreter(verbose=GLOBAL_VERBOSE)
+    resolver.resolve(stmts)
     interp.interpret(stmts)
 
     expected_state = {"i": 10.0}
@@ -147,9 +159,12 @@ def test_interpret_for() -> None:
 
 
 def test_interpret_fib_for() -> None:
-    source = load_source("programs/fib_for.lox")
-    stmts = parse_input(source)
-    interp = Interpreter(verbose=GLOBAL_VERBOSE)
+    source   = load_source("programs/fib_for.lox")
+    stmts    = parse_input(source)
+    interp   = Interpreter(verbose=GLOBAL_VERBOSE)
+    resolver = Resolver(interp)
+
+    resolver.resolve(stmts)
     interp.interpret(stmts)
 
     expected_state = {"a": 1597.0, "temp": 987.0}

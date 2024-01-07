@@ -14,18 +14,18 @@ from loxpy.token import Token
 ResultType = Union[float, bool, str, None]
 
 
-@dataclass
+@dataclass(frozen=True)
 class Expr(ABC):
     # TODO: what is the type of the visitor?
     @abstractmethod
     def accept(self, visitor) -> Union[ResultType, 'Expr']:
-        pass
+        raise NotImplemented("Implement in concrete type")
 
 
 # All derived classes have a custom __str__() method to make the ASTPrinter work
 
 
-@dataclass
+@dataclass(frozen=True)
 class BinaryExpr(Expr):
     op: Token
     left: Expr
@@ -38,7 +38,7 @@ class BinaryExpr(Expr):
         return visitor.visit_binary_expr(self)
 
 
-@dataclass
+@dataclass(frozen=True)
 class CallExpr(Expr):
     callee: Expr
     paren: Token
@@ -51,7 +51,7 @@ class CallExpr(Expr):
         return visitor.visit_call_expr(self)
 
 
-@dataclass
+@dataclass(frozen=True)
 class GroupingExpr(Expr):
     expression: Expr
 
@@ -62,7 +62,7 @@ class GroupingExpr(Expr):
         return visitor.visit_grouping_expr(self)
 
 
-@dataclass
+@dataclass(frozen=True)
 class LiteralExpr(Expr):
     value: Token
 
@@ -73,7 +73,7 @@ class LiteralExpr(Expr):
         return visitor.visit_literal_expr(self)
 
 
-@dataclass
+@dataclass(frozen=True)
 class LogicalExpr(Expr):
     op: Token
     left: Expr
@@ -86,7 +86,7 @@ class LogicalExpr(Expr):
         return visitor.visit_logical_expr(self)
 
 
-@dataclass
+@dataclass(frozen=True)
 class UnaryExpr(Expr):
     op: Token
     right: Expr
@@ -98,7 +98,7 @@ class UnaryExpr(Expr):
         return visitor.visit_unary_expr(self)
 
 
-@dataclass
+@dataclass(frozen=True)
 class VarExpr(Expr):
     name: Token
 
@@ -109,7 +109,7 @@ class VarExpr(Expr):
         return visitor.visit_var_expr(self)
 
 
-@dataclass
+@dataclass(frozen=True)
 class AssignmentExpr(Expr):
     name: Token
     value: Expr

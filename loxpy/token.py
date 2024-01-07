@@ -138,7 +138,7 @@ TOKEN_SYMBOL = {
 }
 
 
-@dataclass
+@dataclass(frozen=True)
 class Token:
     """
     Token.
@@ -156,6 +156,7 @@ class Token:
     lexeme: str
     literal: Any    # Later it might be worth reducing the scope of this
     line: int
+    col: int = 0    # Column in source, if we know
 
     # NOTE: dataclass doens't seem to like having seperate __str__() and __repr__() methods
     # Ideally I'd like to keep the original __repr__ method also

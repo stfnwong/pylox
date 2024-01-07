@@ -15,10 +15,13 @@ class Scanner:
 
         self.source      :str  = source
         self.token_list  :List[Token] = []
+
         # Source position
         self.src_start   :int  = 0
         self.src_current :int  = 0
         self.src_line    :int  = 1
+        self.cur_col     :int  = 1
+
         # reserved words
         self.reserved_words : Dict[str, TokenType] = {
             "and"    : TokenType.AND,
@@ -50,7 +53,12 @@ class Scanner:
 
     def _advance(self) -> str:
         self.src_current += 1
+        self.cur_col += 1
         return self.source[self.src_current-1]
+
+    def _new_line(self) -> None:
+        self.src_line += 1
+        self.cur_col = 1
 
     def _identifier(self) -> None:
         while self._isalphanumeric(self._peek()):
@@ -124,7 +132,7 @@ class Scanner:
     def _parse_string(self) -> None:
         while self._peek() != '"' and self._src_end() is False:
             if self._peek() == '\n':
-                self.src_line += 1
+                self._new_line()
             self._advance()
 
         # Handle unterminated string
@@ -140,7 +148,7 @@ class Scanner:
 
     def _add_token(self, token_type: TokenType, literal:Any=None) -> None:
         text = self.source[self.src_start : self.src_current]
-        token = Token(token_type, text, literal, self.src_line)
+        token = Token(token_type, text, literal, self.src_line, self.cur_col)
         self.token_list.append(token)
 
     def _scan_token(self) -> None:
@@ -206,7 +214,7 @@ class Scanner:
         elif c == ' ' or c == '\r' or c == '\t':
             pass
         elif c == '\n':
-            self.src_line += 1
+            self._new_line()
         else:
             #if c.isdigit():
             if self._isdigit(c):

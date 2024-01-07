@@ -4,7 +4,7 @@ Interpret a collection of Lox expressions
 
 """
 
-from typing import Any, Optional, Sequence, Union
+from typing import Any, Dict, Optional, Sequence, Union
 
 from loxpy.token import Token, TokenType
 from loxpy.expr import (
@@ -50,6 +50,7 @@ def load_builtins() -> Environment:
 class Interpreter:
     def __init__(self, verbose: bool=False) -> None:
         self.verbose: bool = verbose
+        self.locals: Dict[Expr, int] = {}
         self.globals = load_builtins()
         self.environment = self.globals
 
@@ -74,6 +75,13 @@ class Interpreter:
             return False
 
         return a == b
+
+    def lookup_variable(self, name: Token, expr: Expr) -> Any:
+        dist = self.locals.get(expr, None)
+        if dist is not None:
+            return self.environment.get_at(dist, name)
+        else:
+            return self.globals.get(name)
 
     # NOTE: Original implementation returns a LoxObject (strictly a Java Object)
     def evaluate(self, expr) -> Any:
@@ -202,11 +210,15 @@ class Interpreter:
             raise LoxRuntimeError(expr.paren, str(e))
 
     def visit_var_expr(self, expr: VarExpr) -> Any:
-        return self.environment.get(expr.name)
+        return self.lookup_variable(expr.name, expr)
 
     def visit_assignment_expr(self, expr: AssignmentExpr) -> Any:
         value = self.evaluate(expr.value)
-        self.environment.assign(expr.name, value)
+        dist = self.locals.get(expr, None)
+        if dist is not None:
+            self.environment.assign_at(dist, expr.name, value)
+        else:
+            self.globals.assign(expr.name, value)
 
         return value
 
@@ -277,6 +289,12 @@ class Interpreter:
             self.environment = prev_env
 
         return ret
+
+    def resolve(self, expr: Expr, depth: int) -> None:
+        print(f"Interpreter.resolve(): resolving variable {expr} at depth {depth}")
+        self.locals[expr] = depth
+        for n, (ex, d) in enumerate(self.locals.items()):
+            print(f"[{n}]: {ex} -> {d}")
 
     # Entry point method
     def interpret(self, stmts: Sequence[Stmt]) -> Sequence[Any]:
