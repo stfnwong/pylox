@@ -1,4 +1,6 @@
+import pytest
 from typing import Sequence
+
 from loxpy.resolver import Resolver
 from loxpy.interpreter import Interpreter
 from loxpy.scanner import Scanner
@@ -7,12 +9,13 @@ from loxpy.statement import Stmt
 from loxpy.token import Token, TokenType
 from loxpy.expr import AssignmentExpr, BinaryExpr, LiteralExpr, VarExpr
 from loxpy.util import load_source
+from loxpy.error import LoxInterpreterError
 
 
-VAR_PROGRAM      = "programs/op.lox"
 FOR_PROGRAM      = "programs/for_interp.lox"
 FIB_FUNC_PROGRAM = "programs/fib_func.lox"
 FUNC_PROGRAM     = "programs/func1.lox"
+RESOLVE_ERROR_PROGRAM = "programs/resolve_error.lox"
 
 
 
@@ -21,7 +24,6 @@ def get_resolver() -> Resolver:
     res = Resolver(interp)
 
     return res
-
 
 def parse_input(expr_src: str) -> Sequence[Stmt]:
     scanner       = Scanner(expr_src)
@@ -33,18 +35,7 @@ def parse_input(expr_src: str) -> Sequence[Stmt]:
 
 
 
-#def test_resolve_var() -> None:
-#    # NOTE: distance of "local" vars should be zero
-#    res = get_resolver()
-#    parsed_output = parse_input(load_source(VAR_PROGRAM))
-#
-#    # TODO: what should the state be here? 
-#    # If there are no scopes should there be anything in locals?
-#    res.resolve(parsed_output)
-#    exp_state = {}
-#
-#    print(res)
-
+# ======== TESTS ======== 
 
 def test_resolve_for() -> None:
     res = get_resolver()
@@ -106,5 +97,26 @@ def test_resolve_fib_func() -> None:
         assert res.interp.locals[local] == dist
 
 
-def test_resolve_error() -> None:
-    pass
+
+def test_resolve_return_from_top_level() -> None:
+    source = "return \"at top level\";"
+    res = get_resolver()
+    parsed_output = parse_input(source)
+
+    with pytest.raises(LoxInterpreterError, match=r"Can't return from top level"):
+        res.resolve(parsed_output)
+
+
+def test_variable_redefined_in_scope() -> None:
+    source = """
+    func bad() {
+        var a = "first";
+        var a = "second";
+    }
+    """
+
+    res = get_resolver()
+    parsed_output = parse_input(source)
+
+    with pytest.raises(LoxInterpreterError, match=r".* already in this scope.*"):
+        res.resolve(parsed_output)

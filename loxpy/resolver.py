@@ -63,7 +63,7 @@ class Resolver:
 
         scope = self.scopes[-1]
         if name.lexeme in scope:
-            raise LoxInterpreterError(name, f"[{name.lexeme} already in this scope")
+            raise LoxInterpreterError(name, f"[{name.lexeme}] already in this scope")
 
         scope[name.lexeme] = False   # mark as not ready
 
@@ -99,7 +99,6 @@ class Resolver:
         self._resolve_expr(expr.right)
         
     def visit_var_expr(self, expr: VarExpr) -> None:
-        #if self.scopes and self.scopes[-1][expr.name.lexeme] is False:
         if self.scopes and (self.scopes[-1].get(expr.name.lexeme, None) is False):
             raise LoxInterpreterError(expr.name, f"Failed to read local variable [{expr.name.lexeme}] in its own initializer")
 
