@@ -2,6 +2,7 @@
 
 from typing import Sequence, Union
 from collections import deque
+from enum import auto, Enum
 
 from loxpy.error import LoxInterpreterError
 from loxpy.token import Token
@@ -30,6 +31,11 @@ from loxpy.statement import (
 )
 
 
+class FunctionType(Enum):
+    NONE = auto()
+    FUNCTION = auto()
+
+
 # For resolving variables we only care about
 #
 # Block Statements - these introduce a new scope for any contained variables 
@@ -41,6 +47,7 @@ from loxpy.statement import (
 
 class Resolver:
     def __init__(self, interp: Interpreter):
+        self.cur_func = FunctionType.NONE
         self.interp = interp
         self.scopes = deque()       # Each element is Dict[str, bool] 
 
@@ -55,6 +62,9 @@ class Resolver:
             return
 
         scope = self.scopes[-1]
+        if name.lexeme in scope:
+            raise LoxInterpreterError(name, f"[{name.lexeme} already in this scope")
+
         scope[name.lexeme] = False   # mark as not ready
 
     def _define(self, name: Token) -> None:
@@ -106,7 +116,7 @@ class Resolver:
     def visit_func_stmt(self, stmt: FuncStmt) -> None:
         self._declare(stmt.name)
         self._define(stmt.name)
-        self._resolve_function(stmt)
+        self._resolve_function(stmt, FunctionType.FUNCTION)
 
     def visit_if_stmt(self, stmt: IfStmt) -> None:
         self._resolve_expr(stmt.condition)
@@ -130,6 +140,9 @@ class Resolver:
         self._define(stmt.name)
 
     def visit_return_stmt(self, stmt: ReturnStmt) -> None:
+        if self.cur_func == FunctionType.NONE:
+            raise LoxInterpreterError(stmt.keyword, "Can't return from top level")
+
         if stmt.value is not None:
             self._resolve_expr(stmt.value)
 
@@ -154,7 +167,9 @@ class Resolver:
                 self.interp.resolve(expr, depth)
                 return
 
-    def _resolve_function(self, func: FuncStmt) -> None:
+    def _resolve_function(self, func: FuncStmt, ftype: FunctionType) -> None:
+        enclosing_func = self.cur_func
+        self.cur_func = ftype
         self._begin_scope()
 
         for param in func.params:
@@ -163,6 +178,7 @@ class Resolver:
 
         self.resolve(func.body)
         self._end_scope()
+        self.cur_func = enclosing_func
 
     def resolve(self, stmts: Sequence[Stmt]) -> None:
         for stmt in stmts:

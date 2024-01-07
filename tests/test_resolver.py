@@ -104,3 +104,7 @@ def test_resolve_fib_func() -> None:
     for local, dist in exp_locals:
         assert local in res.interp.locals
         assert res.interp.locals[local] == dist
+
+
+def test_resolve_error() -> None:
+    pass
