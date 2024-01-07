@@ -291,10 +291,7 @@ class Interpreter:
         return ret
 
     def resolve(self, expr: Expr, depth: int) -> None:
-        print(f"Interpreter.resolve(): resolving variable {expr} at depth {depth}")
         self.locals[expr] = depth
-        for n, (ex, d) in enumerate(self.locals.items()):
-            print(f"[{n}]: {ex} -> {d}")
 
     # Entry point method
     def interpret(self, stmts: Sequence[Stmt]) -> Sequence[Any]:

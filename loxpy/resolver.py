@@ -149,16 +149,10 @@ class Resolver:
         stmt.accept(self)
 
     def _resolve_local(self, expr: Expr, name: Token) -> None:
-        print(f"Resolver._resolve_local(): resolving {expr}...")
         for depth, scope in enumerate(reversed(self.scopes)):
             if name.lexeme in scope:
                 self.interp.resolve(expr, depth)
                 return
-
-        #for idx in range(len(self.scopes)-1, -1, -1):
-        #    if name.lexeme in self.scopes[idx]:
-        #        self.interp.resolve(expr, len(self.scopes) - idx - 1)
-        #        return
 
     def _resolve_function(self, func: FuncStmt) -> None:
         self._begin_scope()
