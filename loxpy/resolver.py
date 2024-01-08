@@ -13,6 +13,7 @@ from loxpy.expr import (
     CallExpr,
     GetExpr,
     SetExpr,
+    ThisExpr,
     GroupingExpr,
     LiteralExpr, 
     LogicalExpr,
@@ -104,6 +105,9 @@ class Resolver:
         self._resolve_expr(expr.value)
         self._resolve_expr(expr.obj)
 
+    def visit_this_expr(self, expr: ThisExpr) -> None:
+        self._resolve_local(expr, expr.keyword)
+
     def visit_grouping_expr(self, expr: GroupingExpr) -> None:
         self._resolve_expr(expr.expression)
 
@@ -151,8 +155,13 @@ class Resolver:
         self._declare(stmt.name)
         self._define(stmt.name)
 
+        self._begin_scope()
+        self.scopes[-1]["this"] = [True, True]  # Ensure 'this' keyword always in scope
+
         for method in stmt.methods:
             self._resolve_function(method, FunctionType.METHOD)
+
+        self._end_scope()
 
     def visit_print_stmt(self, stmt: PrintStmt) -> None:
         self._resolve_expr(stmt.expr)

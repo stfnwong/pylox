@@ -7,6 +7,7 @@ from loxpy.scanner import Scanner
 from loxpy.parser import Parser
 from loxpy.interpreter import Interpreter
 from loxpy.resolver import Resolver
+from loxpy.callable import LoxClass, LoxInstance
 from loxpy.util import load_source, float_equal
 
 
@@ -171,3 +172,25 @@ def test_interpret_fib_for() -> None:
     for var_name in expected_state:
         assert var_name in interp.environment.values
         assert interp.environment.values[var_name] == expected_state[var_name]
+
+
+def test_interpret_class_fields() -> None:
+    source   = load_source("programs/class_fields.lox")
+    stmts    = parse_input(source)
+    interp   = Interpreter(verbose=GLOBAL_VERBOSE)
+    resolver = Resolver(interp)
+
+    resolver.resolve(stmts)
+    interp.interpret(stmts)
+
+    # NOTE: we just check the type for now to avoid having to 
+    # construct a whole instance to check.
+    expected_state = {
+        "Test": LoxClass,
+        "test": LoxInstance
+    }
+
+    for var_name, var_type in expected_state.items():
+        assert var_name in interp.environment.values
+        assert isinstance(interp.environment.values[var_name], var_type)
+

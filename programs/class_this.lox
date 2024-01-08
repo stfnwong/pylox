@@ -1,0 +1,12 @@
+class Thing {
+	get_callback() {
+		func local_func() {
+			print this;
+		}
+
+		return local_func;
+	}
+}
+
+var callback = Thing().get_callback();
+callback();

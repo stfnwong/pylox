@@ -124,3 +124,8 @@ def test_variable_redefined_in_scope() -> None:
 
 def test_resolve_class_fields() -> None:
     pass
+
+
+def test_resolve_class_this() -> None:
+    # NOTE: we expect the interpreter to have a ThisExpr and VarExpr in locals
+    pass

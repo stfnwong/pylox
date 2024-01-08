@@ -13,6 +13,7 @@ from loxpy.expr import (
     CallExpr,
     GetExpr,
     SetExpr,
+    ThisExpr,
     LiteralExpr,
     LogicalExpr,
     GroupingExpr,
@@ -229,6 +230,9 @@ class Interpreter:
 
         return value
 
+    def visit_this_expr(self, expr: ThisExpr) -> Any:
+        return self.lookup_variable(expr.keyword, expr)
+
     def visit_var_expr(self, expr: VarExpr) -> Any:
         return self.lookup_variable(expr.name, expr)
 
@@ -291,7 +295,7 @@ class Interpreter:
         methods: Dict[str, LoxFunction] = {}
         for method in stmt.methods:
             func = LoxFunction(method, self.environment)
-            methods[name.lexeme] = func
+            methods[stmt.name.lexeme] = func
 
         cl = LoxClass(stmt.name.lexeme, methods)
         self.environment.assign(stmt.name, cl)

@@ -7,7 +7,7 @@ from loxpy.error import LoxParseError
 from loxpy.parser import Parser
 from loxpy.scanner import Scanner
 from loxpy.token import Token, TokenType
-from loxpy.expr import BinaryExpr, CallExpr, GetExpr, SetExpr, LiteralExpr
+from loxpy.expr import AssignmentExpr, BinaryExpr, CallExpr, GetExpr, SetExpr, LiteralExpr
 from loxpy.statement import (
     Stmt, 
     BlockStmt, 
@@ -28,6 +28,7 @@ FIB_FOR_PROGRAM = "programs/fib_for.lox"
 FIB_FUNC_PROGRAM = "programs/fib_func.lox"
 FUNC_PROGRAM = "programs/func1.lox"
 CLASS_FIELDS_PROGRAM = "programs/class_fields.lox"
+CLASS_THIS_PROGRAM = "programs/class_this.lox"
 
 
 def parse_input(expr_src: str) -> Sequence[Stmt]:
@@ -212,22 +213,30 @@ def test_parse_func() -> None:
     assert isinstance(parsed_output[2].expr, CallExpr)
 
 
-
 def test_parse_class_fields() -> None:
     source = load_source(CLASS_FIELDS_PROGRAM)
     parsed_output = parse_input(source)
     
-    exp_types = [ClassStmt, ExprStmt, ExprStmt, PrintStmt, PrintStmt]
+    exp_types = [ClassStmt, ExprStmt, ExprStmt, ExprStmt, PrintStmt, PrintStmt]
 
     assert len(parsed_output) == len(exp_types)
-
     for p, t in zip(parsed_output, exp_types):
         assert type(p) == t
 
     # Ensure the expression statements contain SetExprs
-    assert isinstance(parsed_output[1].expr, SetExpr)
+    assert isinstance(parsed_output[1].expr, AssignmentExpr)
     assert isinstance(parsed_output[2].expr, SetExpr)
+    assert isinstance(parsed_output[3].expr, SetExpr)
 
     # Ensure the print statements contain GetExprs
-    assert isinstance(parsed_output[3].expr, GetExpr)
     assert isinstance(parsed_output[4].expr, GetExpr)
+    assert isinstance(parsed_output[5].expr, GetExpr)
+
+
+def test_parse_class_this() -> None:
+    source = load_source(CLASS_THIS_PROGRAM)
+    parsed_output = parse_input(source)
+    
+    exp_types = [ClassStmt, ExprStmt, FuncStmt];
+
+    assert len(parsed_output) == len(exp_types)

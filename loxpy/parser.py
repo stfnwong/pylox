@@ -11,6 +11,7 @@ from loxpy.expr import (
     CallExpr,
     GetExpr,
     SetExpr,
+    ThisExpr,
     LiteralExpr,
     LogicalExpr,
     UnaryExpr,
@@ -181,7 +182,8 @@ class Parser:
         self._consume(TokenType.RIGHT_PAREN, f"Expect ')' after {kind} parameter list")
 
         # Now parse the function body (TODO: how to escape LEFT_BRACE properly?)
-        self._consume(TokenType.LEFT_BRACE, f"Expect 'LEFT_BRACE' before {kind} body")
+        LEFT_BRACE = "{"
+        self._consume(TokenType.LEFT_BRACE, f"Expect '{LEFT_BRACE}' before {kind} body")
         body = self._block_statement(return_list=True)
         return FuncStmt(name, params, body)
 
@@ -297,7 +299,7 @@ class Parser:
 
         paren = self._consume(TokenType.RIGHT_PAREN, "Expect ')' after arguments")
 
-        return CallExpr(callee, paren, args)
+        return CallExpr(callee, paren, tuple(args))
 
     def _call(self) -> Expr:
         expr = self._primary()
@@ -307,13 +309,13 @@ class Parser:
                 expr = self._finish_call(expr)
             elif self._match([TokenType.DOT]):
                 name = self._consume(TokenType.IDENTIFIER, "Expect property name after '.'")
-                return GetExpr(expr, name)
+                expr = GetExpr(expr, name)
             else:
                 break
 
         return expr
 
-    def _primary(self) -> Union[GroupingExpr, LiteralExpr, VarExpr]:
+    def _primary(self) -> Union[GroupingExpr, LiteralExpr, ThisExpr, VarExpr]:
         expr = LiteralExpr(
             Token(
                 TokenType.NIL,
@@ -323,6 +325,7 @@ class Parser:
             )
         )
 
+        # TODO: Need to immutably construct new exprs here with the modified tokens
         if self._match([TokenType.FALSE]):
             expr.value.token_type = TokenType.FALSE
 
@@ -334,6 +337,9 @@ class Parser:
 
         if self._match([TokenType.NUMBER, TokenType.STRING]):
             expr = LiteralExpr(self._previous())
+
+        if self._match([TokenType.THIS]):
+            return ThisExpr(self._previous())
 
         if self._match([TokenType.IDENTIFIER]):
             return VarExpr(self._previous())

@@ -78,6 +78,17 @@ class SetExpr(Expr):
 
 
 @dataclass(frozen=True)
+class ThisExpr(Expr):
+    keyword: Token
+
+    def __str__(self) -> str:
+        return f"ThisExpr({self.keyword})"
+
+    def accept(self, visitor) -> Expr:
+        return visitor.visit_this_expr(self)
+
+
+@dataclass(frozen=True)
 class GroupingExpr(Expr):
     expression: Expr
 
