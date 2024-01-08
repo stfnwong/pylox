@@ -11,6 +11,8 @@ from loxpy.expr import (
     Expr, 
     BinaryExpr,
     CallExpr,
+    GetExpr,
+    SetExpr,
     GroupingExpr,
     LiteralExpr, 
     LogicalExpr,
@@ -24,6 +26,7 @@ from loxpy.statement import (
     FuncStmt,
     IfStmt,
     BlockStmt,
+    ClassStmt,
     PrintStmt,
     ReturnStmt,
     VarStmt,
@@ -34,6 +37,7 @@ from loxpy.statement import (
 class FunctionType(Enum):
     NONE = auto()
     FUNCTION = auto()
+    METHOD = auto()
 
 
 # For resolving variables we only care about
@@ -93,6 +97,13 @@ class Resolver:
         for arg in expr.arguments:
             self._resolve_expr(arg)
 
+    def visit_get_expr(self, expr: GetExpr) -> None:
+        self._resolve_expr(expr.obj)
+
+    def visit_set_expr(self, expr: SetExpr) -> None:
+        self._resolve_expr(expr.value)
+        self._resolve_expr(expr.obj)
+
     def visit_grouping_expr(self, expr: GroupingExpr) -> None:
         self._resolve_expr(expr.expression)
 
@@ -135,6 +146,13 @@ class Resolver:
         self._begin_scope()
         self.resolve(stmt.stmts)
         self._end_scope()
+
+    def visit_class_stmt(self, stmt: ClassStmt) -> None:
+        self._declare(stmt.name)
+        self._define(stmt.name)
+
+        for method in stmt.methods:
+            self._resolve_function(method, FunctionType.METHOD)
 
     def visit_print_stmt(self, stmt: PrintStmt) -> None:
         self._resolve_expr(stmt.expr)

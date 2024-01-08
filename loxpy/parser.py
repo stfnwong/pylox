@@ -9,6 +9,8 @@ from loxpy.expr import (
     Expr,
     BinaryExpr,
     CallExpr,
+    GetExpr,
+    SetExpr,
     LiteralExpr,
     LogicalExpr,
     UnaryExpr,
@@ -25,6 +27,7 @@ from loxpy.statement import (
     FuncStmt,
     VarStmt, 
     BlockStmt,
+    ClassStmt,
     WhileStmt
 )
 from loxpy.token import Token, TokenType
@@ -134,6 +137,8 @@ class Parser:
             if isinstance(expr, VarExpr):
                 name = expr.name
                 return AssignmentExpr(name, value)
+            elif isinstance(expr, GetExpr):    # TODO: what to tell linter here?
+                return SetExpr(expr.obj, expr.name, value)
 
             raise LoxParseError(equals, "Invalid assignment target")
 
@@ -175,13 +180,27 @@ class Parser:
 
         self._consume(TokenType.RIGHT_PAREN, f"Expect ')' after {kind} parameter list")
 
-        # Now parse the function body 
-        self._consume(TokenType.LEFT_BRACE, f"Expect '{{' before {kind} body")
+        # Now parse the function body (TODO: how to escape LEFT_BRACE properly?)
+        self._consume(TokenType.LEFT_BRACE, f"Expect 'LEFT_BRACE' before {kind} body")
         body = self._block_statement(return_list=True)
         return FuncStmt(name, params, body)
 
+    def _class_decl(self) -> Stmt:
+        name = self._consume(TokenType.IDENTIFIER, "Expect class name")
+        self._consume(TokenType.LEFT_BRACE, "Expect '{' before class body")
+
+        methods = []
+        while not self._check(TokenType.RIGHT_BRACE) and not self._at_end():
+            methods.append(self._function("method"))
+
+        self._consume(TokenType.RIGHT_BRACE, "Expect '}' after class body")
+
+        return ClassStmt(name, methods)
+
     def _declaration(self) -> Optional[Union[Stmt, Sequence[Stmt]]]:
         try:
+            if self._match([TokenType.CLASS]):
+                return self._class_decl()
             if self._match([TokenType.FUNC]):
                 return self._function("function")
 
@@ -286,6 +305,9 @@ class Parser:
         while True:
             if self._match([TokenType.LEFT_PAREN]):
                 expr = self._finish_call(expr)
+            elif self._match([TokenType.DOT]):
+                name = self._consume(TokenType.IDENTIFIER, "Expect property name after '.'")
+                return GetExpr(expr, name)
             else:
                 break
 

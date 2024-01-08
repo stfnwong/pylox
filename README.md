@@ -16,19 +16,20 @@ Activate the environment with `source $(poetry env info -p)/bin/activate`. Deact
 The statement grammar at the time of writing is 
 
 `program -> declaration | eof;`
-`declaration -> func_decl | var_decl | statement;`
-`func_decl -> "func" function`
-`function -> IDENTIFIER "(" parameters? ")" block`
-`parameters -> IDENTIFIER ( "," IDENTIFIER* ")"`
+`declaration -> class_decl | func_decl | var_decl | statement;`
+`class_decl -> "class" IDENTIFIER "{" function* "}";`
+`func_decl -> "func" function;`
+`function -> IDENTIFIER "(" parameters? ")" block;`
+`parameters -> IDENTIFIER ( "," IDENTIFIER* ")";`
 `var_decl -> "var" IDENTIFIER { "=" expression }? ";"`
 `statement -> expr_stmt | for_stmt | if_stmt | print_stmt | return_stmt | while_stmt | block; `
 `expr_stmt -> expression ";"`
 `for_stmt -> "(" ( var_decl | expr_stmt | ";" ) expression? ";" expression ";" ")" statement;`  (Desugared to while loop)
-`if_stmt -> "(" expression ")" statment "else" statement ")"?`
+`if_stmt -> "(" expression ")" statment "else" statement ")"?;`
 `return_stmt -> "return" expression? ";"`
 `print_stmt -> "print" expression ";"`
-`while_stmt -> "while" "(" expression ")" statement`
-`block -> "{" declaration* "}"`
+`while_stmt -> "while" "(" expression ")" statement;`
+`block -> "{" declaration* "};"`
 
 
 ### Stratified part of grammar in order of precedence. 
@@ -42,16 +43,16 @@ Short-circuit logic is implemented in the grammar as a low-precedence production
 Function calls are implemented in the grammar as a high-precedence operator `()` 
 that matches a `primary` expression followed by zero or more function calls.
 
-`expression -> assignment`
-`assignment -> IDENTIFIER "=" assignment | logic_or`
-`logic_or -> logic_and ( "or" logic_and )*`
-`logic_and -> equality ( "and" equality )*`
-`equality -> comparison ( ( "!=" | "==" ) comparison )*`
-`comparison -> term ( ( ">" | ">=" | "<" | "<=" ) term )*`
-`term -> factor ( ( "+" | "-" ) factor )*`
-`factor -> unary ( ( "/" | "*" ) unary )*`
-`unary -> ( "!" | "-" ) unary | call`
-`call -> primary ( "(" arguments? ")" )*`
+`expression -> assignment;`
+`assignment -> IDENTIFIER "=" assignment | logic_or;`
+`logic_or -> logic_and ( "or" logic_and )*;`
+`logic_and -> equality ( "and" equality )*;`
+`equality -> comparison ( ( "!=" | "==" ) comparison )*;`
+`comparison -> term ( ( ">" | ">=" | "<" | "<=" ) term )*;`
+`term -> factor ( ( "+" | "-" ) factor )*;`
+`factor -> unary ( ( "/" | "*" ) unary )*;`
+`unary -> ( "!" | "-" ) unary | call;`
+`call -> primary ( "(" arguments? ")" | "." IDENTIFIER )*;`
 
 `primary -> "true" | "false" | "nil" | NUMBER | STRING 
             | "(" expression ")" | IDENTIFIER ;`
@@ -59,7 +60,7 @@ that matches a `primary` expression followed by zero or more function calls.
 
 Function arguments have the grammar 
 
-`arguments -> expression ( "," expression )*`
+`arguments -> expression ( "," expression )*;`
 
 
 ## TODOs:

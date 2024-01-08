@@ -120,3 +120,7 @@ def test_variable_redefined_in_scope() -> None:
 
     with pytest.raises(LoxInterpreterError, match=r".* already in this scope.*"):
         res.resolve(parsed_output)
+
+
+def test_resolve_class_fields() -> None:
+    pass

@@ -51,6 +51,32 @@ class CallExpr(Expr):
         return visitor.visit_call_expr(self)
 
 
+
+@dataclass(frozen=True)
+class GetExpr(Expr):
+    obj: Expr
+    name: Token
+
+    def __str__(self) -> str:
+        return f"GetExpr({self.name}: {self.obj})"
+
+    def accept(self, visitor) -> Expr:
+        return visitor.visit_get_expr(self)
+
+
+@dataclass(frozen=True)
+class SetExpr(Expr):
+    obj: Expr
+    name: Token
+    value: Expr
+
+    def __str__(self) -> str:
+        return f"SetExpr({self.name}: {self.obj}) -> {self.value}"
+
+    def accept(self, visitor) -> Expr:
+        return visitor.visit_set_expr(self)
+
+
 @dataclass(frozen=True)
 class GroupingExpr(Expr):
     expression: Expr

@@ -1,0 +1,14 @@
+class Person {
+	say_name() {
+		print this.name;
+	}
+}
+
+var jane = Person();
+jane.name = "Jane";
+
+var bill = Person();
+bill.name = "Bill";
+
+bill.say_name = jane.say_name;
+print bill.say_name();		// expect "Jane"

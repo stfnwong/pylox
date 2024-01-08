@@ -11,6 +11,8 @@ from loxpy.expr import (
     Expr,
     BinaryExpr,
     CallExpr,
+    GetExpr,
+    SetExpr,
     LiteralExpr,
     LogicalExpr,
     GroupingExpr,
@@ -28,11 +30,12 @@ from loxpy.statement import (
     ReturnStmt,
     VarStmt,
     BlockStmt,
+    ClassStmt,
     WhileStmt
 )
 
 from loxpy.environment import Environment
-from loxpy.callable import LoxCallable, LoxFunction, LoxReturnException
+from loxpy.callable import LoxCallable, LoxFunction, LoxClass, LoxInstance, LoxReturnException
 from loxpy.error import LoxRuntimeError
 
 from loxpy.builtins import BUILTIN_MAP
@@ -209,12 +212,30 @@ class Interpreter:
         except (NotImplementedError, TypeError, ValueError) as e:
             raise LoxRuntimeError(expr.paren, str(e))
 
+    def visit_get_expr(self, expr: GetExpr) -> Any:
+        obj = self.evaluate(expr.obj)
+        if isinstance(obj, LoxInstance):
+            return obj.get(expr.name)
+
+        raise LoxRuntimeError(expr.name, "Only instances have properties")
+
+    def visit_set_expr(self, expr: SetExpr) -> Any:
+        obj = self.evaluate(expr.obj)
+        if not isinstance(obj, LoxInstance):
+            raise LoxRuntimeError(expr.name, "Only instances have fields")
+
+        value = self.evaluate(expr.value)
+        obj.set(expr.name, value)
+
+        return value
+
     def visit_var_expr(self, expr: VarExpr) -> Any:
         return self.lookup_variable(expr.name, expr)
 
     def visit_assignment_expr(self, expr: AssignmentExpr) -> Any:
         value = self.evaluate(expr.value)
         dist = self.locals.get(expr, None)
+
         if dist is not None:
             self.environment.assign_at(dist, expr.name, value)
         else:
@@ -263,6 +284,17 @@ class Interpreter:
     # NOTE that I am returning all the results, which is not what the interpreter does in the book
     def visit_block_stmt(self, stmt: BlockStmt) -> Sequence[Any]:
         return self.execute_block(stmt.stmts, Environment(self.environment))
+
+    def visit_class_stmt(self, stmt: ClassStmt) -> None:
+        self.environment.define(stmt.name.lexeme, None)
+
+        methods: Dict[str, LoxFunction] = {}
+        for method in stmt.methods:
+            func = LoxFunction(method, self.environment)
+            methods[name.lexeme] = func
+
+        cl = LoxClass(stmt.name.lexeme, methods)
+        self.environment.assign(stmt.name, cl)
 
     # NOTE: still returning results, ret here is a hack to maintain the pattern but
     # it will only reuturn the last result.

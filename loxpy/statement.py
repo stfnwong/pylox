@@ -55,6 +55,15 @@ class BlockStmt(Stmt):
 
 
 @dataclass
+class ClassStmt(Stmt):
+    name: Token
+    methods: Sequence[FuncStmt]
+
+    def accept(self, visitor) -> Any:
+        return visitor.visit_class_stmt(self)
+
+
+@dataclass
 class PrintStmt(Stmt):
     expr: Expr
 
