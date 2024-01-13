@@ -40,7 +40,8 @@ class LoxInstance:
         self.fields: Dict[str, Any] = {}
 
     def __str__(self) -> str:
-        return f"LoxInstance({self.lox_class.name})"
+        fields = ",".join(f"{fname}" for fname in self.fields.keys())
+        return f"LoxInstance({self.lox_class.name}) [{fields}]"
 
     def get(self, name: Token) -> Any:
         if name.lexeme in self.fields:

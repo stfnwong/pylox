@@ -294,7 +294,7 @@ class Interpreter:
         methods: Dict[str, LoxFunction] = {}
         for method in stmt.methods:
             func = LoxFunction(method, self.environment)
-            methods[stmt.name.lexeme] = func
+            methods[method.name.lexeme] = func
 
         cl = LoxClass(stmt.name.lexeme, methods)
         self.environment.assign(stmt.name, cl)

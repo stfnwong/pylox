@@ -61,3 +61,26 @@ class Environment:
     def get_at(self, dist: int, name: Token) -> Any:
         return self.ancestor(dist).get(name)
 
+
+
+# Utils for debugging environments 
+def env_chain(env: Environment) -> str:
+    """
+    Print the current environment and its closures/ancestors.
+    """
+
+    dist = 0;
+    cur_env = env
+    s = ""
+
+    while cur_env is not None:
+        s += f"Env({dist}) :\n\t"
+        s +=",\n\t".join(f"{key} : {val}" for key, val in cur_env.values.items())
+        s += "\n"
+
+        cur_env = cur_env.enclosing
+        dist = dist + 1
+
+    return s
+
+

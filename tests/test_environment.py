@@ -59,3 +59,43 @@ def test_enclosing_env() -> None:
         )
 
     # Test shadowing ?
+
+
+
+def test_shadowing() -> None:
+    pass
+
+
+def test_env_chain() -> None:
+    outer_env = Environment()
+    outer_vars = [("a", 1.0), ("b", 2.0)]
+
+    for oname, oval in outer_vars:
+        outer_env.define(oname, oval)
+        assert outer_env.get(
+            Token(TokenType.VAR, oname, None, 1)
+        )
+
+    # Create inner vars 
+    inner_env = Environment(outer_env)
+    inner_vars = (("c", 3.0), ("d", 4.0))
+
+    for iname, ival in inner_vars:
+        inner_env.define(iname, ival)
+        assert inner_env.get(
+            Token(TokenType.VAR, iname, None, 1)
+        )
+
+    # Assert we can reach the outer variables from 
+    # the inner scope 
+    for oname, oval in outer_vars:
+        assert inner_env.get(
+            Token(TokenType.VAR, oname, None, 1)
+        )
+
+    from loxpy.environment import env_chain
+
+    exp_out = "Env(0) :\n\tc : 3.0,\n\td : 4.0\nEnv(1) :\n\ta : 1.0,\n\tb : 2.0\n"
+    out = env_chain(inner_env)
+
+    assert out == exp_out
