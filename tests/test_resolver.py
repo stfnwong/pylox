@@ -129,3 +129,20 @@ def test_resolve_class_fields() -> None:
 def test_resolve_class_this() -> None:
     # NOTE: we expect the interpreter to have a ThisExpr and VarExpr in locals
     pass
+
+
+
+def test_cant_return_value_from_init() -> None:
+    source = """
+    class Foo {
+        init() {
+            return "can't return this";
+        }
+    }
+    """
+
+    res = get_resolver()
+    parsed_output = parse_input(source)
+
+    with pytest.raises(LoxInterpreterError, match=r"Can't return a value from an initializer.*"):
+        res.resolve(parsed_output)

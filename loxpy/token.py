@@ -168,3 +168,18 @@ class Token:
             f"{k}={v!r}" for k, v in self.__dict__.items()
         )
         return f"{self.__class__.__name__}({r})"
+
+
+
+# Util function to turn a raw string to a STRING token
+def Str2Token(s: str, line: int = 0, col: int = 0) -> Token:
+    t = Token(
+        token_type=TokenType.STRING,
+        lexeme=s,
+        literal=s,
+        line=line,
+        col=col
+    )
+
+    return t
+

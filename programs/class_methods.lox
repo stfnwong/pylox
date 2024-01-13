@@ -1,13 +1,18 @@
 class Methods {
 	method_a() {
-		print "method a";
+		return "method a";
 	}
 
 	method_b() {
-		print "method b";
+		return "method b";
 	}
 }
 
 var m = Methods();
-m.method_a();
-m.method_b();
+// This long winded assignment-then-print is to make 
+// testing simpler.
+var ma_out = m.method_a();
+var mb_out = m.method_b();
+
+print ma_out;
+print mb_out;

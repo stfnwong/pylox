@@ -252,7 +252,7 @@ class Interpreter:
 
     def visit_func_stmt(self, stmt: FuncStmt) -> Any:
         # Note that here we capture the environment as a closure at declaration time
-        func = LoxFunction(stmt, self.environment) 
+        func = LoxFunction(stmt, self.environment, False)    # Just a regular function 
         self.environment.define(stmt.name.lexeme, func)
 
     def visit_print_stmt(self, stmt: PrintStmt) -> Any:
@@ -293,7 +293,7 @@ class Interpreter:
 
         methods: Dict[str, LoxFunction] = {}
         for method in stmt.methods:
-            func = LoxFunction(method, self.environment)
+            func = LoxFunction(method, self.environment, method.name.lexeme == "init")
             methods[method.name.lexeme] = func
 
         cl = LoxClass(stmt.name.lexeme, methods)

@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 #from loxpy.interpreter import Interpreter   # TODO: protocol?
 from loxpy.environment import Environment
 from loxpy.statement import FuncStmt
-from loxpy.token import Token
+from loxpy.token import Token, Str2Token
 from loxpy.error import LoxRuntimeError
 
 
@@ -58,9 +58,10 @@ class LoxInstance:
 
 
 class LoxFunction(LoxCallable):
-    def __init__(self, decl: FuncStmt, closure: Environment):
+    def __init__(self, decl: FuncStmt, closure: Environment, is_init: bool):
         self.decl = decl
         self.closure = closure
+        self.is_initializer = is_init
 
     def __str__(self) -> str:
         return f"<fn {self.decl.name.lexeme}>"
@@ -73,10 +74,17 @@ class LoxFunction(LoxCallable):
 
         for param, arg in zip(self.decl.params, args):
             env.define(param.lexeme, arg)
+
         try:
             interp.execute_block(self.decl.body, env)
         except LoxReturnException as rt:
+            if self.is_initializer:
+                return self.closure.get_at(0, Str2Token("this"))
+
             return rt.value
+
+        if self.is_initializer:
+            return self.closure.get_at(0, Str2Token("this"))
 
         return None
 
@@ -84,7 +92,7 @@ class LoxFunction(LoxCallable):
         env = Environment(self.closure)
         env.define("this", instance)
 
-        return LoxFunction(self.decl, env)
+        return LoxFunction(self.decl, env, self.is_initializer)
 
 
 class LoxClass(LoxCallable):
@@ -96,10 +104,21 @@ class LoxClass(LoxCallable):
         return f"LoxClass({self.name})"
 
     def arity(self) -> int:
+        initializer = self.find_method("init")
+        if initializer is not None:
+            return initializer.arity()
+
         return 0;
 
     def call(self, interp, args: Sequence[Any]) -> Any:
         instance = LoxInstance(self)
+
+        # When we call check for an init function. If we have one then 
+        # bind and call it, forwarding the argument list..
+        initializer = self.find_method("init")
+        if initializer is not None:
+            initializer.bind(instance).call(interp, args)
+
         return instance
 
     def find_method(self, name: str) -> Optional[LoxFunction]:

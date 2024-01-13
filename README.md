@@ -66,3 +66,4 @@ Function arguments have the grammar
 ## TODOs:
 - Implement `break` statement. Syntax for `break` is the keyword "`break`" followed by "`;`". 
 - The `break` keyword causes execution to jump to the end of the nearest enclosing loop.
+- Implement static methods on classes. Do this by adding the `class` keyword to the start of a class method. Hint: make `LoxClass` extend `LoxInstance`.

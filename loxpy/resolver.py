@@ -38,6 +38,7 @@ from loxpy.statement import (
 class FunctionType(Enum):
     NONE = auto()
     FUNCTION = auto()
+    INITIALIZER = auto()
     METHOD = auto()
 
 
@@ -159,7 +160,11 @@ class Resolver:
         self.scopes[-1]["this"] = [True, True]  # Ensure 'this' keyword always in scope
 
         for method in stmt.methods:
-            self._resolve_function(method, FunctionType.METHOD)
+            if method.name.lexeme == "init":
+                func_type = FunctionType.INITIALIZER
+            else:
+                func_type = FunctionType.METHOD
+            self._resolve_function(method, func_type)
 
         self._end_scope()
 
@@ -178,6 +183,12 @@ class Resolver:
             raise LoxInterpreterError(stmt.keyword, "Can't return from top level")
 
         if stmt.value is not None:
+            if self.cur_func == FunctionType.INITIALIZER:
+                raise LoxInterpreterError(
+                    stmt.keyword, 
+                    "Can't return a value from an initializer"
+                )
+
             self._resolve_expr(stmt.value)
 
     def visit_while_stmt(self, stmt: WhileStmt) -> None:

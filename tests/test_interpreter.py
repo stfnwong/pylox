@@ -1,4 +1,4 @@
-from typing import Sequence
+from typing import Sequence, Tuple
 
 from loxpy.expr import BinaryExpr, LiteralExpr, UnaryExpr
 from loxpy.statement import Stmt, ExprStmt, PrintStmt
@@ -24,6 +24,21 @@ def parse_input(expr_src: str) -> Sequence[Stmt]:
     parsed_output = parser.parse()
 
     return parsed_output
+
+
+def get_resolver_and_interpreter(expr_str: str) -> Tuple[Resolver, Interpreter]:
+    """
+    Parse, resolve and interpret a source file, returning the 
+    resolver and interpreter in their final state.
+    """
+
+    stmts = parse_input(expr_str)
+    interp   = Interpreter(verbose=GLOBAL_VERBOSE)
+    resolver = Resolver(interp)
+    resolver.resolve(stmts)
+    interp.interpret(stmts)
+
+    return resolver, interp
 
 
 
@@ -80,7 +95,6 @@ def test_interpret_binary() -> None:
     tok_num1 = Token(TokenType.NUMBER, "2", None, 1)
     tok_num2 = Token(TokenType.NUMBER, "4", None, 1)
 
-    
     interp_values = []
     for op_tok in op_tokens:
         expr  = [ExprStmt(BinaryExpr(op_tok, LiteralExpr(tok_num1), LiteralExpr(tok_num2)))]
@@ -193,4 +207,68 @@ def test_interpret_class_fields() -> None:
     for var_name, var_type in expected_state.items():
         assert var_name in interp.environment.values
         assert isinstance(interp.environment.values[var_name], var_type)
+
+
+
+def test_interpret_class_methods() -> None:
+    source   = load_source("programs/class_methods.lox")
+    stmts    = parse_input(source)
+    interp   = Interpreter(verbose=GLOBAL_VERBOSE)
+    resolver = Resolver(interp)
+
+    resolver.resolve(stmts)
+    interp.interpret(stmts)
+
+    # NOTE: we just check the type for now to avoid having to 
+    # construct a whole instance to check.
+    expected_state = {
+        "Methods": LoxClass,
+        "m"      : LoxInstance,
+        "ma_out" : Token,
+        "mb_out" : Token,
+    }
+
+    for var_name, var_type in expected_state.items():
+        assert var_name in interp.environment.values
+        assert isinstance(interp.environment.values[var_name], var_type)
+
+    # Check that the Tokens ma_out and mb_out have the right values 
+    ma_out_exp = Token(TokenType.STRING, lexeme='"method a"', literal="method a", line=3, col=20)
+    mb_out_exp = Token(TokenType.STRING, lexeme='"method b"', literal="method b", line=7, col=20)
+
+    assert interp.environment.values["ma_out"] == ma_out_exp
+    assert interp.environment.values["mb_out"] == mb_out_exp
+
+
+
+def test_class_init_returns_this() -> None:
+    source = """
+    class Foo {
+        init() {}
+    }
+
+    var f = Foo();
+    var ff = f.init();
+    """
+
+    stmts    = parse_input(source)
+    interp   = Interpreter(verbose=GLOBAL_VERBOSE)
+    resolver = Resolver(interp)
+
+    resolver.resolve(stmts)
+    interp.interpret(stmts)
+
+    expected_state = {
+        "f": LoxInstance,
+        "ff": LoxInstance
+    }
+
+    for var_name, var_type in expected_state.items():
+        assert var_name in interp.environment.values
+        assert isinstance(interp.environment.values[var_name], var_type)
+
+    # Both f and ff invoke Foo.init(), which implicity returns a 'this' pointer.
+    # Therefore they should actually point to the same memory (the momory holding
+    # the instance of a Foo).
+    assert interp.environment.values["f"] == interp.environment.values["ff"]
 
