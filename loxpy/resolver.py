@@ -156,6 +156,13 @@ class Resolver:
         self._declare(stmt.name)
         self._define(stmt.name)
 
+        # Prevent self-inheritance
+        if stmt.superclass is not None and stmt.name.lexeme == stmt.superclass.name.lexeme:
+            raise LoxInterpreterError(stmt.superclass.name, "Class can't inherit from itself")
+
+        if stmt.superclass is not None:
+            self._resolve_expr(stmt.superclass)
+
         self._begin_scope()
         self.scopes[-1]["this"] = [True, True]  # Ensure 'this' keyword always in scope
 

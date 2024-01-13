@@ -289,6 +289,14 @@ class Interpreter:
         return self.execute_block(stmt.stmts, Environment(self.environment))
 
     def visit_class_stmt(self, stmt: ClassStmt) -> None:
+
+        if stmt.superclass is not None:
+            superclass = self.evaluate(stmt.superclass)
+            if not isinstance(superclass, LoxClass):
+                raise LoxRuntimeError(stmt.superclass.name, f"Superclass of '{stmt.name.lexeme}' must be a class")
+        else:
+            superclass = None
+
         self.environment.define(stmt.name.lexeme, None)
 
         methods: Dict[str, LoxFunction] = {}
@@ -296,7 +304,7 @@ class Interpreter:
             func = LoxFunction(method, self.environment, method.name.lexeme == "init")
             methods[method.name.lexeme] = func
 
-        cl = LoxClass(stmt.name.lexeme, methods)
+        cl = LoxClass(stmt.name.lexeme, superclass, methods)
         self.environment.assign(stmt.name, cl)
 
     # NOTE: still returning results, ret here is a hack to maintain the pattern but

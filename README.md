@@ -17,7 +17,7 @@ The statement grammar at the time of writing is
 
 `program -> declaration | eof;`
 `declaration -> class_decl | func_decl | var_decl | statement;`
-`class_decl -> "class" IDENTIFIER "{" function* "}";`
+`class_decl -> "class" IDENTIFIER ( "<" IDENTIFIER )?  "{" function* "}";`
 `func_decl -> "func" function;`
 `function -> IDENTIFIER "(" parameters? ")" block;`
 `parameters -> IDENTIFIER ( "," IDENTIFIER* ")";`

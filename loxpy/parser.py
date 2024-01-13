@@ -189,6 +189,14 @@ class Parser:
 
     def _class_decl(self) -> Stmt:
         name = self._consume(TokenType.IDENTIFIER, "Expect class name")
+
+        # Consume the superclass, if any
+        if self._match([TokenType.LESS]):
+            self._consume(TokenType.IDENTIFIER, "Expect superclass name")
+            superclass = VarExpr(self._previous())
+        else:
+            superclass = None
+
         self._consume(TokenType.LEFT_BRACE, "Expect '{' before class body")
 
         methods = []
@@ -197,7 +205,7 @@ class Parser:
 
         self._consume(TokenType.RIGHT_BRACE, "Expect '}' after class body")
 
-        return ClassStmt(name, methods)
+        return ClassStmt(name, superclass, methods)
 
     def _declaration(self) -> Optional[Union[Stmt, Sequence[Stmt]]]:
         try:

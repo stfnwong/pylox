@@ -4,7 +4,7 @@ from typing import Any, List, Optional, Sequence
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
-from loxpy.expr import Expr
+from loxpy.expr import Expr, VarExpr
 from loxpy.token import Token
 
 # TODO: what should the type of the visitor be?
@@ -57,6 +57,7 @@ class BlockStmt(Stmt):
 @dataclass
 class ClassStmt(Stmt):
     name: Token
+    superclass: Optional[VarExpr]
     methods: Sequence[FuncStmt]
 
     def accept(self, visitor) -> Any:
