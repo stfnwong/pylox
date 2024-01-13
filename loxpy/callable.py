@@ -28,6 +28,13 @@ class LoxCallable(ABC):
 
 
 class LoxInstance:
+    """
+    LoxInstance
+
+    Runtime representation of a LoxClass. 
+        
+    """
+
     def __init__(self, lox_class: "LoxClass"):
         self.lox_class = lox_class
         self.fields: Dict[str, Any] = {}
@@ -82,7 +89,7 @@ class LoxFunction(LoxCallable):
 class LoxClass(LoxCallable):
     def __init__(self, name: str, methods: Dict[str, LoxFunction]):
         self.name = name
-        self.methods = methods
+        self.methods: Dict[str, LoxFunction] = methods
 
     def __str__(self) -> str:
         return f"LoxClass({self.name})"

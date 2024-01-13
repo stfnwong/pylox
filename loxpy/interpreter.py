@@ -191,9 +191,8 @@ class Interpreter:
             return not self.is_equal(left, right)
         elif expr.op.token_type == TokenType.EQUAL_EQUAL:
             return self.is_equal(left, right)
-
-        # unreachable?
-        return None
+        else:
+            return None     # unreachable?
 
     def visit_call_expr(self, expr: CallExpr) -> Any:
         function = self.evaluate(expr.callee)
@@ -216,7 +215,7 @@ class Interpreter:
     def visit_get_expr(self, expr: GetExpr) -> Any:
         obj = self.evaluate(expr.obj)
         if isinstance(obj, LoxInstance):
-            return obj.get(expr.name)
+            return obj.get(expr.name)     # lookup the instance property
 
         raise LoxRuntimeError(expr.name, "Only instances have properties")
 

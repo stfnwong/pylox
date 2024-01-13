@@ -217,14 +217,14 @@ def test_parse_class_fields() -> None:
     source = load_source(CLASS_FIELDS_PROGRAM)
     parsed_output = parse_input(source)
     
-    exp_types = [ClassStmt, ExprStmt, ExprStmt, ExprStmt, PrintStmt, PrintStmt]
+    exp_types = [ClassStmt, VarStmt, ExprStmt, ExprStmt, PrintStmt, PrintStmt]
 
     assert len(parsed_output) == len(exp_types)
     for p, t in zip(parsed_output, exp_types):
         assert type(p) == t
 
     # Ensure the expression statements contain SetExprs
-    assert isinstance(parsed_output[1].expr, AssignmentExpr)
+    assert isinstance(parsed_output[1].initializer, CallExpr)
     assert isinstance(parsed_output[2].expr, SetExpr)
     assert isinstance(parsed_output[3].expr, SetExpr)
 
@@ -237,6 +237,8 @@ def test_parse_class_this() -> None:
     source = load_source(CLASS_THIS_PROGRAM)
     parsed_output = parse_input(source)
     
-    exp_types = [ClassStmt, ExprStmt, FuncStmt];
+    exp_types = [ClassStmt, VarStmt, ExprStmt];
 
     assert len(parsed_output) == len(exp_types)
+    for p, t in zip(parsed_output, exp_types):
+        assert type(p) == t

@@ -1,0 +1,13 @@
+class Methods {
+	method_a() {
+		print "method a";
+	}
+
+	method_b() {
+		print "method b";
+	}
+}
+
+var m = Methods();
+m.method_a();
+m.method_b();
