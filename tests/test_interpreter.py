@@ -120,7 +120,6 @@ def test_interpret_binary() -> None:
 #    outer_mul  = Token(TokenType.STAR, "*", None, 1)
 #    outer_expr = ExprStmt(BinaryExpr(outer_mul, inner_expr, LiteralExpr(outer_num1)))
 #
-#    #from pudb import set_trace; set_trace()
 #    value = interp.interpret([outer_expr])
 #
 #    exp_value = 80.0
