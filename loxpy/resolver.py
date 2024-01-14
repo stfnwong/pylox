@@ -40,6 +40,7 @@ class FunctionType(Enum):
     NONE = auto()
     FUNCTION = auto()
     CLASS = auto()
+    SUBCLASS = auto()
     INITIALIZER = auto()
     METHOD = auto()
 
@@ -112,6 +113,18 @@ class Resolver:
         self._resolve_local(expr, expr.keyword)
 
     def visit_super_expr(self, expr: SuperExpr) -> None:
+        # Check that we are using super inside a subclass
+        if self.cur_func == FunctionType.NONE:
+            raise LoxInterpreterError(
+                expr.keyword, 
+                "Can't use 'super' keyword outside of a class"
+            )
+        elif self.cur_func != FunctionType.SUBCLASS:
+            raise LoxInterpreterError(
+                expr.keyword,
+                "Can't use 'super' keyword in a class with no superclass"
+            )
+
         self._resolve_local(expr, expr.keyword)
 
     def visit_grouping_expr(self, expr: GroupingExpr) -> None:
@@ -169,6 +182,7 @@ class Resolver:
             raise LoxInterpreterError(stmt.superclass.name, "Class can't inherit from itself")
 
         if stmt.superclass is not None:
+            self.cur_func = FunctionType.SUBCLASS
             self._resolve_expr(stmt.superclass)
 
         # If there is a superclass, add the superclass scope before 
