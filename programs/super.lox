@@ -1,0 +1,23 @@
+// Test superclass behaviour 
+
+class A {
+	method() {
+		return "A method";
+	}
+}
+
+class B < A {
+	method() {
+		return "B method";
+	}
+
+	test() {
+		return super.method();
+	}
+}
+
+
+class C < B {}
+
+var c_out = C().test();
+print c_out;		// Expect "A method"

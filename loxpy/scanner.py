@@ -216,7 +216,6 @@ class Scanner:
         elif c == '\n':
             self._new_line()
         else:
-            #if c.isdigit():
             if self._isdigit(c):
                 self._number()
             elif self._isalpha(c):

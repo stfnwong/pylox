@@ -14,6 +14,7 @@ from loxpy.expr import (
     GetExpr,
     SetExpr,
     ThisExpr,
+    SuperExpr,
     GroupingExpr,
     LiteralExpr, 
     LogicalExpr,
@@ -38,6 +39,7 @@ from loxpy.statement import (
 class FunctionType(Enum):
     NONE = auto()
     FUNCTION = auto()
+    CLASS = auto()
     INITIALIZER = auto()
     METHOD = auto()
 
@@ -109,6 +111,9 @@ class Resolver:
     def visit_this_expr(self, expr: ThisExpr) -> None:
         self._resolve_local(expr, expr.keyword)
 
+    def visit_super_expr(self, expr: SuperExpr) -> None:
+        self._resolve_local(expr, expr.keyword)
+
     def visit_grouping_expr(self, expr: GroupingExpr) -> None:
         self._resolve_expr(expr.expression)
 
@@ -153,6 +158,9 @@ class Resolver:
         self._end_scope()
 
     def visit_class_stmt(self, stmt: ClassStmt) -> None:
+        enclosing_func = self.cur_func
+        self.cur_func = FunctionType.CLASS
+
         self._declare(stmt.name)
         self._define(stmt.name)
 
@@ -162,6 +170,12 @@ class Resolver:
 
         if stmt.superclass is not None:
             self._resolve_expr(stmt.superclass)
+
+        # If there is a superclass, add the superclass scope before 
+        # the class scope.
+        if stmt.superclass is not None:
+            self._begin_scope()
+            self.scopes[-1]["super"] = [True, True]
 
         self._begin_scope()
         self.scopes[-1]["this"] = [True, True]  # Ensure 'this' keyword always in scope
@@ -174,6 +188,11 @@ class Resolver:
             self._resolve_function(method, func_type)
 
         self._end_scope()
+
+        if stmt.superclass is not None:
+            self._end_scope()
+
+        self.cur_func = enclosing_func
 
     def visit_print_stmt(self, stmt: PrintStmt) -> None:
         self._resolve_expr(stmt.expr)

@@ -96,9 +96,9 @@ class LoxFunction(LoxCallable):
 
 
 class LoxClass(LoxCallable):
-    def __init__(self, name: str, superclass: "LoxClass", methods: Dict[str, LoxFunction]):
+    def __init__(self, name: str, superclass: Optional["LoxClass"], methods: Dict[str, LoxFunction]):
         self.name = name
-        self.superclass: "LoxClass" = superclass
+        self.superclass: Optional["LoxClass"] = superclass
         self.methods: Dict[str, LoxFunction] = methods
 
     def __str__(self) -> str:

@@ -1,10 +1,16 @@
 class Doughnut {
 	cook() {
-		print "Fry until golden brown";
+		return "Fry until golden brown";
 	}
 }
 
 
-class BostonCream < Doughnut{}
+class BostonCream < Doughnut{
+	cook() {
+		super.cook();
+		return "Pipe full of custard then coat with chocolate";
+	}
+}
 
-BostonCream().cook();
+var out = BostonCream().cook();
+print out;

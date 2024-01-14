@@ -55,7 +55,8 @@ that matches a `primary` expression followed by zero or more function calls.
 `call -> primary ( "(" arguments? ")" | "." IDENTIFIER )*;`
 
 `primary -> "true" | "false" | "nil" | NUMBER | STRING 
-            | "(" expression ")" | IDENTIFIER ;`
+            | IDENTIFIER | "(" expression ")" 
+            | "super" "." IDENTIFIER ;`
 
 
 Function arguments have the grammar 

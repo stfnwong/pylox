@@ -12,6 +12,7 @@ from loxpy.expr import (
     GetExpr,
     SetExpr,
     ThisExpr,
+    SuperExpr,
     LiteralExpr,
     LogicalExpr,
     UnaryExpr,
@@ -345,6 +346,12 @@ class Parser:
 
         if self._match([TokenType.NUMBER, TokenType.STRING]):
             expr = LiteralExpr(self._previous())
+
+        if self._match([TokenType.SUPER]):
+            keyword = self._previous()
+            self._consume(TokenType.DOT, "Expect '.' after 'super'")
+            method = self._consume(TokenType.IDENTIFIER, "Expect superclass method name")
+            return SuperExpr(keyword, method)
 
         if self._match([TokenType.THIS]):
             return ThisExpr(self._previous())

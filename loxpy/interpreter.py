@@ -6,7 +6,7 @@ Interpret a collection of Lox expressions
 
 from typing import Any, Dict, Optional, Sequence, Union
 
-from loxpy.token import Token, TokenType
+from loxpy.token import Token, TokenType, Str2Token
 from loxpy.expr import (
     Expr,
     BinaryExpr,
@@ -14,6 +14,7 @@ from loxpy.expr import (
     GetExpr,
     SetExpr,
     ThisExpr,
+    SuperExpr,
     LiteralExpr,
     LogicalExpr,
     GroupingExpr,
@@ -232,6 +233,20 @@ class Interpreter:
     def visit_this_expr(self, expr: ThisExpr) -> Any:
         return self.lookup_variable(expr.keyword, expr)
 
+    def visit_super_expr(self, expr: SuperExpr) -> Any:
+        dist = self.locals.get(expr, None)
+        superclass = self.environment.get_at(dist, Str2Token("super"))
+        obj = self.environment.get_at(dist - 1, Str2Token("this"))
+        method = superclass.find_method(expr.method.lexeme)
+
+        if method is None:
+            raise LoxRuntimeError(
+                expr.method, 
+                f"Undefined property '{expr.method.lexeme}'"
+            )
+
+        return method.bind(obj)
+
     def visit_var_expr(self, expr: VarExpr) -> Any:
         return self.lookup_variable(expr.name, expr)
 
@@ -289,15 +304,21 @@ class Interpreter:
         return self.execute_block(stmt.stmts, Environment(self.environment))
 
     def visit_class_stmt(self, stmt: ClassStmt) -> None:
-
         if stmt.superclass is not None:
             superclass = self.evaluate(stmt.superclass)
             if not isinstance(superclass, LoxClass):
-                raise LoxRuntimeError(stmt.superclass.name, f"Superclass of '{stmt.name.lexeme}' must be a class")
+                raise LoxRuntimeError(
+                    stmt.superclass.name, 
+                    f"Superclass of '{stmt.name.lexeme}' must be a class"
+                )
         else:
             superclass = None
 
         self.environment.define(stmt.name.lexeme, None)
+        
+        if stmt.superclass is not None:
+            self.environment = Environment(self.environment)
+            self.environment.define("super", superclass)
 
         methods: Dict[str, LoxFunction] = {}
         for method in stmt.methods:
@@ -305,6 +326,10 @@ class Interpreter:
             methods[method.name.lexeme] = func
 
         cl = LoxClass(stmt.name.lexeme, superclass, methods)
+
+        if stmt.superclass is not None:
+            self.environment = self.environment.enclosing
+
         self.environment.assign(stmt.name, cl)
 
     # NOTE: still returning results, ret here is a hack to maintain the pattern but

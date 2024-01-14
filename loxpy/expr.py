@@ -78,6 +78,18 @@ class SetExpr(Expr):
 
 
 @dataclass(frozen=True)
+class SuperExpr(Expr):
+    keyword: Token
+    method: Token
+
+    def __str__(self) -> str:
+        return f"SuperExpr({self.keyword})"
+
+    def accept(self, visitor) -> Expr:
+        return visitor.visit_super_expr(self)
+
+
+@dataclass(frozen=True)
 class ThisExpr(Expr):
     keyword: Token
 
