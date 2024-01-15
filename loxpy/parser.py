@@ -7,29 +7,29 @@ Implements parsing for the Lox language.
 from typing import Sequence, Optional, Union
 from loxpy.expr import (
     Expr,
+    AssignmentExpr,
     BinaryExpr,
     CallExpr,
     GetExpr,
-    SetExpr,
-    ThisExpr,
-    SuperExpr,
+    GroupingExpr,
     LiteralExpr,
     LogicalExpr,
+    SetExpr,
+    SuperExpr,
+    ThisExpr,
     UnaryExpr,
-    GroupingExpr,
     VarExpr,
-    AssignmentExpr
 )
 from loxpy.statement import (
     Stmt, 
+    BlockStmt,
+    ClassStmt,
+    ExprStmt, 
+    FuncStmt,
     IfStmt,
     PrintStmt, 
     ReturnStmt,
-    ExprStmt, 
-    FuncStmt,
     VarStmt, 
-    BlockStmt,
-    ClassStmt,
     WhileStmt
 )
 from loxpy.token import Token, TokenType

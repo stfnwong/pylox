@@ -1,11 +1,12 @@
 from typing import Any, Dict, Optional, Sequence
 from abc import ABC, abstractmethod
 
-#from loxpy.interpreter import Interpreter   # TODO: protocol?
 from loxpy.environment import Environment
 from loxpy.statement import FuncStmt
 from loxpy.token import Token, Str2Token
 from loxpy.error import LoxRuntimeError
+
+from loxpy.interface import Interprets
 
 
 class LoxReturnException(Exception):
@@ -20,7 +21,7 @@ class LoxCallable(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def call(self, interp, args: Sequence[Any]) -> Any:
+    def call(self, interp: Interprets, args: Sequence[Any]) -> Any:
         # NOTE: can't use type hint here for interp due to circular import, 
         # maybe use a protocol here?
        raise NotImplementedError
@@ -69,7 +70,7 @@ class LoxFunction(LoxCallable):
     def arity(self) -> int:
         return len(self.decl.params)
 
-    def call(self, interp, args: Sequence[Any]) -> Any:
+    def call(self, interp: Interprets, args: Sequence[Any]) -> Any:
         env = Environment(self.closure)
 
         for param, arg in zip(self.decl.params, args):
@@ -111,7 +112,7 @@ class LoxClass(LoxCallable):
 
         return 0;
 
-    def call(self, interp, args: Sequence[Any]) -> Any:
+    def call(self, interp: Interprets, args: Sequence[Any]) -> Any:
         instance = LoxInstance(self)
 
         # When we call check for an init function. If we have one then 
