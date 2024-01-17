@@ -14,7 +14,7 @@ class Expr(ABC):
     # TODO: what is the type of the visitor?
     @abstractmethod
     def accept(self, visitor) -> Union[ResultType, 'Expr']:
-        raise NotImplemented("Implement in concrete type")
+        raise NotImplemented
 
 
 # All derived classes have a custom __str__() method to make the ASTPrinter work

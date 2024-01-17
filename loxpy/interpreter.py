@@ -6,6 +6,7 @@ Interpret a collection of Lox expressions
 
 from typing import Any, Dict, Optional, Sequence, Union
 
+from loxpy.visitor import Visitor
 from loxpy.token import Token, TokenType, Str2Token
 from loxpy.expr import (
     Expr,
@@ -52,7 +53,7 @@ def load_builtins() -> Environment:
 
 
 
-class Interpreter:
+class Interpreter(Visitor):
     def __init__(self, verbose: bool=False) -> None:
         self.verbose: bool = verbose
         self.locals: Dict[Expr, int] = {}

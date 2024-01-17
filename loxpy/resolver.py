@@ -4,9 +4,10 @@ from typing import Sequence, Union
 from collections import deque
 from enum import auto, Enum
 
+from loxpy.visitor import Visitor
 from loxpy.error import LoxInterpreterError
 from loxpy.token import Token
-from loxpy.interpreter import Interpreter
+from loxpy.interface import Interprets
 from loxpy.expr import (
     Expr, 
     BinaryExpr,
@@ -54,10 +55,10 @@ class FunctionType(Enum):
 # Variable and Assignment Expressions - these need to have their variables _resolved.
 
 
-class Resolver:
-    def __init__(self, interp: Interpreter):
+class Resolver(Visitor):
+    def __init__(self, interp: Interprets):
         self.cur_func = FunctionType.NONE
-        self.interp = interp
+        self.interp: Interprets = interp
         # Each element in scopes is  Dict[str, List[bool, bool]]
         # where 
         # [name, [ready, used]]
