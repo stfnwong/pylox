@@ -23,7 +23,6 @@ class Environment:
         vals = "  \n".join(f"[{name}: {value}]" for name, value in self.values.items())
         return f"Environment({vals}) ({num_anc} ancestor(s))"
 
-    # TODO: is there a better type hint trick than just using quotes?
     def ancestor(self, dist: int) -> Self:
         env = self
         for _ in range(dist):

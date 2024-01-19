@@ -79,7 +79,6 @@ class Parser:
         if self._check(token_type):
             return self._advance()
 
-        # TODO: something wrong here...
         raise LoxParseError(self._peek(), msg)
 
     def _peek(self) -> Token:
@@ -327,7 +326,7 @@ class Parser:
 
         return expr
 
-    def _primary(self) -> Union[GroupingExpr, LiteralExpr, SuperExpr, ThisExpr, VarExpr]:
+    def _primary(self) -> Expr:
         def token_copy(t: TokenType) -> Token:
             return Token(
                 t, 

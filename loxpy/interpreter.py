@@ -160,7 +160,6 @@ class Interpreter(Visitor):
         right = self.evaluate(expr.right)
 
         # The '+' operator should also work for strings
-        # TODO: re-visit this method as it seems sus...
         if isinstance(left, Token) and isinstance(right, Token) and left.token_type == TokenType.STRING and right.token_type == TokenType.STRING:
                if expr.op.token_type == TokenType.PLUS:
                    s = left.literal + right.literal
