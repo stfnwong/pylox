@@ -23,11 +23,11 @@ class Environment:
         return f"Environment({vals}) ({num_anc} ancestor(s))"
 
     # TODO: is there a better type hint trick than just using quotes?
-    def ancestor(self, dist: int) -> "Environment":
+    def ancestor(self, dist: int) -> Self:
         env = self
         for _ in range(dist):
             # TODO: review this, I did it to shut the linter up
-            env = env.enclosing 
+            env = env.enclosing if env.enclosing is not None else env
 
         return env
 
@@ -78,7 +78,11 @@ def env_chain(env: Environment) -> str:
         s +=",\n\t".join(f"{key} : {val}" for key, val in cur_env.values.items())
         s += "\n"
 
-        cur_env = cur_env.enclosing
+        if cur_env.enclosing is not None:
+            cur_env = cur_env.enclosing
+        else:
+            break
+
         dist = dist + 1
 
     return s

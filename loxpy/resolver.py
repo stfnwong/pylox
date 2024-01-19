@@ -1,6 +1,6 @@
 # Statically _resolve variables
 
-from typing import Sequence, Union
+from typing import Deque, Dict, Sequence
 from collections import deque
 from enum import auto, Enum
 
@@ -62,7 +62,7 @@ class Resolver(Visitor):
         # Each element in scopes is  Dict[str, List[bool, bool]]
         # where 
         # [name, [ready, used]]
-        self.scopes = deque()       
+        self.scopes: Deque[Dict] = deque()       
 
     def _begin_scope(self) -> None:
         self.scopes.append({})

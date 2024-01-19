@@ -57,8 +57,8 @@ class Interpreter(Visitor):
     def __init__(self, verbose: bool=False) -> None:
         self.verbose: bool = verbose
         self.locals: Dict[Expr, int] = {}
-        self.globals = load_builtins()
-        self.environment = self.globals
+        self.globals: Environment = load_builtins()
+        self.environment: Environment = self.globals
 
     def is_true(self, expr: Optional[Union[Expr, bool]]) -> bool:
         """
@@ -235,7 +235,7 @@ class Interpreter(Visitor):
         return self.lookup_variable(expr.keyword, expr)
 
     def visit_super_expr(self, expr: SuperExpr) -> Any:
-        dist = self.locals.get(expr, None)
+        dist = self.locals.get(expr)
         superclass = self.environment.get_at(dist, Str2Token("super"))
         obj = self.environment.get_at(dist - 1, Str2Token("this"))
         method = superclass.find_method(expr.method.lexeme)

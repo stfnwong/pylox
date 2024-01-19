@@ -4,7 +4,7 @@ PARSER
 Implements parsing for the Lox language.
 """
 
-from typing import Sequence, Optional, Union
+from typing import List, Sequence, Optional, Union
 from loxpy.expr import (
     Expr,
     AssignmentExpr,
@@ -182,10 +182,13 @@ class Parser:
 
         self._consume(TokenType.RIGHT_PAREN, f"Expect ')' after {kind} parameter list")
 
-        # Now parse the function body (TODO: how to escape LEFT_BRACE properly?)
-        LEFT_BRACE = "{"
+        # Now parse the function body 
+        # Stupid workaround since I can't get a '{' into an f-string in a way that 
+        # my tool setup will accept.
+        LEFT_BRACE = "{"        
         self._consume(TokenType.LEFT_BRACE, f"Expect '{LEFT_BRACE}' before {kind} body")
-        body = self._block_statement(return_list=True)
+        body = self._block_statement()
+
         return FuncStmt(name, params, body)
 
     def _class_decl(self) -> Stmt:
@@ -208,7 +211,7 @@ class Parser:
 
         return ClassStmt(name, superclass, methods)
 
-    def _declaration(self) -> Optional[Union[Stmt, Sequence[Stmt]]]:
+    def _declaration(self) -> Stmt:
         try:
             if self._match([TokenType.CLASS]):
                 return self._class_decl()
@@ -324,28 +327,27 @@ class Parser:
 
         return expr
 
-    def _primary(self) -> Union[GroupingExpr, LiteralExpr, ThisExpr, VarExpr]:
-        expr = LiteralExpr(
-            Token(
-                TokenType.NIL,
-                self.token_list[-1].lexeme,
-                self.token_list[-1].literal,
-                self.token_list[-1].line
+    def _primary(self) -> Union[GroupingExpr, LiteralExpr, SuperExpr, ThisExpr, VarExpr]:
+        def token_copy(t: TokenType) -> Token:
+            return Token(
+                t, 
+                self.token_list[-1].lexeme, 
+                self.token_list[-1].literal, 
+                self.token_list[-1].line, 
+                self.token_list[-1].col
             )
-        )
 
-        # TODO: Need to immutably construct new exprs here with the modified tokens
         if self._match([TokenType.FALSE]):
-            expr.value.token_type = TokenType.FALSE
+            return LiteralExpr(token_copy(TokenType.FALSE))
 
         if self._match([TokenType.TRUE]):
-            expr.value.token_type = TokenType.TRUE
+            return LiteralExpr(token_copy(TokenType.TRUE))
 
         if self._match([TokenType.NIL]):
-            expr.value.token_type = TokenType.NIL
+            return LiteralExpr(token_copy(TokenType.NIL))
 
         if self._match([TokenType.NUMBER, TokenType.STRING]):
-            expr = LiteralExpr(self._previous())
+            return LiteralExpr(self._previous())
 
         if self._match([TokenType.SUPER]):
             keyword = self._previous()
@@ -364,7 +366,7 @@ class Parser:
             self._consume(TokenType.RIGHT_PAREN, "Expect ')' after expression")
             return GroupingExpr(expr)
 
-        return expr
+        return LiteralExpr(token_copy(self.token_list[-1].token_type))      # unreachable
 
     def _if_statement(self) -> IfStmt:
         self._consume(TokenType.LEFT_PAREN, "Expect '(' after if")
@@ -448,17 +450,15 @@ class Parser:
 
         return WhileStmt(cond, body)
 
-    def _block_statement(self, return_list: bool = False) -> Union[Sequence[Stmt], BlockStmt]:
+    def _block_statement(self) -> List[Stmt]:
         stmts = []
         
         while not self._check(TokenType.RIGHT_BRACE) and not self._at_end():
             stmts.append(self._declaration())
         self._consume(TokenType.RIGHT_BRACE, "Expect '}' after block")
 
-        if return_list:
-            return stmts
+        return stmts
 
-        return BlockStmt(stmts)
 
     def _expr_statement(self) -> ExprStmt:
         value = self._expression()
@@ -483,7 +483,7 @@ class Parser:
             return self._while_statement()
 
         if self._match([TokenType.LEFT_BRACE]):
-            return self._block_statement(return_list=False)
+            return BlockStmt(self._block_statement())
 
         return self._expr_statement()
 

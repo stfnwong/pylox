@@ -5,7 +5,6 @@ from typing import Any, Optional
 from loxpy.statement import Stmt
 
 from loxpy.expr import (
-    Expr,
     BinaryExpr,
     CallExpr,
     GetExpr,
@@ -21,7 +20,6 @@ from loxpy.expr import (
 )
 
 from loxpy.statement import (
-    Stmt,
     ExprStmt,
     FuncStmt,
     IfStmt,
