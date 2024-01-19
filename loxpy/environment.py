@@ -15,6 +15,7 @@ class Environment:
     def __str__(self) -> str:
         num_anc = 0
         anc = self.enclosing
+
         while anc is not None:
             num_anc += 1
             anc = anc.enclosing
