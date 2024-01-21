@@ -235,8 +235,8 @@ class Interpreter(Visitor):
 
     def visit_super_expr(self, expr: SuperExpr) -> Any:
         dist = self.locals.get(expr)
-        superclass = self.environment.get_at(dist, Str2Token("super"))
-        obj = self.environment.get_at(dist - 1, Str2Token("this"))
+        superclass = self.environment.get_at(dist, Str2Token("super"))   # type: ignore
+        obj = self.environment.get_at(dist - 1, Str2Token("this"))   # type: ignore
         method = superclass.find_method(expr.method.lexeme)
 
         if method is None:
@@ -320,7 +320,7 @@ class Interpreter(Visitor):
             self.environment = Environment(self.environment)
             self.environment.define("super", superclass)
 
-        methods: Dict[str, LoxFunction] = {}
+        methods: Dict[str, LoxFunction] = {}    # type: ignore
         for method in stmt.methods:
             func = LoxFunction(method, self.environment, method.name.lexeme == "init")
             methods[method.name.lexeme] = func
@@ -328,9 +328,9 @@ class Interpreter(Visitor):
         cl = LoxClass(stmt.name.lexeme, superclass, methods)
 
         if stmt.superclass is not None:
-            self.environment = self.environment.enclosing
+            self.environment = self.environment.enclosing   # type: ignore
 
-        self.environment.assign(stmt.name, cl)
+        self.environment.assign(stmt.name, cl)  # type: ignore
 
     # NOTE: still returning results, ret here is a hack to maintain the pattern but
     # it will only reuturn the last result.

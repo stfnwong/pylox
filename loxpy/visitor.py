@@ -2,8 +2,6 @@
 from abc import ABC, abstractmethod
 from typing import Any, Optional
 
-from loxpy.statement import Stmt
-
 from loxpy.expr import (
     BinaryExpr,
     CallExpr,

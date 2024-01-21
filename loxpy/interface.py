@@ -14,3 +14,4 @@ class Interprets(Protocol):
 
     def resolve(self, expr: Expr, depth: int) -> None:
         ...
+

@@ -5,7 +5,6 @@ from typing import Any, Optional, Sequence, Union
 from loxpy.token import Token
 
 
-# TODO: make the visitor type explicit?
 ResultType = Union[float, bool, str, None]
 
 
@@ -13,7 +12,7 @@ ResultType = Union[float, bool, str, None]
 class Expr(ABC):
     # TODO: what is the type of the visitor?
     @abstractmethod
-    def accept(self, visitor) -> Union[ResultType, 'Expr']:
+    def accept(self, visitor) -> Any:
         raise NotImplemented
 
 
