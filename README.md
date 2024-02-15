@@ -5,9 +5,20 @@ Despite hating it I've decided to use `poetry` for dependencies. To install do
 
 `poetry install` 
 
-Optionally append `-vv` to see things scrolling, perhaps this can assure you that poetry is actually doing something.
+Optionally append `-vv` to see things scrolling, perhaps this can assure you that poetry 
+is actually doing something. Activate the environment with 
 
-Activate the environment with `source $(poetry env info -p)/bin/activate`. Deactivate with `deactivate`.
+`source $(poetry env info -p)/bin/activate`. 
+
+Activating puts the symbol `deactivate` in the shell which deactivates the environment.
+
+Note that you may need to export a null keyring to get poetry to install stuff without
+hassling you about creating `kdewallet` or similar. To do this run
+
+`export PYTHON_KEYRING_BACKEND=keyring.backends.null.Keyring`
+
+I thought this may have been patched out (to be honest I didn't keep up with this issue)
+but in poetry `1.7.1` I still have to do this sometimes.
 
 
 ## Grammar

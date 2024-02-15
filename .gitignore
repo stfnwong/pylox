@@ -11,3 +11,6 @@ tags
 
 # Ignore tool caches
 .mypy_cache
+
+# If there is a .venv folder ignore it
+.venv/
